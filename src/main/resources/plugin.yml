@@ -1,0 +1,9 @@
+name: kibuyu_kitpvp_plugin
+version: '1.0-SNAPSHOT'
+main: me.kibunya_no_yukku.kibuyu_kitpvp_plugin.Kibuyu_kitpvp_plugin
+api-version: '1.21'
+commands:
+  menu:
+    usage: "/<command> <args>"
+    description: "メニュー画面を開きます"
+    aliases: [menu, m]

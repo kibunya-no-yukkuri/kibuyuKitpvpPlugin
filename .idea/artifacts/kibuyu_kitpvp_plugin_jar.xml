@@ -1,0 +1,13 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="kibuyu_kitpvp_plugin:jar">
+    <output-path>$PROJECT_DIR$/../../server/myplugin_sever1.21.8/plugins</output-path>
+    <root id="archive" name="kibuyu_kitpvp_plugin.jar">
+      <element id="module-output" name="kibuyu_kitpvp_plugin.main" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk7/2.2.0/bfd42edfc4f88de5a02131108ab800fb32d53d03/kotlin-stdlib-jdk7-2.2.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/2.2.0/fdfc65fbc42fda253a26f61dac3c0aca335fae96/kotlin-stdlib-2.2.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/13.0/919f0dfe192fb4e063e7dacadee7f8bb9a2672a9/annotations-13.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk8/2.2.0/ed572b04cd66acce7837ad753e4fe64d9c536025/kotlin-stdlib-jdk8-2.2.0.jar" path-in-jar="/" />
+      <element id="file-copy" path="$PROJECT_DIR$/src/main/resources/plugin.yml" />
+    </root>
+  </artifact>
+</component>

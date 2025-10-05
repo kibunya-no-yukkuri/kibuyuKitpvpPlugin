@@ -1,0 +1,535 @@
+package me.kibunya_no_yukku.kibuyu_kitpvp_plugin
+
+
+import me.kibunya_no_yukku.kibuyu_kitpvp_plugin.Kibuyu_kitpvp_plugin.Companion.shieldMap
+import org.bukkit.Bukkit
+import org.bukkit.Material
+import org.bukkit.entity.Player
+import org.bukkit.event.EventHandler
+import org.bukkit.event.Listener
+import org.bukkit.event.block.Action
+import org.bukkit.event.player.PlayerInteractEvent
+import org.bukkit.inventory.EquipmentSlot
+import org.bukkit.scheduler.BukkitRunnable
+import org.bukkit.util.RayTraceResult
+import java.util.UUID
+import kotlin.math.roundToInt
+
+class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
+
+    @EventHandler
+    fun onClickIronIngot(event: PlayerInteractEvent) {
+        val player = event.player
+
+        // メインハンドクリックのみ対応
+        if (event.hand != EquipmentSlot.HAND) return
+
+        // アイテムが鉄インゴットかチェック
+        val item = player.inventory.itemInMainHand
+        if (item.type != Material.IRON_INGOT) return
+
+        val scoreboard = Bukkit.getScoreboardManager()?.mainScoreboard
+        val kit1Obj = scoreboard?.getObjective("kit1") ?: return
+        val kit1Score = kit1Obj.getScore(player.name).score
+        val oneCtObj = scoreboard.getObjective("1_ct") ?: return
+        val oneCtScore = oneCtObj.getScore(player.name).score
+        val costObj = scoreboard.getObjective("cost") ?: return
+        val costScore = costObj.getScore(player.name).score
+        val costUse11Obj = scoreboard.getObjective("cost_use1_1") ?: return
+        val costUse11Score = costUse11Obj.getScore(player.name).score
+
+        when (kit1Score) {
+            1 -> if (oneCtScore < 1) {
+                if (costScore > costUse11Score - 1) {
+                    kit1Skill1(player)
+                } else player.sendMessage("§cコストが高すぎます！")
+            } else player.sendMessage("§cクールタイム中・・・")
+
+            2 -> kit2Skill1(player)
+            3 -> kit3Skill1(player)
+            else -> return
+        }
+    }
+
+    fun kit1Skill1(player: Player) {
+        val scoreboard = Bukkit.getScoreboardManager()?.mainScoreboard ?: return
+        val timeObj = scoreboard.getObjective("timer_other_attack_buff_EX") ?: return
+        val attackObj = scoreboard.getObjective("other_attack_buff_EX") ?: return
+        val ctObj = scoreboard.getObjective("1_ct") ?: return
+        val costObj = scoreboard.getObjective("cost") ?: return
+        val buffTimeObj = scoreboard.getObjective("add_buff_time") ?: return
+        val costUse11Obj = scoreboard.getObjective("cost_use1_1") ?: return
+        val team = scoreboard.getEntryTeam(player.name) ?: return // 発動者のチーム
+        val ctScore = ctObj.getScore(player.name)
+        val costScore = costObj.getScore(player.name)
+        val costUse11Score = costUse11Obj.getScore(player.name)
+        ctScore.score += 300
+        costScore.score -= costUse11Score.score
+
+        for (other in player.world.players) {
+
+            // チームが同じか？
+            if (scoreboard.getEntryTeam(other.name) != team) continue
+
+            // 半径5マス以内か？
+            if (other.location.distance(player.location) <= 5.0) {
+                val timeScore = timeObj.getScore(other.name)
+                val attackScore = attackObj.getScore(other.name)
+                val buffTimeScore = buffTimeObj.getScore(other.name)
+                if (timeScore.score == 0) {
+                    attackScore.score = 43
+                }
+                timeScore.score = 300 * (1 + (buffTimeScore.score / 100))
+                other.sendMessage("§e${player.name}「この音と共に希望があらんことを」", "§c攻撃力§eが15秒間+43！")
+                val item = player.inventory.itemInMainHand
+                player.setCooldown(item.type, 20 * 15)
+            }
+        }
+    }
+
+    fun kit2Skill1(player: Player) {
+        player.sendMessage("§eスキル発動！")
+    }
+
+    fun kit3Skill1(player: Player) {
+        player.sendMessage("§eスキル発動！")
+    }
+
+
+    @EventHandler
+    fun onClickCopperIngot(event: PlayerInteractEvent) {
+        val player = event.player
+
+        // メインハンドクリックのみ対応
+        if (event.hand != EquipmentSlot.HAND) return
+
+        // アイテムが銅インゴットかチェック
+        val item = player.inventory.itemInMainHand
+        if (item.type != Material.COPPER_INGOT) return
+
+        val scoreboard = Bukkit.getScoreboardManager()?.mainScoreboard
+        val kit1Obj = scoreboard?.getObjective("kit1") ?: return
+        val kit1Score = kit1Obj.getScore(player.name).score
+        val oneCtTwoObj = scoreboard.getObjective("1_ct2") ?: return
+        val oneCtTwoScore = oneCtTwoObj.getScore(player.name).score
+        val costObj = scoreboard.getObjective("cost") ?: return
+        val costScore = costObj.getScore(player.name).score
+        val costUse12Obj = scoreboard.getObjective("cost_use1_2") ?: return
+        val costUse12Score = costUse12Obj.getScore(player.name).score
+
+        when (kit1Score) {
+            1 -> if (oneCtTwoScore < 1) {
+                if (costScore > costUse12Score - 1) {
+                    // 左クリック（空中 or ブロック）を検知.
+                    if (event.action == Action.LEFT_CLICK_AIR || event.action == Action.LEFT_CLICK_BLOCK) {
+                        event.isCancelled = true  // 必要なら通常の左クリック動作をキャンセル.
+                        kit1Skill2Self(player)
+
+                    }
+                    //右クリ検知.
+                    if (event.action == Action.RIGHT_CLICK_AIR || event.action == Action.RIGHT_CLICK_BLOCK) {
+                        kit1Skill2(player)
+                    }
+                } else player.sendMessage("§cコストが高すぎます！")
+            } else player.sendMessage("§cクールタイム中・・・")
+
+            2 -> kit2Skill2(player)
+            3 -> kit3Skill2(player)
+            else -> return
+        }
+
+    }
+
+    fun kit1Skill2(player: Player) {
+        val scoreboard = Bukkit.getScoreboardManager()?.mainScoreboard ?: return
+        val healObj = scoreboard.getObjective("heal") ?: return
+        val hpObj = scoreboard.getObjective("hp") ?: return
+        val oneCtTwoObj = scoreboard.getObjective("1_ct2") ?: return
+        val costObj = scoreboard.getObjective("cost") ?: return
+        val myTeam = scoreboard.getEntryTeam(player.name) ?: return // 発動者のチーム
+        val oneCtTwoScore = oneCtTwoObj.getScore(player.name)
+        val costScore = costObj.getScore(player.name)
+        val healScore = healObj.getScore(player.name)
+        val costUse12Obj = scoreboard.getObjective("cost_use1_2") ?: return
+        val costUse12Score = costUse12Obj.getScore(player.name)
+        oneCtTwoScore.score += 300
+        costScore.score -= costUse12Score.score
+
+        val radius = 5.0
+
+        // 5ブロック以内の同チームプレイヤーを検索（自身は除外）
+        val maxDistSq = radius * radius
+        val candidates = Bukkit.getOnlinePlayers().filter { p ->
+            // 自分じゃない.
+            p != player &&
+                    // 同じワールド
+                    p.world == player.world &&
+                    // 半径5ブロック以内
+                    p.location.distanceSquared(player.location) <= maxDistSq &&
+                    // チームが同じ（味方）
+                    scoreboard.getEntryTeam(p.name) == myTeam &&
+                    //tag"s"を持っているか.
+                    p.scoreboardTags.contains("s")
+        }
+
+        if (candidates.isEmpty()) {
+            player.sendMessage("§c半径 $radius ブロック以内に味方が見つかりません。")
+            costScore.score += costUse12Score.score
+            oneCtTwoScore.score -= 290
+            return
+        }
+        // 最も近いプレイヤーを選ぶ
+        val nearest = candidates.minByOrNull { it.location.distanceSquared(player.location) }!!
+
+
+        // スコアを +6
+        val hpScore = hpObj.getScore(nearest.name)
+        hpScore.score += 6 * (1 + (healScore.score / 100))
+
+        plugin.listener.markSync(nearest)
+
+        player.sendMessage("§e${nearest.name}のHPを6回復！(現在のHP:${hpScore.score})")
+        nearest.sendMessage("§e${player.name} によりHPが6回復！")
+        val item = player.inventory.itemInMainHand
+        player.setCooldown(item.type, 20 * 15)
+        return
+    }
+
+    fun kit1Skill2Self(player: Player) {
+        val scoreboard = Bukkit.getScoreboardManager()?.mainScoreboard ?: return
+        val healObj = scoreboard.getObjective("heal") ?: return
+        val hpObj = scoreboard.getObjective("hp") ?: return
+        val oneCtTwoObj = scoreboard.getObjective("1_ct2") ?: return
+        val costObj = scoreboard.getObjective("cost") ?: return
+        val oneCtTwoScore = oneCtTwoObj.getScore(player.name)
+        val costScore = costObj.getScore(player.name)
+        val healScore = healObj.getScore(player.name)
+        val hpScore = hpObj.getScore(player.name)
+        //CT&cost処理.
+        oneCtTwoScore.score += 300
+        costScore.score -= 30
+
+        // hpスコアを +6
+        hpScore.score += 4 * (1 + (healScore.score / 100))
+        //hp同期タスク呼び出し.
+        plugin.listener.markSync(player)
+        //msg.
+        player.sendMessage("§aHPを4回復！")
+        val item = player.inventory.itemInMainHand
+        player.setCooldown(item.type, 20 * 15)
+        return
+    }
+    fun kit2Skill2(player: Player) {
+        player.sendMessage("§aスキル発動！")
+    }
+    fun kit3Skill2(player: Player) {
+        player.sendMessage("§aスキル発動！")
+    }
+
+    @EventHandler
+    fun onClickGoldIngot(event: PlayerInteractEvent) {
+        val player = event.player
+
+        // メインハンドクリックのみ対応
+        if (event.hand != EquipmentSlot.HAND) return
+
+        // アイテムが金インゴットかチェック
+        val item = player.inventory.itemInMainHand
+        if (item.type != Material.GOLD_INGOT) return
+
+        val scoreboard = Bukkit.getScoreboardManager()?.mainScoreboard
+        val kit2Obj = scoreboard?.getObjective("kit2") ?: return
+        val kit2Score = kit2Obj.getScore(player.name).score
+        val twoCtOneObj = scoreboard.getObjective("2_ct1") ?: return
+        val twoCtOneScore = twoCtOneObj.getScore(player.name).score
+        val costObj = scoreboard.getObjective("cost") ?: return
+        val costScore = costObj.getScore(player.name).score
+        val costUse21Obj = scoreboard.getObjective("cost_use2_1") ?: return
+        val costUse21Score = costUse21Obj.getScore(player.name).score
+
+        when (kit2Score) {
+            1 -> if (twoCtOneScore < 1) {
+                if (costScore > costUse21Score - 1) {
+                    kit021Skill1(player)
+                } else player.sendMessage("§cコストが高すぎます！")
+            } else player.sendMessage("§cクールタイム中・・・")
+
+            2 -> kit2Skill2(player)
+            3 -> kit3Skill2(player)
+            else -> return
+        }
+
+    }
+    fun kit021Skill1(player: Player) {
+        val scoreboard = Bukkit.getScoreboardManager()?.mainScoreboard ?: return
+        val healObj = scoreboard.getObjective("heal") ?: return
+        val twoCtOneObj = scoreboard.getObjective("2_ct1") ?: return
+        val costObj = scoreboard.getObjective("cost") ?: return
+        val buffTimeObj = scoreboard.getObjective("add_buff_time") ?: return
+        val shieldObj = scoreboard.getObjective("shield") ?: return
+        val shieldTimeObj = scoreboard.getObjective("shield_time") ?: return
+        val twoCtOneScore = twoCtOneObj.getScore(player.name)
+        val costScore = costObj.getScore(player.name)
+        val healScore = healObj.getScore(player.name)
+        val buffTimeScore = buffTimeObj.getScore(player.name)
+        val shieldScore = shieldObj.getScore(player.name)
+        val shieldTimeScore = shieldTimeObj.getScore(player.name)
+        val costUse21Obj = scoreboard.getObjective("cost_use2_1") ?: return
+        val costUse21Score = costUse21Obj.getScore(player.name).score
+        //CT&cost処理.
+        twoCtOneScore.score += 200
+        costScore.score -= costUse21Score
+
+        //Double型でシールド6に治癒力の倍率をかける
+        val shieldAmount: Double = 6.0 * (1 + (healScore.score / 100))
+        //四捨五入してint型に
+        val shieldScoreValue: Int = shieldAmount.roundToInt()
+        //int型にしたからスコアにそのまま代入できる
+        shieldScore.score = shieldScoreValue
+
+        //Double型でシールド効果時間にバフ持続時間の倍率をかける
+        val shieldTimeAmount: Double = 400.0 * (1 + (buffTimeScore.score / 100))
+        //四捨五入してint型に
+        val shieldTimeScoreValue: Int = shieldTimeAmount.roundToInt()
+        //int型にしたからスコアにそのまま代入できる
+        shieldTimeScore.score = shieldTimeScoreValue
+
+        //デバフ解除処理.
+        deBuffRemove(player, 1)
+
+        //クールダウンを視覚化.
+        val item = player.inventory.itemInMainHand
+        player.setCooldown(item.type, 20 * 10)
+        return
+    }
+
+
+
+
+
+    @EventHandler
+    fun onClickNetheriteIngot(event: PlayerInteractEvent) {
+        val player = event.player
+
+        // メインハンドクリックのみ対応
+        if (event.hand != EquipmentSlot.HAND) return
+
+        // アイテムがネザライトインゴットかチェック
+        val item = player.inventory.itemInMainHand
+        if (item.type != Material.NETHERITE_INGOT) return
+
+        val scoreboard = Bukkit.getScoreboardManager()?.mainScoreboard
+        if (scoreboard == null) {
+            player.sendMessage("§c[DEBUG] scoreboard が null")
+            return
+        }
+
+        // 必要な Objective を取得。無ければ明示的にメッセージを出して return する
+        val kit2Obj = scoreboard.getObjective("kit2") ?: return
+        val twoCtTwoObj = scoreboard.getObjective("2_ct2") ?: return
+        val costObj = scoreboard.getObjective("cost") ?: return
+        val costUse22Obj = scoreboard.getObjective("cost_use2_2") ?: return
+
+
+        // スコア値を取得（0がデフォ）
+        val kit2Score = kit2Obj.getScore(player.name).score
+        val twoCtTwoScore = twoCtTwoObj.getScore(player.name).score
+        val costScore = costObj.getScore(player.name).score
+        val costUse22Score = costUse22Obj.getScore(player.name).score
+
+
+        when (kit2Score) {
+            1 -> {
+                if (twoCtTwoScore < 1) {
+                    if (costScore >= costUse22Score) {
+                        kit021Skill2(player)
+                    } else {
+                        player.sendMessage("§cコストが高すぎます！(cost=$costScore, need=$costUse22Score)")
+                    }
+                } else {
+                    player.sendMessage("§cクールタイム中・・・(ct=$twoCtTwoScore)")
+                }
+            }
+            2 -> {
+                player.sendMessage("§7[DEBUG] kit2 == 2 -> kit2Skill2")
+                kit2Skill2(player)
+            }
+            3 -> {
+                player.sendMessage("§7[DEBUG] kit2 == 3 -> kit3Skill2")
+                kit3Skill2(player)
+            }
+            else -> {
+                player.sendMessage("§7[DEBUG] kit2 not 1/2/3 (kit2=$kit2Score)")
+            }
+        }
+    }
+
+    fun kit021Skill2(player: Player){
+        val scoreboard = Bukkit.getScoreboardManager()?.mainScoreboard
+        val healObj = scoreboard?.getObjective("heal") ?: return
+        val healScore = healObj.getScore(player.name)
+        val hpObj = scoreboard.getObjective("hp") ?: return
+        val playerHpScore = hpObj.getScore(player.name)
+        val hpMaxObj = scoreboard.getObjective("max_hp") ?: return
+        val playerHpMaxScore = hpMaxObj.getScore(player.name)
+        val costUse22Obj = scoreboard.getObjective("cost_use2_2") ?: return
+        val costUse22Score = costUse22Obj.getScore(player.name).score
+        val twoCtTwoObj = scoreboard.getObjective("2_ct2") ?: return
+        val costObj = scoreboard.getObjective("cost") ?: return
+        player.sendMessage("§a[DEBUG] kit021Skill2 開始成功！")
+        val twoCtTwoScore = twoCtTwoObj.getScore(player.name)
+        val costScore = costObj.getScore(player.name)
+        val timerSelfHpBuffObj = scoreboard.getObjective("timer_self_over_hp_buff_EX") ?: return
+        val removeSelfHpBuffObj = scoreboard.getObjective("self_over_hp_buff_EX_remove_speed") ?: return
+        //CT&cost処理.
+        twoCtTwoScore.score += 60
+        costScore.score -= costUse22Score
+
+
+        // 回復量計算
+        val playerHealAmount = 6 * (1 + (healScore.score / 100))
+        //プレイヤーのHPに回復量を+
+        playerHpScore.score += playerHealAmount
+
+        player.sendMessage("§e自身のHPを$playerHealAmount 回復！")
+
+        if(playerHpScore.score > playerHpMaxScore.score){
+
+            var playerHpAmount = playerHpScore.score
+            val playerHpMaxAmount = playerHpMaxScore.score
+            playerHpAmount -= playerHpMaxAmount
+
+            val timerSelfHpBuffScore = timerSelfHpBuffObj.getScore(player.name)
+            val removeSelfHpBuffScore = removeSelfHpBuffObj.getScore(player.name)
+
+            playerHpScore.score -= playerHpAmount
+
+
+            removeSelfHpBuffScore.score = 10
+            timerSelfHpBuffScore.score = playerHpAmount * 10
+
+            player.sendMessage("§eさらに$playerHpAmount のオーバーHPを獲得")
+        }
+
+        //hpスコア同期フラグ
+        plugin.listener.markSync(player)
+
+        //CT可視化
+        val item = player.inventory.itemInMainHand
+        player.setCooldown(item.type, 20 * 3)
+
+
+        // 視線上のプレイヤーを探す
+        val target = getTargetTeammate(player, 50.0) ?: return
+        //ターゲットのhpスコアを取得
+        val targetHpScore = hpObj.getScore(target.name)
+        val targetHpMaxScore = hpMaxObj.getScore(target.name)
+        // 回復量計算
+        val targetHealAmount = 8 * (1 + (healScore.score / 100))
+        //ターゲットのHPに回復量を+
+        targetHpScore.score += targetHealAmount
+
+        //hpスコア同期フラグ
+        plugin.listener.markSync(target)
+
+        player.sendMessage("§e${target.name}のHPを$targetHealAmount 回復！(現在のHP:${targetHpScore.score})")
+        target.sendMessage("§e${player.name} によりHPが$targetHealAmount 回復！")
+    }
+
+
+
+
+    //視点の先にいる味方をtargetとして取得
+    private fun getTargetTeammate(player: Player, range: Double): Player? {
+        val world = player.world
+        val direction = player.location.direction
+        val start = player.eyeLocation
+
+        // RayTraceで視線上のプレイヤーを検出
+        val result: RayTraceResult? = world.rayTraceEntities(
+            start,
+            direction,
+            range
+        ) { entity ->
+            entity is Player && entity != player
+        }
+
+        val target = result?.hitEntity as? Player ?: return null
+
+        // 同じチームかチェック（スコアボードチーム使用）
+        val playerTeam = player.scoreboard.getEntryTeam(player.name)
+        val targetTeam = player.scoreboard.getEntryTeam(target.name)
+
+        if (playerTeam != null && playerTeam == targetTeam) {
+            return target
+        }
+
+        return null
+    }
+
+
+
+
+
+    fun deBuffRemove(player: Player, amount: Int){
+        val scoreboard = Bukkit.getScoreboardManager()?.mainScoreboard ?: return
+
+        // 対象のデバフ名一覧（必要に応じて追加）
+        val debuffNames = listOf(
+            "timer_self_defense_debuff_EX",
+            "timer_self_defense_debuff_NS",
+            "timer_self_defense_debuff_PS",
+            "timer_self_defense_debuff_SS",
+            "timer_other_defense_debuff_EX",
+            "timer_other_defense_debuff_NS",
+            "timer_other_defense_debuff_PS",
+            "timer_other_defense_debuff_SS"
+        )
+
+        // 実際に存在し、スコアが1以上のものだけを抽出
+        val activeDebuffs = debuffNames.mapNotNull { name ->
+            scoreboard.getObjective(name)?.let { it to it.getScore(player.name) }
+        }.filter { (_, score) -> score.score > 0 }
+
+        if (activeDebuffs.isEmpty()) {
+            //もしデバフがなかったら
+            player.sendMessage("§7解除できるデバフがありません。")
+            return
+        }
+
+        // ランダムに指定数だけ選択（上限を超えないように調整）
+        val toClear = activeDebuffs.shuffled().take(amount)
+
+        // 選ばれたデバフを0に
+        for ((objective, score) in toClear) {
+            score.score = 0
+            player.sendMessage("§aデバフ『${objective.name}』が解除されました！")
+        }
+
+        // 残りの数が足りなかった場合に通知
+        if (toClear.size < amount) {
+            player.sendMessage("§e解除可能なデバフは${toClear.size}個しかありませんでした。")
+        }
+    }
+
+
+    val taskMap = mutableMapOf<UUID, BukkitRunnable>()
+
+    fun giveShield(player: Player, amount: Int, duration: Long) {
+
+        //タスクキルして上書きしたい.
+        taskMap[player.uniqueId]?.cancel()
+
+        shieldMap[player.uniqueId] = amount
+
+        // duration後に消す.
+        val task = object : BukkitRunnable() {
+            override fun run() {
+                shieldMap.remove(player.uniqueId)
+            }
+
+        }
+        task.runTaskLater(plugin, duration) // 1秒ごと
+        taskMap[player.uniqueId] = task
+    }
+}
