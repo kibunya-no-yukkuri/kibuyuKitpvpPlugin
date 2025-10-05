@@ -1,11 +1,6 @@
 package me.kibunya_no_yukku.kibuyu_kitpvp_plugin
 
-import me.kibunya_no_yukku.kibuyu_kitpvp_gui.Kit2Menu
-import me.kibunya_no_yukku.kibuyu_kitpvp_gui.KitMenu
-import me.kibunya_no_yukku.kibuyu_kitpvp_gui.MainMenu
-import me.kibunya_no_yukku.kibuyu_kitpvp_gui.MapMenu
-import me.kibunya_no_yukku.kibuyu_kitpvp_gui.ModeMenu
-import me.kibunya_no_yukku.kibuyu_kitpvp_gui.TeamMenu
+import me.kibunya_no_yukku.kibuyu_kitpvp_gui.*
 import org.bukkit.Bukkit
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor

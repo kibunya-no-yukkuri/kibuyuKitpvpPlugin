@@ -12,7 +12,7 @@ import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.scheduler.BukkitRunnable
 import org.bukkit.util.RayTraceResult
-import java.util.UUID
+import java.util.*
 import kotlin.math.roundToInt
 
 class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
@@ -376,7 +376,6 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         val costUse22Score = costUse22Obj.getScore(player.name).score
         val twoCtTwoObj = scoreboard.getObjective("2_ct2") ?: return
         val costObj = scoreboard.getObjective("cost") ?: return
-        player.sendMessage("§a[DEBUG] kit021Skill2 開始成功！")
         val twoCtTwoScore = twoCtTwoObj.getScore(player.name)
         val costScore = costObj.getScore(player.name)
         val timerSelfHpBuffObj = scoreboard.getObjective("timer_self_over_hp_buff_EX") ?: return

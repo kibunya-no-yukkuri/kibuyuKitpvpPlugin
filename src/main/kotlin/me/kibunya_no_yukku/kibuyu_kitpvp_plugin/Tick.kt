@@ -3,19 +3,14 @@ package me.kibunya_no_yukku.kibuyu_kitpvp_plugin
 import me.deecaad.weaponmechanics.utils.CustomTag
 import me.kibunya_no_yukku.kibuyu_kitpvp_plugin.Kibuyu_kitpvp_plugin.Companion.shieldMap
 import net.md_5.bungee.api.ChatMessageType
-import org.bukkit.Bukkit
-import org.bukkit.Material
-import org.bukkit.Particle
-import org.bukkit.Sound
-import org.bukkit.SoundCategory
-import org.bukkit.scheduler.BukkitRunnable
 import net.md_5.bungee.api.chat.TextComponent
+import org.bukkit.*
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
+import org.bukkit.scheduler.BukkitRunnable
 import kotlin.math.cos
-import kotlin.math.sin
-import org.bukkit.Color
 import kotlin.math.roundToInt
+import kotlin.math.sin
 
 
 class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
@@ -443,7 +438,7 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
 
 
                     // 対象のデバフ名一覧（必要に応じて追加）
-                    val debuffNames = listOf(
+                    val overHpNames = listOf(
                         "timer_self_over_hp_buff_EX",
                     "timer_self_over_hp_buff_NS",
                     "timer_self_over_hp_buff_PS",
@@ -455,7 +450,7 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                     )
 
                     // 実際に存在し、スコアが1以上のものだけを抽出
-                    val activeDebuffs = debuffNames.mapNotNull { name ->
+                    val activeDebuffs = overHpNames.mapNotNull { name ->
                         scoreboard.getObjective(name)?.let { it to it.getScore(player.name) }
                     }.filter { (_, score) -> score.score > 0 }
 
