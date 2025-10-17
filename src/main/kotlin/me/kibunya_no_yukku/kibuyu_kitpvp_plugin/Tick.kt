@@ -458,6 +458,7 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                         continue// returnではなくcontinue！
                     }
                     plugin.listener.markSync(player)
+                    //雑魚クラハゲほしてる.
                 }
 
             }
