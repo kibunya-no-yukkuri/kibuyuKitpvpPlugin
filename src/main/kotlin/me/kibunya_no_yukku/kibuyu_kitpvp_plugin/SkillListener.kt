@@ -382,7 +382,7 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
 
 
         // 回復量計算
-        val playerHealAmount = 6 * (1 + (healScore.score / 100))
+        val playerHealAmount = 5 * (1 + (healScore.score / 100))
         //プレイヤーのHPに回復量を+
         playerHpScore.score += playerHealAmount
 
@@ -397,7 +397,7 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
             val timerSelfHpBuffScore = timerSelfHpBuffObj.getScore(player.name)
             val removeSelfHpBuffScore = removeSelfHpBuffObj.getScore(player.name)
 
-            playerHpScore.score -= playerHpAmount
+            //playerHpScore.score -= playerHpAmount
 
 
             removeSelfHpBuffScore.score = 10
@@ -424,11 +424,30 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         //ターゲットのHPに回復量を+
         targetHpScore.score += targetHealAmount
 
+        target.sendMessage("§e${player.name} によりHPが$targetHealAmount 回復！")
+
+        if(targetHpScore.score > targetHpMaxScore.score){
+
+            var targetHpAmount = targetHpScore.score
+            val targetHpMaxAmount = targetHpMaxScore.score
+            targetHpAmount -= targetHpMaxAmount
+
+            val timerSelfHpBuffScore = timerSelfHpBuffObj.getScore(target.name)
+            val removeSelfHpBuffScore = removeSelfHpBuffObj.getScore(target.name)
+
+            //playerHpScore.score -= playerHpAmount
+
+
+            removeSelfHpBuffScore.score = 10
+            timerSelfHpBuffScore.score = targetHpAmount * 10
+
+            target.sendMessage("§eさらに$targetHpAmount のオーバーHPを獲得")
+        }
+
         //hpスコア同期フラグ
         plugin.listener.markSync(target)
 
         player.sendMessage("§e${target.name}のHPを$targetHealAmount 回復！(現在のHP:${targetHpScore.score})")
-        target.sendMessage("§e${player.name} によりHPが$targetHealAmount 回復！")
     }
 
 
