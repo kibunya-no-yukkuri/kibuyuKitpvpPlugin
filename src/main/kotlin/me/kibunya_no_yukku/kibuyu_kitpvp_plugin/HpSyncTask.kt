@@ -22,7 +22,7 @@ class HpSyncTask(
                 continue
             }
 
-            val hpScore = hpObj.getScore(player.name).score
+            val hpScore = hpObj.getScore(player.name)
             val maxHpScore = maxHpObj.getScore(player.name).score.coerceAtLeast(1)
 
             val attr = player.getAttribute(Attribute.MAX_HEALTH) ?: continue
@@ -32,8 +32,12 @@ class HpSyncTask(
                 attr.baseValue = maxHpScore.toDouble()
             }
 
-            // HPを反映
-            val clampedHp = hpScore.coerceIn(0, maxHpScore)
+            // HPスコアがMAX HPスコアを超えた場合HPスコアをMAX HPスコアと同じ値にする.
+            if (hpScore.score > maxHpScore){
+                hpScore.score = maxHpScore
+            }
+            //HPスコアが実際のHPと違う場合実際のHPにスコアのHPを代入する.
+            val clampedHp = hpScore.score.coerceIn(0, maxHpScore)
             if (player.health.toInt() != clampedHp) {
                 player.health = clampedHp.toDouble()
             }
