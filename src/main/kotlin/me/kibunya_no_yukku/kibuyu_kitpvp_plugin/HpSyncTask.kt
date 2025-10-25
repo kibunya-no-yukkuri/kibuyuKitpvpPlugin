@@ -3,16 +3,14 @@ package me.kibunya_no_yukku.kibuyu_kitpvp_plugin
 import org.bukkit.Bukkit
 import org.bukkit.attribute.Attribute
 import org.bukkit.entity.Player
-import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.scheduler.BukkitRunnable
 
 class HpSyncTask(
-    private val plugin: JavaPlugin,
     private val listener: EventListener
 ) : BukkitRunnable() {
 
     override fun run() {
-        val scoreboard = Bukkit.getScoreboardManager()?.mainScoreboard ?: return
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard ?: return
         val hpObj = scoreboard.getObjective("hp") ?: return
         val maxHpObj = scoreboard.getObjective("max_hp") ?: return
 

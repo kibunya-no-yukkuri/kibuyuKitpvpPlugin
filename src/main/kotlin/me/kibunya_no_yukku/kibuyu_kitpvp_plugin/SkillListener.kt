@@ -28,8 +28,8 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         val item = player.inventory.itemInMainHand
         if (item.type != Material.IRON_INGOT) return
 
-        val scoreboard = Bukkit.getScoreboardManager()?.mainScoreboard
-        val kit1Obj = scoreboard?.getObjective("kit1") ?: return
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+        val kit1Obj = scoreboard.getObjective("kit1") ?: return
         val kit1Score = kit1Obj.getScore(player.name).score
         val oneCtObj = scoreboard.getObjective("1_ct") ?: return
         val oneCtScore = oneCtObj.getScore(player.name).score
@@ -52,7 +52,7 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
     }
 
     fun kit1Skill1(player: Player) {
-        val scoreboard = Bukkit.getScoreboardManager()?.mainScoreboard ?: return
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
         val timeObj = scoreboard.getObjective("timer_other_attack_buff_EX") ?: return
         val attackObj = scoreboard.getObjective("other_attack_buff_EX") ?: return
         val ctObj = scoreboard.getObjective("1_ct") ?: return
@@ -107,8 +107,8 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         val item = player.inventory.itemInMainHand
         if (item.type != Material.COPPER_INGOT) return
 
-        val scoreboard = Bukkit.getScoreboardManager()?.mainScoreboard
-        val kit1Obj = scoreboard?.getObjective("kit1") ?: return
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+        val kit1Obj = scoreboard.getObjective("kit1") ?: return
         val kit1Score = kit1Obj.getScore(player.name).score
         val oneCtTwoObj = scoreboard.getObjective("1_ct2") ?: return
         val oneCtTwoScore = oneCtTwoObj.getScore(player.name).score
@@ -141,7 +141,7 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
     }
 
     fun kit1Skill2(player: Player) {
-        val scoreboard = Bukkit.getScoreboardManager()?.mainScoreboard ?: return
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
         val healObj = scoreboard.getObjective("heal") ?: return
         val hpObj = scoreboard.getObjective("hp") ?: return
         val oneCtTwoObj = scoreboard.getObjective("1_ct2") ?: return
@@ -196,7 +196,7 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
     }
 
     fun kit1Skill2Self(player: Player) {
-        val scoreboard = Bukkit.getScoreboardManager()?.mainScoreboard ?: return
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
         val healObj = scoreboard.getObjective("heal") ?: return
         val hpObj = scoreboard.getObjective("hp") ?: return
         val oneCtTwoObj = scoreboard.getObjective("1_ct2") ?: return
@@ -237,8 +237,8 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         val item = player.inventory.itemInMainHand
         if (item.type != Material.GOLD_INGOT) return
 
-        val scoreboard = Bukkit.getScoreboardManager()?.mainScoreboard
-        val kit2Obj = scoreboard?.getObjective("kit2") ?: return
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+        val kit2Obj = scoreboard.getObjective("kit2") ?: return
         val kit2Score = kit2Obj.getScore(player.name).score
         val twoCtOneObj = scoreboard.getObjective("2_ct1") ?: return
         val twoCtOneScore = twoCtOneObj.getScore(player.name).score
@@ -261,7 +261,7 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
 
     }
     fun kit021Skill1(player: Player) {
-        val scoreboard = Bukkit.getScoreboardManager()?.mainScoreboard ?: return
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
         val healObj = scoreboard.getObjective("heal") ?: return
         val twoCtOneObj = scoreboard.getObjective("2_ct1") ?: return
         val costObj = scoreboard.getObjective("cost") ?: return
@@ -318,13 +318,9 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         val item = player.inventory.itemInMainHand
         if (item.type != Material.NETHERITE_INGOT) return
 
-        val scoreboard = Bukkit.getScoreboardManager()?.mainScoreboard
-        if (scoreboard == null) {
-            player.sendMessage("§c[DEBUG] scoreboard が null")
-            return
-        }
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
 
-        // 必要な Objective を取得。無ければ明示的にメッセージを出して return する
+        // 必要な Objective を取得。
         val kit2Obj = scoreboard.getObjective("kit2") ?: return
         val twoCtTwoObj = scoreboard.getObjective("2_ct2") ?: return
         val costObj = scoreboard.getObjective("cost") ?: return
@@ -365,8 +361,8 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
     }
 
     fun kit021Skill2(player: Player){
-        val scoreboard = Bukkit.getScoreboardManager()?.mainScoreboard
-        val healObj = scoreboard?.getObjective("heal") ?: return
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+        val healObj = scoreboard.getObjective("heal") ?: return
         val healScore = healObj.getScore(player.name)
         val hpObj = scoreboard.getObjective("hp") ?: return
         val playerHpScore = hpObj.getScore(player.name)
@@ -471,7 +467,7 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
 
 
     fun deBuffRemove(player: Player, amount: Int){
-        val scoreboard = Bukkit.getScoreboardManager()?.mainScoreboard ?: return
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
 
         // 対象のデバフ名一覧（必要に応じて追加）
         val debuffNames = listOf(

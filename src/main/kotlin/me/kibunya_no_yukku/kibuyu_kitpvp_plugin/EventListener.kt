@@ -57,8 +57,8 @@ class EventListener(private val plugin: JavaPlugin): Listener {
     //銃撃った人検知
     @EventHandler
     fun onWeaponShoot(event: WeaponShootEvent) {
-        val scoreboard = Bukkit.getScoreboardManager()?.mainScoreboard
-        val shoot = scoreboard?.getObjective("shoot")
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+        val shoot = scoreboard.getObjective("shoot")
         val user = event.entity
 
         if (user is Player) {
@@ -73,8 +73,8 @@ class EventListener(private val plugin: JavaPlugin): Listener {
     @EventHandler
     fun onWeaponReload(event: WeaponReloadEvent) {
 
-        val scoreboard = Bukkit.getScoreboardManager()?.mainScoreboard
-        val reload = scoreboard?.getObjective("reload")
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+        val reload = scoreboard.getObjective("reload")
 
         val user = event.entity
 
@@ -95,8 +95,8 @@ class EventListener(private val plugin: JavaPlugin): Listener {
         if (shooter !is Player) return
 
         // 攻撃力スコアを取得（例：攻撃力はスコアボードの "attack"）
-        val scoreboard = Bukkit.getScoreboardManager()?.mainScoreboard
-        val attackScore = scoreboard?.getObjective("attack")?.getScore(shooter.name)?.score ?: 0
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+        val attackScore = scoreboard.getObjective("attack")?.getScore(shooter.name)?.score ?: 0
 
         // 元のダメージに攻撃力を反映（ここでは +1 ダメージ/1スコア）
         val baseDamage = event.baseDamage
@@ -123,14 +123,14 @@ class EventListener(private val plugin: JavaPlugin): Listener {
 
         val originalFinal = event.finalDamage
 
-        val scoreboard = Bukkit.getScoreboardManager()?.mainScoreboard
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
 
         // 基礎防御力
-        val defenseObj = scoreboard?.getObjective("defense")
+        val defenseObj = scoreboard.getObjective("defense")
         val baseDefense = defenseObj?.getScore(player.name)?.score ?: 0
 
         // 防御デバフ率（%)
-        val debuffObj = scoreboard?.getObjective("defense_debuff")
+        val debuffObj = scoreboard.getObjective("defense_debuff")
         val debuffPercent = debuffObj?.getScore(player.name)?.score ?: 0
 
         // 実効防御力 = 防御力 × (1 - デバフ率)
@@ -200,8 +200,8 @@ class EventListener(private val plugin: JavaPlugin): Listener {
     @EventHandler
     fun onRespawn(event: PlayerRespawnEvent) {
         val player = event.player
-        val scoreboard = Bukkit.getScoreboardManager()?.mainScoreboard
-        val maxHpObj = scoreboard?.getObjective("max_hp") ?: return
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+        val maxHpObj = scoreboard.getObjective("max_hp") ?: return
         val hpObj = scoreboard.getObjective("hp") ?: return
 
         // max_hp スコアを読み込む
@@ -216,7 +216,7 @@ class EventListener(private val plugin: JavaPlugin): Listener {
     }
 
     private fun syncToScore(player: Player) {
-        val scoreboard = Bukkit.getScoreboardManager()?.mainScoreboard ?: return
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
         val hpObj = scoreboard.getObjective("hp") ?: return
         hpObj.getScore(player.name).score = player.health.toInt()
 
@@ -235,9 +235,9 @@ class EventListener(private val plugin: JavaPlugin): Listener {
     @EventHandler
     fun onInventoryClick(event: InventoryClickEvent) {
 
-        val scoreboard = Bukkit.getScoreboardManager()?.mainScoreboard
-        val kit1 = scoreboard?.getObjective("kit1")
-        val kit2 = scoreboard?.getObjective("kit2")
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+        val kit1 = scoreboard.getObjective("kit1")
+        val kit2 = scoreboard.getObjective("kit2")
 
         val player = event.whoClicked as? Player ?: return
         val guiType = Kibuyu_kitpvp_plugin.guiMap[player.uniqueId] ?: return
@@ -331,7 +331,7 @@ class EventListener(private val plugin: JavaPlugin): Listener {
             "kit" -> {
                 // KIT選択時の処理
                 val ki1Score = kit1?.getScore(player.name)
-                val ns2MaxObj = scoreboard?.getObjective("NS_timer2_max") ?: return
+                val ns2MaxObj = scoreboard.getObjective("NS_timer2_max") ?: return
                 val ns2MaxScore = ns2MaxObj.getScore(player.name)
                 val costUse11AObj = scoreboard.getObjective("cost_use1_1_amount") ?: return
                 val costUse11AScore = costUse11AObj.getScore(player.name)
@@ -384,7 +384,7 @@ class EventListener(private val plugin: JavaPlugin): Listener {
             "kit2" -> {
                 // KIT選択時の処理
                 val ki2Score = kit2?.getScore(player.name)
-                val ns1MaxObj = scoreboard?.getObjective("NS_timer1_max2") ?: return
+                val ns1MaxObj = scoreboard.getObjective("NS_timer1_max2") ?: return
                 val ns1MaxScore2 = ns1MaxObj.getScore(player.name)
                 val ns2MaxObj = scoreboard.getObjective("NS_timer2_max2") ?: return
                 val ns2MaxScore2 = ns2MaxObj.getScore(player.name)

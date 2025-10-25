@@ -22,7 +22,7 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
     fun start() {
         object : BukkitRunnable() {
             override fun run() {
-                val scoreboard = Bukkit.getScoreboardManager()?.mainScoreboard ?: return
+                val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
                 val kitGiveObjective = scoreboard.getObjective("kit_give") ?: return
                 val kit1Obj = scoreboard.getObjective("kit1") ?: return
 
@@ -68,7 +68,7 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
         object : BukkitRunnable() {
             override fun run() {
                 for (player in Bukkit.getOnlinePlayers()) {
-                    val scoreboard = Bukkit.getScoreboardManager()?.mainScoreboard ?: return
+                    val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
                     val ns2Obj = scoreboard.getObjective("NS_timer2") ?: return
                     val ns3Obj = scoreboard.getObjective("NS_timer1_2") ?: return
                     val kit1Obj = scoreboard.getObjective("kit1") ?: return
@@ -101,7 +101,7 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
             //ki1のNS2の処理.
             fun kit101NS2(player: Player){
 
-                val scoreboard = Bukkit.getScoreboardManager()?.mainScoreboard ?: return
+                val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
                 val healObj = scoreboard.getObjective("heal") ?: return
                 val hpObj = scoreboard.getObjective("hp") ?: return
                 val maxHpObj = scoreboard.getObjective("max_hp") ?: return
@@ -166,7 +166,7 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
 
             fun kit201NS1(plugin: JavaPlugin, player: Player){
 
-                val scoreboard = Bukkit.getScoreboardManager()?.mainScoreboard ?: return
+                val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
                 val ns201Obj = scoreboard.getObjective("NS_timer1_2") ?: return
                 val ns201MaxObj = scoreboard.getObjective("NS_timer1_max2") ?: return
                 val ns201Score = ns201Obj.getScore(player.name)
@@ -301,11 +301,11 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
 
 
 
-        //シールド処理&アクションバー表示&オーバーhp処理
+        //シールド処理&アクションバー表示&オーバーhp処理(毎tick処理).
         object : BukkitRunnable() {
             override fun run() {
                 for (player in Bukkit.getOnlinePlayers()) {
-                    val scoreboard = Bukkit.getScoreboardManager()?.mainScoreboard ?: return
+                    val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
                     val shieldObj = scoreboard.getObjective("shield") ?: return
                     val shieldTimeObj = scoreboard.getObjective("shield_time") ?: return
                     val shieldScore = shieldObj.getScore(player.name)
@@ -437,7 +437,7 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                     oOHBSScore.score = safeRound(tOOHBSScoreD)
 
 
-                    // 対象のデバフ名一覧（必要に応じて追加）
+                    // オーバーHP全部入れる.
                     val overHpNames = listOf(
                         "timer_self_over_hp_buff_EX",
                     "timer_self_over_hp_buff_NS",
@@ -449,14 +449,16 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                    "timer_other_over_hp_buff_SS"
                     )
 
-                    // 実際に存在し、スコアが1以上のものだけを抽出
+                    // 実際に存在し、スコアが1以上のものだけを抽出.
                     val activeDebuffs = overHpNames.mapNotNull { name ->
                         scoreboard.getObjective(name)?.let { it to it.getScore(player.name) }
                     }.filter { (_, score) -> score.score > 0 }
 
+                    //オーバーHPがなかった場合何もしない.
                     if (activeDebuffs.isEmpty()) {
                         continue// returnではなくcontinue！
                     }
+                    //オーバーHPがあった場合HP同期処理を実行.
                     plugin.listener.markSync(player)
                     //雑魚クラハゲほしてる.
                 }
