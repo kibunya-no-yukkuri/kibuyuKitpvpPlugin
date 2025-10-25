@@ -397,13 +397,18 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
             val timerSelfHpBuffScore = timerSelfHpBuffObj.getScore(player.name)
             val removeSelfHpBuffScore = removeSelfHpBuffObj.getScore(player.name)
 
-            //playerHpScore.score -= playerHpAmount
-
-
-            removeSelfHpBuffScore.score = 10
-            timerSelfHpBuffScore.score = playerHpAmount * 10
+            //100%分増やしたいなら両方同じ数字.
+            //両方同じ数字だと1HPがxTickで減るのxがこの値になる.
+            removeSelfHpBuffScore.score = 20
+            timerSelfHpBuffScore.score = playerHpAmount * 20
 
             player.sendMessage("§eさらに$playerHpAmount のオーバーHPを獲得")
+
+            // 1tick後にオーバーHP分の回復
+            Bukkit.getScheduler().runTaskLater(plugin, Runnable {
+                playerHpScore.score += playerHpAmount
+            }, 1L)
+
         }
 
         //hpスコア同期フラグ
@@ -420,7 +425,7 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         val targetHpScore = hpObj.getScore(target.name)
         val targetHpMaxScore = hpMaxObj.getScore(target.name)
         // 回復量計算
-        val targetHealAmount = 8 * (1 + (healScore.score / 100))
+        val targetHealAmount = 10 * (1 + (healScore.score / 100))
         //ターゲットのHPに回復量を+
         targetHpScore.score += targetHealAmount
 
@@ -442,6 +447,11 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
             timerSelfHpBuffScore.score = targetHpAmount * 10
 
             target.sendMessage("§eさらに$targetHpAmount のオーバーHPを獲得")
+
+            // 1tick後にオーバーHP分の回復
+            Bukkit.getScheduler().runTaskLater(plugin, Runnable {
+                targetHpScore.score += targetHpAmount
+            }, 1L)
         }
 
         //hpスコア同期フラグ

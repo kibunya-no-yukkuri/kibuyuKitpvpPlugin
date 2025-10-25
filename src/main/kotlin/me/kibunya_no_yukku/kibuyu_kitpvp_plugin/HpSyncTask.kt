@@ -32,14 +32,15 @@ class HpSyncTask(
                 attr.baseValue = maxHpScore.toDouble()
             }
 
-            // HPスコアがMAX HPスコアを超えた場合HPスコアをMAX HPスコアと同じ値にする.
-            if (hpScore.score > maxHpScore){
-                hpScore.score = maxHpScore
-            }
             //HPスコアが実際のHPと違う場合実際のHPにスコアのHPを代入する.
             val clampedHp = hpScore.score.coerceIn(0, maxHpScore)
             if (player.health.toInt() != clampedHp) {
                 player.health = clampedHp.toDouble()
+            }
+
+            // HPスコアがMAX HPスコアを超えた場合HPスコアをMAX HPスコアと同じ値にする.
+            if (hpScore.score > maxHpScore){
+                hpScore.score = maxHpScore
             }
 
             // 同期完了したのでフラグ解除
