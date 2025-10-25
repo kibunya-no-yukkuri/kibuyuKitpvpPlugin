@@ -10,7 +10,7 @@ class HpSyncTask(
 ) : BukkitRunnable() {
 
     override fun run() {
-        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard ?: return
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
         val hpObj = scoreboard.getObjective("hp") ?: return
         val maxHpObj = scoreboard.getObjective("max_hp") ?: return
 
