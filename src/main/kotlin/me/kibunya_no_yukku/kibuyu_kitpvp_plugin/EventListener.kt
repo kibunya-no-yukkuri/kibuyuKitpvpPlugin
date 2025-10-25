@@ -23,6 +23,7 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 import org.bukkit.plugin.java.JavaPlugin
 import kotlin.math.roundToInt
+import net.kyori.adventure.text.Component
 
 
 class EventListener(private val plugin: JavaPlugin): Listener {
@@ -364,13 +365,15 @@ class EventListener(private val plugin: JavaPlugin): Listener {
                             val patterns = loreMap[clicked.type] ?: return
                             val currentIndex = container.get(loreKey, PersistentDataType.INTEGER) ?: -1
                             val nextIndex = (currentIndex + 1) % patterns.size
-                            // lore を切り替え
-                            meta.lore = patterns[nextIndex]
+
+                            val newLore = patterns[nextIndex].map { Component.text(it) }
+                            meta.lore(newLore)
+
                             container.set(loreKey, PersistentDataType.INTEGER, nextIndex)
-                            // アイテムに反映
                             clicked.itemMeta = meta
                             event.inventory.setItem(event.slot, clicked)
                         }
+
                     }
 
                     18 -> { // メインメニューへ戻る
@@ -418,10 +421,11 @@ class EventListener(private val plugin: JavaPlugin): Listener {
                             val patterns = loreMap[clicked.type] ?: return
                             val currentIndex = container.get(loreKey, PersistentDataType.INTEGER) ?: -1
                             val nextIndex = (currentIndex + 1) % patterns.size
-                            // lore を切り替え
-                            meta.lore = patterns[nextIndex]
+
+                            val newLore = patterns[nextIndex].map { Component.text(it) }
+                            meta.lore(newLore)
+
                             container.set(loreKey, PersistentDataType.INTEGER, nextIndex)
-                            // アイテムに反映
                             clicked.itemMeta = meta
                             event.inventory.setItem(event.slot, clicked)
                         }
