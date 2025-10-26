@@ -307,7 +307,7 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                 val hpObj = scoreboard.getObjective("hp") ?: return
                 val maxHpObj = scoreboard.getObjective("max_hp") ?: return
                 val ns2Obj = scoreboard.getObjective("NS_timer2_2") ?: return
-                val ns2MaxObj = scoreboard.getObjective("NS_timer2_2max") ?: return
+                val ns2MaxObj = scoreboard.getObjective("NS_timer2_max2") ?: return
                 val myTeam = scoreboard.getEntryTeam(player.name) ?: return // 発動者のチーム
                 val ns2Score = ns2Obj.getScore(player.name)
                 val ns2MaxScore = ns2MaxObj.getScore(player.name)
@@ -320,19 +320,19 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                 playerHpScore.score += playerHealAmount.roundToInt()
                 //HP同期.
                 plugin.listener.markSync(player)
+                //メッセージ
+                player.sendMessage("§eNS2発動！")
+                player.sendMessage("§aHPが${playerHealAmount.roundToInt()} 回復！")
 
                 // 同じワールドの同チームプレイヤーを検索（自身含む)
                 val candidates = Bukkit.getOnlinePlayers().filter { p ->
-                    // 同じワールド
-                    p.world == player.world &&
-                            // tag"s"を持っているか.
-                            p.scoreboardTags.contains("s")
-                    // チームが同じ（味方）
-                    p.scoreboard.getEntryTeam(p.name) == myTeam
+                    p != player && // 自分を除外
+                            p.world == player.world && // 同じワールド
+                            p.scoreboardTags.contains("s") && // tag"s"を持つ
+                            p.scoreboard.getEntryTeam(p.name) == myTeam // チームが同じ
                 }
 
                 if (candidates.isEmpty()) {
-                    player.sendMessage("§eNS2発動！")
                     player.sendMessage("§c味方が見つかりません")
                     return
                 }
@@ -341,7 +341,6 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                     .filter { hpObj.getScore(it.name).score < maxHpObj.getScore(it.name).score }
                     .minByOrNull { hpObj.getScore(it.name).score }
                 if (nearest == null) {
-                    player.sendMessage("§eNS2発動！")
                     player.sendMessage("§cHPの減っている味方がいませんでした")
                     return
                 }
@@ -365,8 +364,6 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                 //HP同期.
                 plugin.listener.markSync(nearest)
                 //メッセージ.
-                player.sendMessage("§eNS2発動！")
-                player.sendMessage("§aHPが${playerHealAmount.roundToInt()} 回復！")
                 nearest.let { player.sendMessage("§e${it.name}のHPを+${healAmount.roundToInt()} 回復！(現在のHP: ${hpScore.score})") }
                 nearest.sendMessage("§aHPが ${player.name}により${healAmount.roundToInt()} 回復！")
 
