@@ -98,7 +98,7 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                         }
                     }
                     if(ns4Score.score <= 0) {
-                        when (kit1Score.score) {
+                        when (kit2Score.score) {
                             1 -> {
                                 kit201NS2(player)
                             }
@@ -306,19 +306,20 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                 val healObj = scoreboard.getObjective("heal") ?: return
                 val hpObj = scoreboard.getObjective("hp") ?: return
                 val maxHpObj = scoreboard.getObjective("max_hp") ?: return
-                val ns4Obj = scoreboard.getObjective("NS_timer2_2") ?: return
-                val ns4MaxObj = scoreboard.getObjective("NS_timer2_2_max") ?: return
+                val ns2Obj = scoreboard.getObjective("NS_timer2_2") ?: return
+                val ns2MaxObj = scoreboard.getObjective("NS_timer2_2max") ?: return
                 val myTeam = scoreboard.getEntryTeam(player.name) ?: return // 発動者のチーム
-                val ns4Score = ns4Obj.getScore(player.name)
-                val ns4MaxScore = ns4MaxObj.getScore(player.name)
+                val ns2Score = ns2Obj.getScore(player.name)
+                val ns2MaxScore = ns2MaxObj.getScore(player.name)
                 val healScore = healObj.getScore(player.name)
                 val playerHpScore = hpObj.getScore(player.name)
-                ns4Score.score = ns4MaxScore.score
+                ns2Score.score = ns2MaxScore.score
 
                 val playerHealAmount = 2.0 * (1 + (healScore.score.toDouble() / 100.0))
                 //プレイヤーのHPに回復量を+
                 playerHpScore.score += playerHealAmount.roundToInt()
-
+                //HP同期.
+                plugin.listener.markSync(player)
 
                 // 同じワールドの同チームプレイヤーを検索（自身含む)
                 val candidates = Bukkit.getOnlinePlayers().filter { p ->
@@ -361,12 +362,13 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                 //ヒール量計算
                 val healAmount = 3.0 * (1 + (healScore.score.toDouble() / 100.0))
                 hpScore.score += healAmount.roundToInt()
-
+                //HP同期.
                 plugin.listener.markSync(nearest)
+                //メッセージ.
                 player.sendMessage("§eNS2発動！")
-                player.sendMessage("§aHPが$playerHealAmount 回復！")
-                nearest.let { player.sendMessage("§e${it.name}のHPを+$healAmount 回復！(現在のHP: ${hpScore.score})") }
-                nearest.sendMessage("§aHPが ${player.name}により$healAmount 回復！")
+                player.sendMessage("§aHPが${playerHealAmount.roundToInt()} 回復！")
+                nearest.let { player.sendMessage("§e${it.name}のHPを+${healAmount.roundToInt()} 回復！(現在のHP: ${hpScore.score})") }
+                nearest.sendMessage("§aHPが ${player.name}により${healAmount.roundToInt()} 回復！")
 
                 return
             }
