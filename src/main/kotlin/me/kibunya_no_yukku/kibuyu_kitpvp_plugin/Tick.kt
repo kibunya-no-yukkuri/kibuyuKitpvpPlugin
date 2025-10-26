@@ -139,7 +139,7 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                     player.sendMessage("§c味方が見つかりません")
                     return
                 }
-                // 最も近いプレイヤーを選ぶ
+                // 最もHPが低いプレイヤーを探す
                 val nearest = candidates
                     .filter { hpObj.getScore(it.name).score < maxHpObj.getScore(it.name).score }
                     .minByOrNull { hpObj.getScore(it.name).score }
@@ -169,8 +169,8 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
 
                 plugin.listener.markSync(nearest)
                 nearest.let { player.sendMessage("§eNS1発動！") }
-                nearest.let { player.sendMessage("§e${it.name}のHPを+1回復！(現在のHP: ${hpScore.score})") }
-                nearest.sendMessage("§aHPが ${player.name}により1回復！")
+                nearest.let { player.sendMessage("§e${it.name}のHPを${healAmount.roundToInt()}回復！(現在のHP: ${hpScore.score})") }
+                nearest.sendMessage("§aHPが ${player.name}により${healAmount.roundToInt()}回復！")
 
                 return
             }
@@ -275,7 +275,7 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                                 val debuffTimeIncrease = 300 * (1 + (deBuffTimeScore.score / 100.0))
                                 defenseDeBuffTimeScore.score = debuffTimeIncrease.roundToInt()
                                 //ダメージ計算
-                                val bonusDamage = 5 * (attackScore.score.toDouble() / 100.0)
+                                val bonusDamage = 5.0 * (attackScore.score.toDouble() / 100.0)
                                 val damageAmount = 5 + bonusDamage
                                 enemy.damage(damageAmount, player) // ダメージを与える
                             }

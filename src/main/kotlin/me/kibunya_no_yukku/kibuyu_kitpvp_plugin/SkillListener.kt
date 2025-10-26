@@ -189,8 +189,8 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
 
         plugin.listener.markSync(nearest)
 
-        player.sendMessage("§e${nearest.name}のHPを6回復！(現在のHP:${hpScore.score})")
-        nearest.sendMessage("§e${player.name} によりHPが6回復！")
+        player.sendMessage("§e${nearest.name}のHPを${healAmount.roundToInt()}回復！(現在のHP:${hpScore.score})")
+        nearest.sendMessage("§e${player.name} によりHPが${healAmount.roundToInt()}回復！")
         val item = player.inventory.itemInMainHand
         player.setCooldown(item.type, 20 * 15)
         return
@@ -216,7 +216,7 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         //hp同期タスク呼び出し.
         plugin.listener.markSync(player)
         //msg.
-        player.sendMessage("§aHPを4回復！")
+        player.sendMessage("§aHPを${healAmount.roundToInt()} 回復！")
         val item = player.inventory.itemInMainHand
         player.setCooldown(item.type, 20 * 15)
         return
@@ -388,7 +388,7 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         //プレイヤーのHPに回復量を+
         playerHpScore.score += playerHealAmount.roundToInt()
 
-        player.sendMessage("§e自身のHPを$playerHealAmount 回復！")
+        player.sendMessage("§e自身のHPを${playerHealAmount.roundToInt()} 回復！")
 
         if(playerHpScore.score > playerHpMaxScore.score){
 
@@ -404,7 +404,7 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
             removeSelfHpBuffScore.score = 20
             timerSelfHpBuffScore.score = playerHpAmount * 20
 
-            player.sendMessage("§eさらに$playerHpAmount のオーバーHPを獲得")
+            player.sendMessage("§eさらに${playerHealAmount.roundToInt()} のオーバーHPを獲得")
 
             // 1tick後にオーバーHP分の回復
             Bukkit.getScheduler().runTaskLater(plugin, Runnable {
@@ -431,7 +431,7 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         //ターゲットのHPに回復量を+
         targetHpScore.score += targetHealAmount.roundToInt()
 
-        target.sendMessage("§e${player.name} によりHPが$targetHealAmount 回復！")
+        target.sendMessage("§e${player.name} によりHPが${targetHealAmount.roundToInt()} 回復！")
 
         if(targetHpScore.score > targetHpMaxScore.score){
 
@@ -448,7 +448,7 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
             removeSelfHpBuffScore.score = 10
             timerSelfHpBuffScore.score = targetHpAmount * 10
 
-            target.sendMessage("§eさらに$targetHpAmount のオーバーHPを獲得")
+            target.sendMessage("§eさらに${targetHealAmount.roundToInt()} のオーバーHPを獲得")
 
             // 1tick後にオーバーHP分の回復
             Bukkit.getScheduler().runTaskLater(plugin, Runnable {
@@ -459,7 +459,7 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         //hpスコア同期フラグ
         plugin.listener.markSync(target)
 
-        player.sendMessage("§e${target.name}のHPを$targetHealAmount 回復！(現在のHP:${targetHpScore.score})")
+        player.sendMessage("§e${target.name}のHPを${targetHealAmount.roundToInt()} 回復！(現在のHP:${targetHpScore.score})")
     }
 
 
