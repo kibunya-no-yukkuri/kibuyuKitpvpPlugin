@@ -182,9 +182,10 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         val nearest = candidates.minByOrNull { it.location.distanceSquared(player.location) }!!
 
 
-        // スコアを +6
+        // ヒール量(6)に治癒力をかけてInt型に治してからHPスコアに反映
         val hpScore = hpObj.getScore(nearest.name)
-        hpScore.score += 6 * (1 + (healScore.score / 100))
+        val healAmount = 6.0 * (1 + (healScore.score.toDouble() / 100.0))
+        hpScore.score += healAmount.roundToInt()
 
         plugin.listener.markSync(nearest)
 
@@ -209,8 +210,9 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         oneCtTwoScore.score += 300
         costScore.score -= 30
 
-        // hpスコアを +6
-        hpScore.score += 4 * (1 + (healScore.score / 100))
+        // hpスコアを +4(治癒力分加算)
+        val healAmount = 4.0 * (1 + (healScore.score.toDouble() / 100.0))
+        hpScore.score += healAmount.roundToInt()
         //hp同期タスク呼び出し.
         plugin.listener.markSync(player)
         //msg.
@@ -281,7 +283,7 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         costScore.score -= costUse21Score
 
         //Double型でシールド6に治癒力の倍率をかける
-        val shieldAmount: Double = 6.0 * (1 + (healScore.score / 100))
+        val shieldAmount: Double = 6.0 * (1 + (healScore.score.toDouble() / 100.0))
         //四捨五入してint型に
         val shieldScoreValue: Int = shieldAmount.roundToInt()
         //int型にしたからスコアにそのまま代入できる
@@ -377,14 +379,14 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         val timerSelfHpBuffObj = scoreboard.getObjective("timer_self_over_hp_buff_EX") ?: return
         val removeSelfHpBuffObj = scoreboard.getObjective("self_over_hp_buff_EX_remove_speed") ?: return
         //CT&cost処理.
-        twoCtTwoScore.score += 60
+        twoCtTwoScore.score += 100
         costScore.score -= costUse22Score
 
 
         // 回復量計算
-        val playerHealAmount = 5 * (1 + (healScore.score / 100))
+        val playerHealAmount = 5.0 * (1 + (healScore.score.toDouble() / 100.0))
         //プレイヤーのHPに回復量を+
-        playerHpScore.score += playerHealAmount
+        playerHpScore.score += playerHealAmount.roundToInt()
 
         player.sendMessage("§e自身のHPを$playerHealAmount 回復！")
 
@@ -416,7 +418,7 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
 
         //CT可視化
         val item = player.inventory.itemInMainHand
-        player.setCooldown(item.type, 20 * 3)
+        player.setCooldown(item.type, 20 * 5)
 
 
         // 視線上のプレイヤーを探す
@@ -425,9 +427,9 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         val targetHpScore = hpObj.getScore(target.name)
         val targetHpMaxScore = hpMaxObj.getScore(target.name)
         // 回復量計算
-        val targetHealAmount = 10 * (1 + (healScore.score / 100))
+        val targetHealAmount = 10.0 * (1 + (healScore.score.toDouble() / 100.0))
         //ターゲットのHPに回復量を+
-        targetHpScore.score += targetHealAmount
+        targetHpScore.score += targetHealAmount.roundToInt()
 
         target.sendMessage("§e${player.name} によりHPが$targetHealAmount 回復！")
 

@@ -71,10 +71,12 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                     val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
                     val ns2Obj = scoreboard.getObjective("NS_timer2") ?: return
                     val ns3Obj = scoreboard.getObjective("NS_timer1_2") ?: return
+                    val ns4Obj = scoreboard.getObjective("NS_timer2_2") ?: return
                     val kit1Obj = scoreboard.getObjective("kit1") ?: return
                     val kit2Obj = scoreboard.getObjective("kit2") ?: return
                     val ns2Score = ns2Obj.getScore(player.name)
                     val ns3Score = ns3Obj.getScore(player.name)
+                    val ns4Score = ns4Obj.getScore(player.name)
                     val kit1Score = kit1Obj.getScore(player.name)
                     val kit2Score = kit2Obj.getScore(player.name)
 
@@ -92,7 +94,15 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                             1 -> {
                                 kit201NS1(plugin, player)
                             }
-                        //2 -> {kit202NS2(player)}
+
+                        }
+                    }
+                    if(ns4Score.score <= 0) {
+                        when (kit1Score.score) {
+                            1 -> {
+                                kit201NS2(player)
+                            }
+
                         }
                     }
                 }
@@ -154,7 +164,8 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
 
                 // スコアを +2*治癒力/100
                 val hpScore = nearest.let { hpObj.getScore(it.name) }
-                hpScore.let { it.score += 2 * (1 + (healScore.score / 100)) }
+                val healAmount = 2.0 * (1 + (healScore.score.toDouble() / 100.0))
+                hpScore.score += healAmount.roundToInt()
 
                 plugin.listener.markSync(nearest)
                 nearest.let { player.sendMessage("§eNS1発動！") }
@@ -287,6 +298,77 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                         )
                     }
                 }.runTaskLater(plugin, 30L) // 20tick = 1秒後
+            }
+
+            fun kit201NS2(player: Player){
+
+                val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+                val healObj = scoreboard.getObjective("heal") ?: return
+                val hpObj = scoreboard.getObjective("hp") ?: return
+                val maxHpObj = scoreboard.getObjective("max_hp") ?: return
+                val ns4Obj = scoreboard.getObjective("NS_timer2_2") ?: return
+                val ns4MaxObj = scoreboard.getObjective("NS_timer2_2_max") ?: return
+                val myTeam = scoreboard.getEntryTeam(player.name) ?: return // 発動者のチーム
+                val ns4Score = ns4Obj.getScore(player.name)
+                val ns4MaxScore = ns4MaxObj.getScore(player.name)
+                val healScore = healObj.getScore(player.name)
+                val playerHpScore = hpObj.getScore(player.name)
+                ns4Score.score = ns4MaxScore.score
+
+                val playerHealAmount = 2.0 * (1 + (healScore.score.toDouble() / 100.0))
+                //プレイヤーのHPに回復量を+
+                playerHpScore.score += playerHealAmount.roundToInt()
+
+
+                // 同じワールドの同チームプレイヤーを検索（自身含む)
+                val candidates = Bukkit.getOnlinePlayers().filter { p ->
+                    // 同じワールド
+                    p.world == player.world &&
+                            // tag"s"を持っているか.
+                            p.scoreboardTags.contains("s")
+                    // チームが同じ（味方）
+                    p.scoreboard.getEntryTeam(p.name) == myTeam
+                }
+
+                if (candidates.isEmpty()) {
+                    player.sendMessage("§eNS2発動！")
+                    player.sendMessage("§c味方が見つかりません")
+                    return
+                }
+                // 最もHPが低い味方プレイヤーを選ぶ
+                val nearest = candidates
+                    .filter { hpObj.getScore(it.name).score < maxHpObj.getScore(it.name).score }
+                    .minByOrNull { hpObj.getScore(it.name).score }
+                if (nearest == null) {
+                    player.sendMessage("§eNS2発動！")
+                    player.sendMessage("§cHPの減っている味方がいませんでした")
+                    return
+                }
+
+
+                // 音を出す.
+                nearest.world.playSound(nearest.location, Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.BLOCKS, 1.0f, 2.0f)
+
+                // パーティクルを出す.
+                nearest.world.spawnParticle(
+                    Particle.HEART,
+                    nearest.location.add(0.0, 1.0, 0.0),
+                    10, 0.5, 0.5, 0.5, 0.0
+                )
+
+                //
+                val hpScore = nearest.let { hpObj.getScore(it.name) }
+                //ヒール量計算
+                val healAmount = 3.0 * (1 + (healScore.score.toDouble() / 100.0))
+                hpScore.score += healAmount.roundToInt()
+
+                plugin.listener.markSync(nearest)
+                player.sendMessage("§eNS2発動！")
+                player.sendMessage("§aHPが$playerHealAmount 回復！")
+                nearest.let { player.sendMessage("§e${it.name}のHPを+$healAmount 回復！(現在のHP: ${hpScore.score})") }
+                nearest.sendMessage("§aHPが ${player.name}により$healAmount 回復！")
+
+                return
             }
 
 
