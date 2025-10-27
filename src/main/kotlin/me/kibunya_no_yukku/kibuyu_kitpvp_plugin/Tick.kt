@@ -541,11 +541,31 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                     }
                     //オーバーHPがあった場合HP同期処理を実行.
                     plugin.listener.markSync(player)
-                    //雑魚クラハゲほしてる.
                 }
 
             }
         }.runTaskTimer(plugin, 0L, 1L) // 1tick毎.
+
+        object : BukkitRunnable() {
+            override fun run() {
+                for (player in Bukkit.getOnlinePlayers()) {
+                    val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+                    val fanSaObj = scoreboard.getObjective("fan_service") ?: return
+                    val fanSaScore = fanSaObj.getScore(player.name)
+
+                    if(fanSaScore.score >= 3){
+
+                        player.sendMessage("§dSS発動！")
+                        fanSaScore.score = 0
+
+                    }
+                    else{
+                        return
+                    }
+
+                }
+            }
+        }.runTaskTimer(plugin, 0L, 1L) // 1tick毎
 
 
 
