@@ -385,6 +385,10 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         costScore.score -= costUse22Score
 
 
+        //ファンサ処理
+        fanSaScore.score += 1
+        player.sendMessage("§dファンサービスを獲得(現在の数:${fanSaScore.score})")
+
         // 回復量計算
         val playerHealAmount = 5.0 * (1 + (healScore.score.toDouble() / 100.0))
         //プレイヤーのHPに回復量を+
@@ -462,10 +466,6 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         plugin.listener.markSync(target)
 
         player.sendMessage("§e${target.name}のHPを${targetHealAmount.roundToInt()} 回復！(現在のHP:${targetHpScore.score})")
-
-        //ファンサ処理
-        fanSaScore.score += 1
-        player.sendMessage("§dさらにファンサービスを獲得(現在の数:${fanSaScore.score}")
     }
 
 
