@@ -376,6 +376,8 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         val costObj = scoreboard.getObjective("cost") ?: return
         val twoCtTwoScore = twoCtTwoObj.getScore(player.name)
         val costScore = costObj.getScore(player.name)
+        val fanSaObj = scoreboard.getObjective("fan_service") ?: return
+        val fanSaScore = fanSaObj.getScore(player.name)
         val timerSelfHpBuffObj = scoreboard.getObjective("timer_self_over_hp_buff_EX") ?: return
         val removeSelfHpBuffObj = scoreboard.getObjective("self_over_hp_buff_EX_remove_speed") ?: return
         //CT&cost処理.
@@ -460,6 +462,10 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         plugin.listener.markSync(target)
 
         player.sendMessage("§e${target.name}のHPを${targetHealAmount.roundToInt()} 回復！(現在のHP:${targetHpScore.score})")
+
+        //ファンサ処理
+        fanSaScore.score += 1
+        player.sendMessage("§dさらにファンサービスを獲得(現在の数:${fanSaScore.score}")
     }
 
 
