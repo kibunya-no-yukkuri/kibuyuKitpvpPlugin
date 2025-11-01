@@ -37,18 +37,27 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         val costScore = costObj.getScore(player.name).score
         val costUse11Obj = scoreboard.getObjective("cost_use1_1") ?: return
         val costUse11Score = costUse11Obj.getScore(player.name).score
+        val costDownAmountObj = scoreboard.getObjective("costDown_buff_amount") ?: return
+        val costDownAmountScore = costDownAmountObj.getScore(player.name)
+        val costDownObj = scoreboard.getObjective("costDown_buff") ?: return
+        val costDownScore = costDownObj.getScore(player.name)
 
+        val downUseCost11 = costUse11Score - costDownAmountScore.score
+
+        if (costScore >= downUseCost11) {
+            if(costDownScore.score >= 1){
+                costDownScore.score -= 1
+            }
         when (kit1Score) {
             1 -> if (oneCtScore < 1) {
-                if (costScore > costUse11Score - 1) {
                     kit1Skill1(player)
-                } else player.sendMessage("§cコストが高すぎます！")
             } else player.sendMessage("§cクールタイム中・・・")
 
             2 -> kit2Skill1(player)
             3 -> kit3Skill1(player)
             else -> return
         }
+        } else player.sendMessage("§cコストが高すぎます！")
     }
 
     fun kit1Skill1(player: Player) {
@@ -63,8 +72,16 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         val ctScore = ctObj.getScore(player.name)
         val costScore = costObj.getScore(player.name)
         val costUse11Score = costUse11Obj.getScore(player.name)
+        val costDownAmountObj = scoreboard.getObjective("costDown_buff_amount") ?: return
+        val costDownAmountScore = costDownAmountObj.getScore(player.name)
+        val costDownObj = scoreboard.getObjective("costDown_buff") ?: return
+        val costDownScore = costDownObj.getScore(player.name)
         ctScore.score += 300
-        costScore.score -= costUse11Score.score
+        costScore.score -= costUse11Score.score - costDownAmountScore.score
+        if(costDownScore.score <= 0){
+            costDownScore.score = 0
+            costDownAmountScore.score = 0
+        }
 
         for (other in player.world.players) {
 
@@ -116,10 +133,19 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         val costScore = costObj.getScore(player.name).score
         val costUse12Obj = scoreboard.getObjective("cost_use1_2") ?: return
         val costUse12Score = costUse12Obj.getScore(player.name).score
+        val costDownAmountObj = scoreboard.getObjective("costDown_buff_amount") ?: return
+        val costDownAmountScore = costDownAmountObj.getScore(player.name)
+        val costDownObj = scoreboard.getObjective("costDown_buff") ?: return
+        val costDownScore = costDownObj.getScore(player.name)
 
-        when (kit1Score) {
-            1 -> if (oneCtTwoScore < 1) {
-                if (costScore > costUse12Score - 1) {
+        val downUseCost11 = costUse12Score - costDownAmountScore.score
+
+        if (costScore >= downUseCost11) {
+            if (costDownScore.score >= 1) {
+                costDownScore.score -= 1
+            }
+            when (kit1Score) {
+                1 -> if (oneCtTwoScore < 1) {
                     // 左クリック（空中 or ブロック）を検知.
                     if (event.action == Action.LEFT_CLICK_AIR || event.action == Action.LEFT_CLICK_BLOCK) {
                         event.isCancelled = true  // 必要なら通常の左クリック動作をキャンセル.
@@ -130,14 +156,13 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
                     if (event.action == Action.RIGHT_CLICK_AIR || event.action == Action.RIGHT_CLICK_BLOCK) {
                         kit1Skill2(player)
                     }
-                } else player.sendMessage("§cコストが高すぎます！")
-            } else player.sendMessage("§cクールタイム中・・・")
+                } else player.sendMessage("§cクールタイム中・・・")
 
-            2 -> kit2Skill2(player)
-            3 -> kit3Skill2(player)
-            else -> return
+                2 -> kit2Skill2(player)
+                3 -> kit3Skill2(player)
+                else -> return
+            }
         }
-
     }
 
     fun kit1Skill2(player: Player) {
@@ -152,9 +177,16 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         val healScore = healObj.getScore(player.name)
         val costUse12Obj = scoreboard.getObjective("cost_use1_2") ?: return
         val costUse12Score = costUse12Obj.getScore(player.name)
+        val costDownAmountObj = scoreboard.getObjective("costDown_buff_amount") ?: return
+        val costDownAmountScore = costDownAmountObj.getScore(player.name)
+        val costDownObj = scoreboard.getObjective("costDown_buff") ?: return
+        val costDownScore = costDownObj.getScore(player.name)
         oneCtTwoScore.score += 300
-        costScore.score -= costUse12Score.score
-
+        costScore.score -= costUse12Score.score - costDownAmountScore.score
+        if(costDownScore.score <= 0){
+            costDownScore.score = 0
+            costDownAmountScore.score = 0
+        }
         val radius = 5.0
 
         // 5ブロック以内の同チームプレイヤーを検索（自身は除外）
@@ -202,13 +234,23 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         val hpObj = scoreboard.getObjective("hp") ?: return
         val oneCtTwoObj = scoreboard.getObjective("1_ct2") ?: return
         val costObj = scoreboard.getObjective("cost") ?: return
+        val costUse12Obj = scoreboard.getObjective("cost_use1_2") ?: return
+        val costUse12Score = costUse12Obj.getScore(player.name)
         val oneCtTwoScore = oneCtTwoObj.getScore(player.name)
         val costScore = costObj.getScore(player.name)
         val healScore = healObj.getScore(player.name)
         val hpScore = hpObj.getScore(player.name)
+        val costDownAmountObj = scoreboard.getObjective("costDown_buff_amount") ?: return
+        val costDownAmountScore = costDownAmountObj.getScore(player.name)
+        val costDownObj = scoreboard.getObjective("costDown_buff") ?: return
+        val costDownScore = costDownObj.getScore(player.name)
         //CT&cost処理.
         oneCtTwoScore.score += 300
-        costScore.score -= 30
+        costScore.score -= costUse12Score.score - costDownAmountScore.score
+        if(costDownScore.score <= 0){
+            costDownScore.score = 0
+            costDownAmountScore.score = 0
+        }
 
         // hpスコアを +4(治癒力分加算)
         val healAmount = 4.0 * (1 + (healScore.score.toDouble() / 100.0))
@@ -248,19 +290,30 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         val costScore = costObj.getScore(player.name).score
         val costUse21Obj = scoreboard.getObjective("cost_use2_1") ?: return
         val costUse21Score = costUse21Obj.getScore(player.name).score
+        val costDownAmountObj = scoreboard.getObjective("costDown_buff_amount") ?: return
+        val costDownAmountScore = costDownAmountObj.getScore(player.name)
+        val costDownObj = scoreboard.getObjective("costDown_buff") ?: return
+        val costDownScore = costDownObj.getScore(player.name)
 
-        when (kit2Score) {
-            1 -> if (twoCtOneScore < 1) {
-                if (costScore > costUse21Score - 1) {
-                    kit021Skill1(player)
-                } else player.sendMessage("§cコストが高すぎます！")
-            } else player.sendMessage("§cクールタイム中・・・")
+        val downUseCost11 = costUse21Score - costDownAmountScore.score
 
-            2 -> kit2Skill2(player)
-            3 -> kit3Skill2(player)
-            else -> return
+        if (costScore >= downUseCost11) {
+            if (costDownScore.score >= 1) {
+                costDownScore.score -= 1
+            }
+
+            when (kit2Score) {
+                1 -> if (twoCtOneScore < 1) {
+                    if (costScore > costUse21Score - 1) {
+                        kit021Skill1(player)
+                    } else player.sendMessage("§cコストが高すぎます！")
+                } else player.sendMessage("§cクールタイム中・・・")
+
+                2 -> kit2Skill2(player)
+                3 -> kit3Skill2(player)
+                else -> return
+            }
         }
-
     }
     fun kit021Skill1(player: Player) {
         val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
@@ -278,9 +331,17 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         val shieldTimeScore = shieldTimeObj.getScore(player.name)
         val costUse21Obj = scoreboard.getObjective("cost_use2_1") ?: return
         val costUse21Score = costUse21Obj.getScore(player.name).score
+        val costDownAmountObj = scoreboard.getObjective("costDown_buff_amount") ?: return
+        val costDownAmountScore = costDownAmountObj.getScore(player.name)
+        val costDownObj = scoreboard.getObjective("costDown_buff") ?: return
+        val costDownScore = costDownObj.getScore(player.name)
         //CT&cost処理.
         twoCtOneScore.score += 200
-        costScore.score -= costUse21Score
+        costScore.score -= costUse21Score - costDownAmountScore.score
+        if(costDownScore.score <= 0){
+            costDownScore.score = 0
+            costDownAmountScore.score = 0
+        }
 
         //Double型でシールド6に治癒力の倍率をかける
         val shieldAmount: Double = 6.0 * (1 + (healScore.score.toDouble() / 100.0))
@@ -335,29 +396,44 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         val costScore = costObj.getScore(player.name).score
         val costUse22Score = costUse22Obj.getScore(player.name).score
 
+        val costDownAmountObj = scoreboard.getObjective("costDown_buff_amount") ?: return
+        val costDownAmountScore = costDownAmountObj.getScore(player.name)
+        val costDownObj = scoreboard.getObjective("costDown_buff") ?: return
+        val costDownScore = costDownObj.getScore(player.name)
 
-        when (kit2Score) {
-            1 -> {
-                if (twoCtTwoScore < 1) {
-                    if (costScore >= costUse22Score) {
-                        kit021Skill2(player)
+        val downUseCost11 = costUse22Score - costDownAmountScore.score
+
+        if (costScore >= downUseCost11) {
+            if (costDownScore.score >= 1) {
+                costDownScore.score -= 1
+            }
+
+            when (kit2Score) {
+                1 -> {
+                    if (twoCtTwoScore < 1) {
+                        if (costScore >= costUse22Score) {
+                            kit021Skill2(player)
+                        } else {
+                            player.sendMessage("§cコストが高すぎます！(cost=$costScore, need=$costUse22Score)")
+                        }
                     } else {
-                        player.sendMessage("§cコストが高すぎます！(cost=$costScore, need=$costUse22Score)")
+                        player.sendMessage("§cクールタイム中・・・(ct=$twoCtTwoScore)")
                     }
-                } else {
-                    player.sendMessage("§cクールタイム中・・・(ct=$twoCtTwoScore)")
                 }
-            }
-            2 -> {
-                player.sendMessage("§7[DEBUG] kit2 == 2 -> kit2Skill2")
-                kit2Skill2(player)
-            }
-            3 -> {
-                player.sendMessage("§7[DEBUG] kit2 == 3 -> kit3Skill2")
-                kit3Skill2(player)
-            }
-            else -> {
-                player.sendMessage("§7[DEBUG] kit2 not 1/2/3 (kit2=$kit2Score)")
+
+                2 -> {
+                    player.sendMessage("§7[DEBUG] kit2 == 2 -> kit2Skill2")
+                    kit2Skill2(player)
+                }
+
+                3 -> {
+                    player.sendMessage("§7[DEBUG] kit2 == 3 -> kit3Skill2")
+                    kit3Skill2(player)
+                }
+
+                else -> {
+                    player.sendMessage("§7[DEBUG] kit2 not 1/2/3 (kit2=$kit2Score)")
+                }
             }
         }
     }
@@ -378,16 +454,30 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         val costScore = costObj.getScore(player.name)
         val fanSaObj = scoreboard.getObjective("fan_service") ?: return
         val fanSaScore = fanSaObj.getScore(player.name)
+        val costDownAmountObj = scoreboard.getObjective("costDown_buff_amount") ?: return
+        val costDownAmountScore = costDownAmountObj.getScore(player.name)
+        val costDownObj = scoreboard.getObjective("costDown_buff") ?: return
+        val costDownScore = costDownObj.getScore(player.name)
         val timerSelfHpBuffObj = scoreboard.getObjective("timer_self_over_hp_buff_EX") ?: return
         val removeSelfHpBuffObj = scoreboard.getObjective("self_over_hp_buff_EX_remove_speed") ?: return
         //CT&cost処理.
         twoCtTwoScore.score += 100
-        costScore.score -= costUse22Score
+        costScore.score -= costUse22Score - costDownAmountScore.score
+        if(costDownScore.score <= 0){
+            costDownScore.score = 0
+            costDownAmountScore.score = 0
+        }
 
 
         //ファンサ処理
         fanSaScore.score += 1
         player.sendMessage("§dファンサービスを獲得(現在の数:${fanSaScore.score})")
+        if(fanSaScore.score >= 3){
+            fanSaScore.score = 0
+            costDownAmountScore.score = 10
+            costDownScore.score = 1
+            player.sendMessage("§dファンサービスを3つ消費してスキルコストを10減少！")
+        }
 
         // 回復量計算
         val playerHealAmount = 5.0 * (1 + (healScore.score.toDouble() / 100.0))

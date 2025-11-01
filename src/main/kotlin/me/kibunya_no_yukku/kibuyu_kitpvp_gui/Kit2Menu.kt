@@ -9,13 +9,13 @@ object Kit2Menu {
     fun create(): Inventory {
         val inventory = Bukkit.createInventory(null, 9*3, "§bSPECIAL KITを選択")
 
-        // スロット10番目 ケーキ
-        val cake = ItemStack(Material.CAKE, 1)
-        val cakemeta = cake.itemMeta
-        cakemeta?.setDisplayName("§dセリナ")
-        cakemeta?.lore = listOf("§7右クリックで詳細を確認")
-        cake.itemMeta = cakemeta
-        inventory.setItem(10, cake)
+        // スロット10番目 ひまわり
+        val sunFlower = ItemStack(Material.SUNFLOWER, 1)
+        val sunFlowerMeta = sunFlower.itemMeta
+        sunFlowerMeta?.setDisplayName("§6マリー")
+        sunFlowerMeta?.lore = listOf("§7右クリックで詳細を確認")
+        sunFlower.itemMeta = sunFlowerMeta
+        inventory.setItem(10, sunFlower)
 
         // スロット18番目 矢
         val arrow = ItemStack(Material.ARROW, 1)

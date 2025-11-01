@@ -25,6 +25,7 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                 val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
                 val kitGiveObjective = scoreboard.getObjective("kit_give") ?: return
                 val kit1Obj = scoreboard.getObjective("kit1") ?: return
+                val kit2Obj = scoreboard.getObjective("kit2") ?: return
 
                 val score = kitGiveObjective.getScore("give").score
                 if (score == 1) {
@@ -34,6 +35,7 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                         if (player.scoreboardTags.contains("s")) {
 
                             val kit1Score = kit1Obj.getScore(player.name).score
+                            val kit2Score = kit2Obj.getScore(player.name).score
 
                             if (kit1Score == 1) {
                                 Bukkit.dispatchCommand(
@@ -47,6 +49,20 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                                 Bukkit.dispatchCommand(
                                     Bukkit.getConsoleSender(),
                                     "item replace entity ${player.name} container.2 with copper_ingot[minecraft:item_model=red_dye,custom_name=\"§l§fEXスキル1\",minecraft:lore=[\"§r§7右クリックでEXスキルを発動できる！\",\"§r§7これで勝ち確！！\"]]"
+                                )
+                            }
+                            if (kit2Score == 1) {
+                                Bukkit.dispatchCommand(
+                                    Bukkit.getConsoleSender(),
+                                    "wm give ${player.name} piety 1 slot:5"
+                                )
+                                Bukkit.dispatchCommand(
+                                    Bukkit.getConsoleSender(),
+                                    "item replace entity ${player.name} container.7 with netherite_ingot[minecraft:item_model=honeycomb,custom_name=\"§l§fEXスキル2\",minecraft:lore=[\"§r§7右クリックでEXスキルを発動できる！\",\"§r§7これで勝ち確！！\"]]"
+                                )
+                                Bukkit.dispatchCommand(
+                                    Bukkit.getConsoleSender(),
+                                    "item replace entity ${player.name} container.6 with gold_ingot[minecraft:item_model=heart_of_the_sea,custom_name=\"§l§fEXスキル1\",minecraft:lore=[\"§r§7右クリックでEXスキルを発動できる！\",\"§r§7これで勝ち確！！\"]]"
                                 )
                             }
                         }
@@ -389,6 +405,8 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                     val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
                     val shieldObj = scoreboard.getObjective("shield") ?: return
                     val shieldTimeObj = scoreboard.getObjective("shield_time") ?: return
+                    val costDownAmountObj = scoreboard.getObjective("costDown_buff_amount") ?: return
+                    val costDownAmountScore = costDownAmountObj.getScore(player.name).score
                     val shieldScore = shieldObj.getScore(player.name)
                     val shieldTimeScore = shieldTimeObj.getScore(player.name)
                     if(shieldScore.score >= 1){
@@ -431,7 +449,7 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
 
                     player.spigot().sendMessage(
                         ChatMessageType.ACTION_BAR,
-                        TextComponent("§e残弾数: $ammoLeft 発 | シールド: $shieldHp")
+                        TextComponent("§e残弾数: $ammoLeft 発 | シールド: $shieldHp | コスト減少値: $costDownAmountScore")
                     )
 
                     //ここからオーバーHP処理.
