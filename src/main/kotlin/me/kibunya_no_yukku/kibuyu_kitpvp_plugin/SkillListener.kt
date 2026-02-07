@@ -4,6 +4,8 @@ package me.kibunya_no_yukku.kibuyu_kitpvp_plugin
 import me.kibunya_no_yukku.kibuyu_kitpvp_plugin.Kibuyu_kitpvp_plugin.Companion.shieldMap
 import org.bukkit.Bukkit
 import org.bukkit.Material
+import org.bukkit.Particle
+import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -13,7 +15,9 @@ import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.scheduler.BukkitRunnable
 import org.bukkit.util.RayTraceResult
 import java.util.*
+import kotlin.math.cos
 import kotlin.math.roundToInt
+import kotlin.math.sin
 
 class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
 
@@ -82,28 +86,195 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
             costDownScore.score = 0
             costDownAmountScore.score = 0
         }
+        //パーティクル&サウンド
+        object : BukkitRunnable() {
+            var radius = 0.0
 
-        for (other in player.world.players) {
-
-            // チームが同じか？
-            if (scoreboard.getEntryTeam(other.name) != team) continue
-
-            // 半径5マス以内か？
-            if (other.location.distance(player.location) <= 5.0) {
-                val timeScore = timeObj.getScore(other.name)
-                val attackScore = attackObj.getScore(other.name)
-                val buffTimeScore = buffTimeObj.getScore(other.name)
-                if (timeScore.score == 0) {
-                    attackScore.score = 43
+            override fun run() {
+                radius += 0.5
+                kit1Skill1SpawnCircle(player, radius)
+                kit1Skill1SpawnCircle3(player, radius)
+                if (radius == 0.5){
+                    player.world.playSound(
+                        player.location,
+                        Sound.BLOCK_NOTE_BLOCK_CHIME,
+                        1.0f, // 音量
+                        1.0f)  // ピッチ
                 }
-                timeScore.score = 300 * (1 + (buffTimeScore.score / 100))
-                other.sendMessage("§e${player.name}「この音と共に希望があらんことを」", "§c攻撃力§eが15秒間+43！")
-                val item = player.inventory.itemInMainHand
-                player.setCooldown(item.type, 20 * 15)
+                if (radius == 3.5) {
+                    player.world.playSound(
+                        player.location,
+                        Sound.BLOCK_NOTE_BLOCK_CHIME,
+                        1.0f, // 音量
+                        1.0f
+                    )  // ピッチ
+                }
+                if (radius >= 5.1) cancel()
             }
+        }.runTaskTimer(plugin, 0L, 1L)
+        player.world.playSound(
+            player.location,
+            Sound.BLOCK_BELL_RESONATE,
+            1.0f, // 音量
+            1.0f  // ピッチ
+        )
+        object : BukkitRunnable() {
+            var y = 0.0
+            override fun run() {
+                for (i in 0..6) {
+                    y += 0.3
+                    kit1Skill1SpawnCircle2(player, y)
+                    kit1Skill1SpawnCircle4(player, y)
+                    if (y >= 2.2) cancel()
+                }
+            }
+        }.runTaskTimer(plugin, 15L, 0L)
+
+        //バフ付与
+        object : BukkitRunnable() {
+            override fun run() {
+
+                for (other in player.world.players) {
+
+                    // チームが同じか？
+                    if (scoreboard.getEntryTeam(other.name) != team) continue
+
+                    // 半径5マス以内か？
+                    if (other.location.distance(player.location) <= 5.0) {
+                        val timeScore = timeObj.getScore(other.name)
+                        val attackScore = attackObj.getScore(other.name)
+                        val buffTimeScore = buffTimeObj.getScore(player.name)
+                        if (timeScore.score == 0) {
+                            attackScore.score = 43
+                        }
+                        timeScore.score = 300 * (1 + (buffTimeScore.score / 100))
+                        other.sendMessage("§e${player.name}「この音と共に希望があらんことを」", "§c攻撃力§eが15秒間+43！")
+                        val item = player.inventory.itemInMainHand
+                        player.setCooldown(item.type, 20 * 15)
+                        //頭上に八分音符もどき
+                        spawnEighthNote(other)
+
+                        player.world.playSound(
+                            player.location,
+                            Sound.BLOCK_BELL_USE,
+                            1.0f, // 音量
+                            1.0f  // ピッチ
+                        )
+                    }
+                }
+
+                cancel()
+            }
+        }.runTaskTimer(plugin, 15L, 0L)
+    }
+    fun kit1Skill1SpawnCircle(player: Player, radius: Double) {
+        val loc = player.location
+        val world = player.world
+
+        for (i in 0..20) {
+            val angle = 2 * Math.PI * i / 20
+            val x = cos(angle) * radius
+            val z = sin(angle) * radius
+
+            world.spawnParticle(
+                Particle.WAX_ON,
+                loc.clone().add(x, 0.1, z),
+                1,
+                0.0, 0.0, 0.0
+            )
         }
     }
+    fun kit1Skill1SpawnCircle2(player: Player, y: Double) {
+        val loc = player.location
+        val world = player.world
 
+        for (i in 0..20) {
+            val angle = 2 * Math.PI * i / 20
+            val x = cos(angle) * 5.0
+            val z = sin(angle) * 5.0
+
+            world.spawnParticle(
+                Particle.WAX_ON,
+                loc.clone().add(x, y, z),
+                1,
+                0.0, 0.0, 0.0
+            )
+        }
+    }
+    fun kit1Skill1SpawnCircle3(player: Player, radius: Double) {
+        val loc = player.location
+        val world = player.world
+
+        for (i in 0..20) {
+            val angle = 3 * Math.PI * i / 20
+            val x = cos(angle) * radius
+            val z = sin(angle) * radius
+
+            world.spawnParticle(
+                Particle.WAX_OFF,
+                loc.clone().add(x, 0.1, z),
+                1,
+                0.0, 0.0, 0.0
+            )
+        }
+    }
+    fun kit1Skill1SpawnCircle4(player: Player, y: Double) {
+        val loc = player.location
+        val world = player.world
+
+        for (i in 0..20) {
+            val angle = 3 * Math.PI * i / 20
+            val x = cos(angle) * 5.0
+            val z = sin(angle) * 5.0
+
+            world.spawnParticle(
+                Particle.WAX_OFF,
+                loc.clone().add(x, y, z),
+                1,
+                0.0, 0.0, 0.0
+            )
+        }
+    }
+    fun spawnEighthNote(player: Player) {
+        val world = player.world
+        val base = player.location.clone().add(0.0, 2.4, 0.0)
+        val particle = Particle.WAX_OFF
+
+        // ===== ① 音符の玉 =====
+        for (i in 0 until 16) {
+            val angle = 2 * Math.PI * i / 16
+            val x = Math.cos(angle) * 0.15
+            val z = Math.sin(angle) * 0.15
+
+            world.spawnParticle(
+                particle,
+                base.clone().add(x, 0.0, z),
+                1, 0.0, 0.0, 0.0, 0.0
+            )
+        }
+
+        // ===== ② 縦棒 =====
+        for (i in 0 until 12) {
+            world.spawnParticle(
+                particle,
+                base.clone().add(0.15, i * 0.08, 0.0),
+                1, 0.0, 0.0, 0.0, 0.0
+            )
+        }
+
+        // ===== ③ 旗 =====
+        for (i in 0 until 12) {
+            val t = i / 12.0
+            val x = 0.15 + Math.sin(t * Math.PI) * 0.25
+            val y = 0.9 + t * 0.25
+
+            world.spawnParticle(
+                particle,
+                base.clone().add(x, y, 0.0),
+                1, 0.0, 0.0, 0.0, 0.0
+            )
+        }
+    }
     fun kit2Skill1(player: Player) {
         player.sendMessage("§eスキル発動！")
     }
@@ -261,6 +432,22 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         player.sendMessage("§aHPを${healAmount.roundToInt()} 回復！")
         val item = player.inventory.itemInMainHand
         player.setCooldown(item.type, 20 * 15)
+
+        player.world.spawnParticle(
+            Particle.HEART,
+            player.location,
+            50,  // 数
+            0.5, 0.5, 0.5, // 広がり
+            0.1
+        )
+
+        player.world.playSound(
+            player.location,
+            Sound.ENTITY_PLAYER_ATTACK_SWEEP,
+            1.0f,
+            1.2f
+        )
+
         return
     }
     fun kit2Skill2(player: Player) {
@@ -365,7 +552,6 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         player.setCooldown(item.type, 20 * 10)
         return
     }
-
 
 
 
@@ -588,7 +774,6 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
 
         return null
     }
-
 
 
 
