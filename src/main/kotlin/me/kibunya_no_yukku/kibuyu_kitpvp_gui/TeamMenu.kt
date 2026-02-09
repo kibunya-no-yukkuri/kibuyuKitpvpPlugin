@@ -19,7 +19,7 @@ object TeamMenu {
         // スロット12番目 青羊毛
         val bluewool = ItemStack(Material.BLUE_WOOL, 1)
         val bluewoolMeta = bluewool.itemMeta
-        bluewoolMeta?.setDisplayName("§1青チームに参加")
+        bluewoolMeta?.setDisplayName("§b青チームに参加")
         bluewool.itemMeta = bluewoolMeta
         inventory.setItem(12, bluewool)
 
@@ -33,7 +33,7 @@ object TeamMenu {
         // スロット16番目 緑羊毛
         val greenwool = ItemStack(Material.GREEN_WOOL, 1)
         val greenwoolmeta = greenwool.itemMeta
-        greenwoolmeta?.setDisplayName("§e緑チームに参加")
+        greenwoolmeta?.setDisplayName("§a緑チームに参加")
         greenwool.itemMeta = greenwoolmeta
         inventory.setItem(16, greenwool)
 

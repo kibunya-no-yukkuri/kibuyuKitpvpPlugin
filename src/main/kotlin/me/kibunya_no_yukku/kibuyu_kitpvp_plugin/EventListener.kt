@@ -297,7 +297,7 @@ class EventListener(private val plugin: JavaPlugin): Listener {
 
                     12 -> { // 青チーム
                         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "team join blue ${player.name}")
-                        player.sendMessage("§1青チームに参加しました！")
+                        player.sendMessage("§b青チームに参加しました！")
                         player.closeInventory()
                     }
 
