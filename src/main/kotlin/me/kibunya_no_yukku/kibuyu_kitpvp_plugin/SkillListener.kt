@@ -88,6 +88,8 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
             costDownScore.score = 0
             costDownAmountScore.score = 0
         }
+        val item = player.inventory.itemInMainHand
+        player.setCooldown(item.type, 20 * 15)
         //パーティクル&サウンド
         object : BukkitRunnable() {
             var radius = 0.0
@@ -151,8 +153,6 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
                         }
                         timeScore.score = 300 * (1 + (buffTimeScore.score / 100))
                         other.sendMessage("§e${player.name}「この音と共に希望があらんことを」", "§c攻撃力§eが15秒間+43！")
-                        val item = player.inventory.itemInMainHand
-                        player.setCooldown(item.type, 20 * 15)
                         //頭上に八分音符もどき
                         spawnEighthNote(other)
 
@@ -673,7 +673,7 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         val timerSelfHpBuffObj = scoreboard.getObjective("timer_self_over_hp_buff_EX") ?: return
         val removeSelfHpBuffObj = scoreboard.getObjective("self_over_hp_buff_EX_remove_speed") ?: return
         //CT&cost処理.
-        twoCtTwoScore.score += 200
+        twoCtTwoScore.score += 160
         costScore.score -= costUse22Score - costDownAmountScore.score
         if(costDownScore.score <= 0){
             costDownScore.score = 0
@@ -726,7 +726,7 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
 
         //CT可視化
         val item = player.inventory.itemInMainHand
-        player.setCooldown(item.type, 20 * 6)
+        player.setCooldown(item.type, 20 * 8)
 
         //音
         Bukkit.dispatchCommand(
