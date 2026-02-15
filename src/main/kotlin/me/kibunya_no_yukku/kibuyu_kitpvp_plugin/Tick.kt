@@ -6,6 +6,7 @@ import net.md_5.bungee.api.ChatMessageType
 import net.md_5.bungee.api.chat.TextComponent
 import org.bukkit.*
 import org.bukkit.entity.Player
+import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.scheduler.BukkitRunnable
 import kotlin.math.cos
@@ -402,6 +403,31 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
         object : BukkitRunnable() {
             override fun run() {
                 for (player in Bukkit.getOnlinePlayers()) {
+                    //ここからシールドパーティクル
+                    val shieldInt = shieldMap[player.uniqueId] ?: 0 // UUID から取得、無ければ 0.
+
+                    if (shieldInt >= 1) {
+                        //パーティクル.
+                        val world = player.world
+                        val center = player.location.clone().add(0.0, 1.0, 0.0)
+
+                        val points = 24
+                        val radius = 0.9
+
+                        for (i in 0 until points) {
+                            val angle = 2 * Math.PI * i / points
+                            val x = cos(angle) * radius
+                            val z = sin(angle) * radius
+
+                            world.spawnParticle(
+                                Particle.ENCHANTED_HIT,
+                                center.clone().add(x, 0.0, z),
+                                1,
+                                0.0, 0.0, 0.0,
+                                0.01
+                            )
+                        }
+                    }
                     val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
                     val shieldObj = scoreboard.getObjective("shield") ?: return
                     val shieldTimeObj = scoreboard.getObjective("shield_time") ?: return
@@ -563,7 +589,7 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
 
             }
         }.runTaskTimer(plugin, 0L, 1L) // 1tick毎.
-
+        //SS処理
         object : BukkitRunnable() {
             override fun run() {
                 for (player in Bukkit.getOnlinePlayers()) {

@@ -4,8 +4,10 @@ package me.kibunya_no_yukku.kibuyu_kitpvp_plugin
 import me.kibunya_no_yukku.kibuyu_kitpvp_plugin.Kibuyu_kitpvp_plugin.Companion.shieldMap
 import org.bukkit.Bukkit
 import org.bukkit.Material
+import org.bukkit.NamespacedKey
 import org.bukkit.Particle
 import org.bukkit.Sound
+import org.bukkit.SoundCategory
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -396,6 +398,30 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         nearest.sendMessage("§e${player.name} によりHPが${healAmount.roundToInt()}回復！")
         val item = player.inventory.itemInMainHand
         player.setCooldown(item.type, 20 * 15)
+
+        //自身に効果音
+        player.world.playSound(
+            player.location,
+            Sound.ENTITY_PLAYER_ATTACK_SWEEP,
+            1.0f,
+            1.2f
+        )
+        //対象にパーティクル.
+        nearest.world.spawnParticle(
+            Particle.HEART,
+            nearest.location,
+            50,  // 数
+            0.5, 0.5, 0.5, // 広がり
+            0.1
+        )
+
+        nearest.world.playSound(
+            nearest.location,
+            Sound.ENTITY_PLAYER_ATTACK_SWEEP,
+            1.0f,
+            1.2f
+        )
+
         return
     }
 
@@ -647,7 +673,7 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         val timerSelfHpBuffObj = scoreboard.getObjective("timer_self_over_hp_buff_EX") ?: return
         val removeSelfHpBuffObj = scoreboard.getObjective("self_over_hp_buff_EX_remove_speed") ?: return
         //CT&cost処理.
-        twoCtTwoScore.score += 100
+        twoCtTwoScore.score += 200
         costScore.score -= costUse22Score - costDownAmountScore.score
         if(costDownScore.score <= 0){
             costDownScore.score = 0
@@ -700,7 +726,13 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
 
         //CT可視化
         val item = player.inventory.itemInMainHand
-        player.setCooldown(item.type, 20 * 5)
+        player.setCooldown(item.type, 20 * 6)
+
+        //音
+        Bukkit.dispatchCommand(
+            player,
+            "playsound minecraft:tomodati_one_step master @a ~ ~ ~"
+        )
 
 
         // 視線上のプレイヤーを探す
