@@ -151,7 +151,7 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                 }
 
                 if (candidates.isEmpty()) {
-                    player.sendMessage("§eNS1発動！")
+                    player.sendMessage("§e緊急治療セットB発動")
                     player.sendMessage("§c味方が見つかりません")
                     return
                 }
@@ -160,9 +160,9 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                     .filter { hpObj.getScore(it.name).score < maxHpObj.getScore(it.name).score }
                     .minByOrNull { hpObj.getScore(it.name).score }
                 if (nearest == null) {
-                    player.sendMessage("§eNS1発動！")
+                    player.sendMessage("§e緊急治療セットB発動！")
                     player.sendMessage("§cHPの減っている味方がいませんでした")
-                    player.sendMessage("§e次NS1発動までの時間を20秒短くしました")
+                    player.sendMessage("§e次緊急治療セットB発動までの時間を20秒短くしました")
                     ns2Score.score -= 400
                     return
                 }
@@ -184,7 +184,7 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                 hpScore.score += healAmount.roundToInt()
 
                 plugin.listener.markSync(nearest)
-                nearest.let { player.sendMessage("§eNS1発動！") }
+                nearest.let { player.sendMessage("§e緊急治療セットB発動！") }
                 nearest.let { player.sendMessage("§e${it.name}のHPを${healAmount.roundToInt()}回復！(現在のHP: ${hpScore.score})") }
                 nearest.sendMessage("§aHPが ${player.name}により${healAmount.roundToInt()}回復！")
 
@@ -337,7 +337,7 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                 //HP同期.
                 plugin.listener.markSync(player)
                 //メッセージ
-                player.sendMessage("§eNS2発動！")
+                player.sendMessage("§e慈愛の投げキッス発動！")
                 player.sendMessage("§aHPが${playerHealAmount.roundToInt()} 回復！")
 
                 // 同じワールドの同チームプレイヤーを検索（自身含む)

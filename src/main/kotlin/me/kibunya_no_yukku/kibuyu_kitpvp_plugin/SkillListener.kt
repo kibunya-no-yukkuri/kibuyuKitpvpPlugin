@@ -710,7 +710,7 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
             removeSelfHpBuffScore.score = 20
             timerSelfHpBuffScore.score = playerHpAmount * 20
 
-            player.sendMessage("§eさらに${playerHealAmount.roundToInt()} のオーバーHPを獲得")
+            player.sendMessage("§eさらに${playerHpAmount} のオーバーHPを獲得")
 
             // 1tick後にオーバーHP分の回復
             Bukkit.getScheduler().runTaskLater(plugin, Runnable {
