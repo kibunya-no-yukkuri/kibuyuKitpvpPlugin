@@ -92,7 +92,7 @@ class EventListener(private val plugin: JavaPlugin): Listener {
     //銃でダメージ与えたの検知
     @EventHandler
     fun onWeaponDamage(event: WeaponDamageEntityEvent) {
-        val shooter = event.shooter
+        val shooter = event.entity
         if (shooter !is Player) return
 
         // 攻撃力スコアを取得（例：攻撃力はスコアボードの "attack"）

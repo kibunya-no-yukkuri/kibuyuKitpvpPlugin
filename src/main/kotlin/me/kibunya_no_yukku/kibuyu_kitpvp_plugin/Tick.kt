@@ -471,58 +471,78 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                         CustomTag.AMMO_LEFT.getInteger(weaponStack)
                     } else 0
 
+                    //ultコスト取得
+                    val ultObj = scoreboard.getObjective("ult") ?: return
+                    val ultScore = ultObj.getScore(player.name).score
+                    val ultUse1Obj = scoreboard.getObjective("ult_use_1") ?: return
+                    val ultUse1Score = ultUse1Obj.getScore(player.name).score
+                    val ultUse2Obj = scoreboard.getObjective("ult_use_2") ?: return
+                    val ultUse2Score = ultUse2Obj.getScore(player.name).score
+
 
                     player.spigot().sendMessage(
                         ChatMessageType.ACTION_BAR,
-                        TextComponent("§e残弾数: $ammoLeft 発 | シールド: $shieldHp | コスト減少値: $costDownAmountScore")
+                        TextComponent("§e残弾数: $ammoLeft 発 | シールド: $shieldHp | コスト減少値: $costDownAmountScore | ウルト: $ultScore /$ultUse1Score,$ultUse2Score")
                     )
 
                     //ここからオーバーHP処理.
                     //オブジェクト名は頭文字を合わせたもの.
+                    val sOHBUObj = scoreboard.getObjective("self_over_hp_buff_ULT") ?: return
                     val sOHBEObj = scoreboard.getObjective("self_over_hp_buff_EX") ?: return
                     val sOHBNObj = scoreboard.getObjective("self_over_hp_buff_NS") ?: return
                     val sOHBPObj = scoreboard.getObjective("self_over_hp_buff_PS") ?: return
                     val sOHBSObj = scoreboard.getObjective("self_over_hp_buff_SS") ?: return
+                    val oOHBUObj = scoreboard.getObjective("other_over_hp_buff_ULT") ?: return
                     val oOHBEObj = scoreboard.getObjective("other_over_hp_buff_EX") ?: return
                     val oOHBNObj = scoreboard.getObjective("other_over_hp_buff_NS") ?: return
                     val oOHBPObj = scoreboard.getObjective("other_over_hp_buff_PS") ?: return
                     val oOHBSObj = scoreboard.getObjective("other_over_hp_buff_SS") ?: return
+                    val tSOHBUObj = scoreboard.getObjective("timer_self_over_hp_buff_ULT") ?: return
                     val tSOHBEObj = scoreboard.getObjective("timer_self_over_hp_buff_EX") ?: return
                     val tSOHBNObj = scoreboard.getObjective("timer_self_over_hp_buff_NS") ?: return
                     val tSOHBPObj = scoreboard.getObjective("timer_self_over_hp_buff_PS") ?: return
                     val tSOHBSObj = scoreboard.getObjective("timer_self_over_hp_buff_SS") ?: return
+                    val tOOHBUObj = scoreboard.getObjective("timer_other_over_hp_buff_ULT") ?: return
                     val tOOHBEObj = scoreboard.getObjective("timer_other_over_hp_buff_EX") ?: return
                     val tOOHBNObj = scoreboard.getObjective("timer_other_over_hp_buff_NS") ?: return
                     val tOOHBPObj = scoreboard.getObjective("timer_other_over_hp_buff_PS") ?: return
                     val tOOHBSObj = scoreboard.getObjective("timer_other_over_hp_buff_SS") ?: return
+                    val sOHBURSObj = scoreboard.getObjective("self_over_hp_buff_ULT_remove_speed") ?: return
                     val sOHBERSObj = scoreboard.getObjective("self_over_hp_buff_EX_remove_speed") ?: return
                     val sOHBNRSObj = scoreboard.getObjective("self_over_hp_buff_NS_remove_speed") ?: return
                     val sOHBPRSObj = scoreboard.getObjective("self_over_hp_buff_PS_remove_speed") ?: return
                     val sOHBSRSObj = scoreboard.getObjective("self_over_hp_buff_SS_remove_speed") ?: return
+                    val oOHBURSObj = scoreboard.getObjective("other_over_hp_buff_ULT_remove_speed") ?: return
                     val oOHBERSObj = scoreboard.getObjective("other_over_hp_buff_EX_remove_speed") ?: return
                     val oOHBNRSObj = scoreboard.getObjective("other_over_hp_buff_NS_remove_speed") ?: return
                     val oOHBPRSObj = scoreboard.getObjective("other_over_hp_buff_PS_remove_speed") ?: return
                     val oOHBSRSObj = scoreboard.getObjective("other_over_hp_buff_SS_remove_speed") ?: return
+                    val sOHBUScore = sOHBUObj.getScore(player.name)
                     val sOHBEScore = sOHBEObj.getScore(player.name)
                     val sOHBNScore = sOHBNObj.getScore(player.name)
                     val sOHBPScore = sOHBPObj.getScore(player.name)
                     val sOHBSScore = sOHBSObj.getScore(player.name)
+                    val oOHBUScore = oOHBUObj.getScore(player.name)
                     val oOHBEScore = oOHBEObj.getScore(player.name)
                     val oOHBNScore = oOHBNObj.getScore(player.name)
                     val oOHBPScore = oOHBPObj.getScore(player.name)
                     val oOHBSScore = oOHBSObj.getScore(player.name)
+                    val tSOHBUScore = tSOHBUObj.getScore(player.name).score
                     val tSOHBEScore = tSOHBEObj.getScore(player.name).score
                     val tSOHBNScore = tSOHBNObj.getScore(player.name).score
                     val tSOHBPScore = tSOHBPObj.getScore(player.name).score
                     val tSOHBSScore = tSOHBSObj.getScore(player.name).score
+                    val tOOHBUScore = tOOHBUObj.getScore(player.name).score
                     val tOOHBEScore = tOOHBEObj.getScore(player.name).score
                     val tOOHBNScore = tOOHBNObj.getScore(player.name).score
                     val tOOHBPScore = tOOHBPObj.getScore(player.name).score
                     val tOOHBSScore = tOOHBSObj.getScore(player.name).score
+                    val sOHBURSScore = sOHBURSObj.getScore(player.name).score
                     val sOHBERSScore = sOHBERSObj.getScore(player.name).score
                     val sOHBNRSScore = sOHBNRSObj.getScore(player.name).score
                     val sOHBPRSScore = sOHBPRSObj.getScore(player.name).score
                     val sOHBSRSScore = sOHBSRSObj.getScore(player.name).score
+                    val oOHBURSScore = oOHBURSObj.getScore(player.name).score
                     val oOHBERSScore = oOHBERSObj.getScore(player.name).score
                     val oOHBNRSScore = oOHBNRSObj.getScore(player.name).score
                     val oOHBPRSScore = oOHBPRSObj.getScore(player.name).score
@@ -539,22 +559,26 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                     }
 
                     // ↓ここから修正版
+                    val tSOHBUScoreD = safeDivide(tSOHBUScore, sOHBURSScore)
                     val tSOHBEScoreD = safeDivide(tSOHBEScore, sOHBERSScore)
                     val tSOHBNScoreD = safeDivide(tSOHBNScore, sOHBNRSScore)
                     val tSOHBPScoreD = safeDivide(tSOHBPScore, sOHBPRSScore)
                     val tSOHBSScoreD = safeDivide(tSOHBSScore, sOHBSRSScore)
 
+                    val tOOHBUScoreD = safeDivide(tOOHBUScore, oOHBURSScore)
                     val tOOHBEScoreD = safeDivide(tOOHBEScore, oOHBERSScore)
                     val tOOHBNScoreD = safeDivide(tOOHBNScore, oOHBNRSScore)
                     val tOOHBPScoreD = safeDivide(tOOHBPScore, oOHBPRSScore)
                     val tOOHBSScoreD = safeDivide(tOOHBSScore, oOHBSRSScore)
 
                     // ↓安全にスコアへ反映
+                    sOHBUScore.score = safeRound(tSOHBUScoreD)
                     sOHBEScore.score = safeRound(tSOHBEScoreD)
                     sOHBNScore.score = safeRound(tSOHBNScoreD)
                     sOHBPScore.score = safeRound(tSOHBPScoreD)
                     sOHBSScore.score = safeRound(tSOHBSScoreD)
 
+                    oOHBUScore.score = safeRound(tOOHBUScoreD)
                     oOHBEScore.score = safeRound(tOOHBEScoreD)
                     oOHBNScore.score = safeRound(tOOHBNScoreD)
                     oOHBPScore.score = safeRound(tOOHBPScoreD)
@@ -563,10 +587,12 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
 
                     // オーバーHP全部入れる.
                     val overHpNames = listOf(
+                        "timer_self_over_hp_buff_ULT",
                         "timer_self_over_hp_buff_EX",
                     "timer_self_over_hp_buff_NS",
                     "timer_self_over_hp_buff_PS",
                         "timer_self_over_hp_buff_SS",
+                        "timer_other_over_hp_buff_ULT",
                         "timer_other_over_hp_buff_EX",
                         "timer_other_over_hp_buff_NS",
                         "timer_other_over_hp_buff_PS",
@@ -609,6 +635,34 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                 }
             }
         }.runTaskTimer(plugin, 0L, 1L) // 1tick毎
+
+
+
+        //ここからウルトコスト増加
+        object : BukkitRunnable() {
+            override fun run() {
+                for (player in Bukkit.getOnlinePlayers()) {
+                    val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+                    val ultObj = scoreboard.getObjective("ult") ?: return
+                    val ultUse1Obj = scoreboard.getObjective("ult_use_1") ?: return
+                    val ultUse2Obj = scoreboard.getObjective("ult_use_2") ?: return
+
+                    val ultScore = ultObj.getScore(player.name)
+                    val ultUse1Score = ultUse1Obj.getScore(player.name).score
+                    val ultUse2Score = ultUse2Obj.getScore(player.name).score
+                    if(ultUse1Score <= ultUse2Score){
+                        if(ultScore.score < ultUse2Score)
+                            ultScore.score += 1
+                    }
+                    if(ultUse2Score < ultUse1Score){
+                        if(ultScore.score < ultUse1Score)
+                            ultScore.score += 1
+                    }
+
+                }
+
+            }
+        }.runTaskTimer(plugin, 0L, 20L) // 1秒毎.
 
 
 

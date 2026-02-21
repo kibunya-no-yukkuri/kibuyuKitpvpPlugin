@@ -670,6 +670,8 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         val costDownScore = costDownObj.getScore(player.name)
         val timerSelfHpBuffObj = scoreboard.getObjective("timer_self_over_hp_buff_EX") ?: return
         val removeSelfHpBuffObj = scoreboard.getObjective("self_over_hp_buff_EX_remove_speed") ?: return
+        val timerOtherHpBuffObj = scoreboard.getObjective("timer_other_over_hp_buff_EX") ?: return
+        val removeOtherHpBuffObj = scoreboard.getObjective("other_over_hp_buff_EX_remove_speed") ?: return
         //CT&cost処理.
         twoCtTwoScore.score += 160
         costScore.score -= costUse22Score - costDownAmountScore.score
@@ -751,14 +753,14 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
             val targetHpMaxAmount = targetHpMaxScore.score
             targetHpAmount -= targetHpMaxAmount
 
-            val timerSelfHpBuffScore = timerSelfHpBuffObj.getScore(target.name)
-            val removeSelfHpBuffScore = removeSelfHpBuffObj.getScore(target.name)
+            val timerOtherHpBuffScore = timerOtherHpBuffObj.getScore(target.name)
+            val removeOtherHpBuffScore = removeOtherHpBuffObj.getScore(target.name)
 
             //playerHpScore.score -= playerHpAmount
 
 
-            removeSelfHpBuffScore.score = 10
-            timerSelfHpBuffScore.score = targetHpAmount * 10
+            removeOtherHpBuffScore.score = 20
+            timerOtherHpBuffScore.score = targetHpAmount * 20
 
             target.sendMessage("§eさらに${targetHealAmount.roundToInt()} のオーバーHPを獲得")
 
@@ -869,4 +871,196 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         task.runTaskLater(plugin, duration) // 1秒ごと
         taskMap[player.uniqueId] = task
     }
+
+    //ここからウルト
+    @EventHandler
+    fun onClickDiamond(event: PlayerInteractEvent) {
+        val player = event.player
+
+        // メインハンドクリックのみ対応
+        if (event.hand != EquipmentSlot.HAND) return
+
+        // アイテムがダイヤかチェック
+        val item = player.inventory.itemInMainHand
+        if (item.type != Material.DIAMOND) return
+
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+        val kit1Obj = scoreboard.getObjective("kit1") ?: return
+        val kit1Score = kit1Obj.getScore(player.name).score
+        val ultObj = scoreboard.getObjective("ult") ?: return
+        val ultScore = ultObj.getScore(player.name)
+        val ultUse1Obj = scoreboard.getObjective("ult_use_1") ?: return
+        val ultUse1Score = ultUse1Obj.getScore(player.name).score
+        val ultCt1UObj = scoreboard.getObjective("ult_ct1") ?: return
+        val ultCt1Score = ultCt1UObj.getScore(player.name).score
+
+        if (ultScore.score >= ultUse1Score) {
+            if(ultCt1Score < 1) {
+
+                ultScore.score -= ultUse1Score
+
+                when (kit1Score) {
+                    1 -> kit101Ult(player)
+                    2 -> kit102Ult(player)
+                    3 -> kit103Ult(player)
+                    else -> return
+                }
+            }
+        } else player.sendMessage("§cULTコストが足りません")
+    }
+
+    fun kit101Ult(player: Player) {
+    }
+
+    fun kit102Ult(player: Player) {
+        player.sendMessage("§eウルト発動！")
+    }
+
+    fun kit103Ult(player: Player) {
+        player.sendMessage("§eウルト発動！")
+    }
+
+
+
+    @EventHandler
+    fun onClickEmerald(event: PlayerInteractEvent) {
+        val player = event.player
+
+        // メインハンドクリックのみ対応
+        if (event.hand != EquipmentSlot.HAND) return
+
+        // アイテムがエメラルドかチェック
+        val item = player.inventory.itemInMainHand
+        if (item.type != Material.EMERALD) return
+
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+        val kit2Obj = scoreboard.getObjective("kit2") ?: return
+        val kit2Score = kit2Obj.getScore(player.name).score
+        val ultObj = scoreboard.getObjective("ult") ?: return
+        val ultScore = ultObj.getScore(player.name)
+        val ultUse2Obj = scoreboard.getObjective("ult_use_2") ?: return
+        val ultUse2Score = ultUse2Obj.getScore(player.name).score
+        val ultCt2UObj = scoreboard.getObjective("ult_ct2") ?: return
+        val ultCt2Score = ultCt2UObj.getScore(player.name).score
+
+        if (ultScore.score >= ultUse2Score) {
+            if(ultCt2Score < 1) {
+                ultScore.score -= ultUse2Score
+                    when (kit2Score) {
+                        1 -> kit201Ult(player)
+                        2 -> kit202Ult(player)
+                        3 -> kit203Ult(player)
+                        else -> return
+                    }
+            }
+        } else player.sendMessage("§cULTコストが足りません")
+    }
+
+    fun kit201Ult(player: Player) {
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+        val healObj = scoreboard.getObjective("heal") ?: return
+        val healScore = healObj.getScore(player.name)
+        val hpObj = scoreboard.getObjective("hp") ?: return
+        val playerHpScore = hpObj.getScore(player.name)
+        val hpMaxObj = scoreboard.getObjective("max_hp") ?: return
+        val playerHpMaxScore = hpMaxObj.getScore(player.name)
+        val ultCt2Obj = scoreboard.getObjective("ult_ct2") ?: return
+        val ultCt2Score = ultCt2Obj.getScore(player.name)
+        val timerSelfHpBuffObj = scoreboard.getObjective("timer_self_over_hp_buff_ULT") ?: return
+        val removeSelfHpBuffObj = scoreboard.getObjective("self_over_hp_buff_ULT_remove_speed") ?: return
+        val timerOtherHpBuffObj = scoreboard.getObjective("timer_other_over_hp_buff_ULT") ?: return
+        val removeOtherHpBuffObj = scoreboard.getObjective("other_over_hp_buff_ULT_remove_speed") ?: return
+        //CT&cost処理.
+        ultCt2Score.score += 1000
+        //CT可視化
+        val item = player.inventory.itemInMainHand
+        player.setCooldown(item.type, 20 * 50)
+
+        // 回復量計算
+        val playerHealAmount = 50.0 * (1 + (healScore.score.toDouble() / 100.0))
+        //プレイヤーのHPに回復量を+
+        playerHpScore.score += playerHealAmount.roundToInt()
+
+        player.sendMessage("§e自身のHPを${playerHealAmount.roundToInt()} 回復！")
+
+        if(playerHpScore.score > playerHpMaxScore.score){
+
+            var playerHpAmount = playerHpScore.score
+            val playerHpMaxAmount = playerHpMaxScore.score
+            playerHpAmount -= playerHpMaxAmount
+
+            val timerSelfHpBuffScore = timerSelfHpBuffObj.getScore(player.name)
+            val removeSelfHpBuffScore = removeSelfHpBuffObj.getScore(player.name)
+
+            //100%分増やしたいなら両方同じ数字.
+            //両方同じ数字だと1HPがxTickで減るのxがこの値になる.
+            removeSelfHpBuffScore.score = 10
+            timerSelfHpBuffScore.score = playerHpAmount * 10
+
+            player.sendMessage("§eさらに${playerHpAmount} のオーバーHPを獲得")
+
+            // 1tick後にオーバーHP分の回復
+            Bukkit.getScheduler().runTaskLater(plugin, Runnable {
+                playerHpScore.score += playerHpAmount
+            }, 1L)
+
+        }
+
+        //hpスコア同期フラグ
+        plugin.listener.markSync(player)
+
+        //音
+        Bukkit.dispatchCommand(
+            player,
+            "playsound minecraft:tomodati_one_step master @a ~ ~ ~"
+        )
+
+
+
+        for (target in player.world.players) {
+            val team = scoreboard.getEntryTeam(player.name) ?: return // 発動者のチーム
+            // チームが同じか？
+            if (scoreboard.getEntryTeam(target.name) != team) continue
+            if (target == player) continue
+            // 半径30マス以内か？
+            if (target.location.distance(player.location) <= 30.0) {
+                val targetHpScore = hpObj.getScore(target.name)
+                val targetHpMaxScore = hpMaxObj.getScore(target.name)
+                val timerOtherHpBuffScore = timerOtherHpBuffObj.getScore(target.name)
+                val removeOtherHpBuffScore = removeOtherHpBuffObj.getScore(target.name)
+                // 回復量計算
+                val targetHealAmount = 50.0 * (1 + (healScore.score.toDouble() / 100.0))
+                //ターゲットのHPに回復量を+
+                targetHpScore.score += targetHealAmount.roundToInt()
+
+                target.sendMessage("§e${player.name} によりHPが${targetHealAmount.roundToInt()} 回復！")
+                if(targetHpScore.score > targetHpMaxScore.score) {
+
+                    var targetHpAmount = targetHpScore.score
+                    val targetHpMaxAmount = targetHpMaxScore.score
+                    targetHpAmount -= targetHpMaxAmount
+
+
+                    removeOtherHpBuffScore.score = 10
+                    timerOtherHpBuffScore.score = targetHpAmount * 10
+
+                    target.sendMessage("§eさらに${targetHealAmount.roundToInt()} のオーバーHPを獲得")
+
+                    // 1tick後にオーバーHP分の回復
+                    Bukkit.getScheduler().runTaskLater(plugin, Runnable {
+                        targetHpScore.score += targetHpAmount
+                    }, 1L)
+                }
+            }
+        }
+    }
+
+    fun kit202Ult(player: Player) {
+        player.sendMessage("§eウルト発動！")
+    }
+
+    fun kit203Ult(player: Player) {
+        player.sendMessage("§eウルト発動！")
+    }
+
 }
