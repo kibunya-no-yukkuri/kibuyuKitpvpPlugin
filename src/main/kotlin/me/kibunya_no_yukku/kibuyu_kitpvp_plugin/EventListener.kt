@@ -157,7 +157,7 @@ class EventListener(private val plugin: JavaPlugin): Listener {
         val shieldInt = shieldMap[player.uniqueId] ?: 0 // UUID から取得、無ければ 0.
         val shield = shieldInt.toDouble()// Int → Double に変換.
 
-        if (shield <= 0) return // シールドが無ければ処理しない.
+        //if (shield <= 0) return // シールドが無ければ処理しない.
 
 
         val damage = event.damage // 今回受ける予定のダメージ.
@@ -176,11 +176,71 @@ class EventListener(private val plugin: JavaPlugin): Listener {
             event.damage = damage - shield
         }
 
+
+        //ここからオーバーhp
+        val remaining = subtractOverHp(player, event.damage)
+
+        if (remaining <= 0) {
+            event.damage = 0.0
+        } else {
+            event.damage = remaining
+        }
     }
 
 
 
     val syncNeeded = mutableSetOf<Player>()
+
+    //ダメージ時オーバーHP処理
+    fun subtractOverHp(player: Player, damage: Double): Double {
+
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+        var remainingDamage = damage
+
+        val indexes = listOf("ULT", "EX", "NS", "PS", "SS") // オーバーHP付与スキル
+        val indexes2 = listOf("self", "other") // オーバーHPのバフ実行者
+        for (i1 in indexes) {
+            for (i2 in indexes2) {
+
+                val timerObj = scoreboard.getObjective("timer_${i2}_over_hp_buff_${i1}") ?: continue
+                val speedObj = scoreboard.getObjective("${i2}_over_hp_buff_${i1}_remove_speed") ?: continue
+
+                val timerScore = timerObj.getScore(player.name)
+                val speedScore = speedObj.getScore(player.name)
+
+                if (!timerScore.isScoreSet || !speedScore.isScoreSet) continue
+
+                val timer = timerScore.score
+                val speed = speedScore.score
+
+                if (speed <= 0) continue
+
+                var currentOverHp = timer.toDouble() / speed.toDouble()
+
+                if (currentOverHp <= 0) continue
+
+                if (currentOverHp >= remainingDamage) {
+
+                    // 必要なtimer減算量 = damage × speed
+                    val timerReduction = (remainingDamage * speed).toInt()
+                    timerScore.score = (timer - timerReduction).coerceAtLeast(0)
+
+                    return 0.0
+                } else {
+
+                    // 全部使う
+                    remainingDamage -= currentOverHp
+                    timerScore.score = 0
+                }
+            }
+        }
+        return remainingDamage
+    }
+
+
+
+
+
 
     @EventHandler
     fun onDamageHP(event: EntityDamageEvent) {
