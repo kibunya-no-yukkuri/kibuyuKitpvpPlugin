@@ -18,6 +18,9 @@ import java.util.*
 import kotlin.math.cos
 import kotlin.math.roundToInt
 import kotlin.math.sin
+import org.bukkit.Location
+import org.bukkit.util.Vector
+import org.bukkit.FluidCollisionMode
 
 class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
 
@@ -900,16 +903,114 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
                 ultScore.score -= ultUse1Score
 
                 when (kit1Score) {
-                    1 -> kit101Ult(player)
+                    1 -> {
+                        // 左クリック（空中 or ブロック）を検知.
+                        if (event.action == Action.LEFT_CLICK_AIR || event.action == Action.LEFT_CLICK_BLOCK) {
+                            event.isCancelled = true  // 必要なら通常の左クリック動作をキャンセル.
+                            kit101Ult1(player)
+
+                        }
+                        //右クリ検知.
+                        if (event.action == Action.RIGHT_CLICK_AIR || event.action == Action.RIGHT_CLICK_BLOCK) {
+                            kit101Ult2(player)
+                        }
+                    }
                     2 -> kit102Ult(player)
                     3 -> kit103Ult(player)
                     else -> return
                 }
-            }
+            }else player.sendMessage("§cクールタイム中")
         } else player.sendMessage("§cULTコストが足りません")
     }
 
-    fun kit101Ult(player: Player) {
+    fun kit101Ult1(player: Player) {
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+        val ultCt1Obj = scoreboard.getObjective("ult_ct1") ?: return
+        val ultCt1Score = ultCt1Obj.getScore(player.name)
+        //CT&cost処理.
+        ultCt1Score.score += 500
+        //CT可視化
+        val item = player.inventory.itemInMainHand
+        player.setCooldown(item.type, 20 * 25)
+
+        val world = player.world
+        val start = player.eyeLocation
+        val direction: Vector = start.direction.normalize()
+
+        val maxDistance = 30.0
+
+        // レイトレースでブロック判定
+        val result = world.rayTraceBlocks(
+            start,
+            direction,
+            maxDistance,
+            FluidCollisionMode.NEVER,
+            true
+        )
+
+        val targetLocation: Location = if (result != null) {
+
+            // 当たった座標
+            val hitPos = result.hitPosition.toLocation(world)
+
+            // 少し手前にずらす（ブロック内部に入らないように）
+            hitPos.subtract(direction.multiply(1.0))
+
+        } else {
+            // 何もなければ30m先
+            start.clone().add(direction.multiply(maxDistance))
+        }
+
+        // 向きは維持
+        targetLocation.yaw = player.location.yaw
+        targetLocation.pitch = player.location.pitch
+
+        player.teleport(targetLocation)
+    }
+
+    fun kit101Ult2(player: Player) {
+
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+        val ultCt2Obj = scoreboard.getObjective("ult_ct2") ?: return
+        val ultCt2Score = ultCt2Obj.getScore(player.name)
+        val ultObj = scoreboard.getObjective("ult") ?: return
+        val ultScore = ultObj.getScore(player.name)
+        //CT&cost処理.
+        ultCt2Score.score += 500
+        //CT可視化
+        val item = player.inventory.itemInMainHand
+        player.setCooldown(item.type, 20 * 25)
+
+        val myTeam = scoreboard.getEntryTeam(player.name) ?: return // 発動者のチーム
+
+        val radius = 100
+
+        // 100ブロック以内の同チームプレイヤーを検索（自身は除外）
+        val maxDistSq = radius * radius
+        val candidates = Bukkit.getOnlinePlayers().filter { p ->
+            // 自分じゃない.
+            p != player &&
+                    // 同じワールド
+                    p.world == player.world &&
+                    // 半径100ブロック以内
+                    p.location.distanceSquared(player.location) <= maxDistSq &&
+                    // チームが同じ（味方）
+                    scoreboard.getEntryTeam(p.name) == myTeam &&
+                    //tag"s"を持っているか.
+                    p.scoreboardTags.contains("s")
+        }
+
+        if (candidates.isEmpty()) {
+            player.sendMessage("§c半径 $radius ブロック以内に味方が見つかりません。")
+            ultCt2Score.score -= 495
+            ultScore.score += 50
+            return
+        }
+        // 最も近いプレイヤーを選ぶ
+        val nearest = candidates.minByOrNull { it.location.distanceSquared(player.location) }!!
+
+        player.teleport(nearest.location)
+
     }
 
     fun kit102Ult(player: Player) {
@@ -952,7 +1053,7 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
                         3 -> kit203Ult(player)
                         else -> return
                     }
-            }
+            }else player.sendMessage("§cクールタイム中")
         } else player.sendMessage("§cULTコストが足りません")
     }
 

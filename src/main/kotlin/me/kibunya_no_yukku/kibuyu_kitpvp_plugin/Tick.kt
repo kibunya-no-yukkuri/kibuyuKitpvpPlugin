@@ -44,11 +44,15 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                                 )
                                 Bukkit.dispatchCommand(
                                     Bukkit.getConsoleSender(),
-                                    "item replace entity ${player.name} container.3 with iron_ingot[minecraft:item_model=bell,custom_name=\"§l§fEXスキル2\",minecraft:lore=[\"§r§7右クリックでEXスキルを発動できる！\",\"§r§7これで勝ち確！！\"]]"
+                                    "item replace entity ${player.name} container.1 with diamond[minecraft:item_model=wind_charge,custom_name=\"§l§d神出鬼没 ULT:50\",minecraft:lore=[\"§r§7右クリック時、半径100m以内の一番近い味方にテレポートする\",\"§r§7左クリック時、視点の30m先にテレポートする\",\"§r§7消費ULTコスト50,CT25秒\"]]"
                                 )
                                 Bukkit.dispatchCommand(
                                     Bukkit.getConsoleSender(),
-                                    "item replace entity ${player.name} container.2 with copper_ingot[minecraft:item_model=red_dye,custom_name=\"§l§fEXスキル1\",minecraft:lore=[\"§r§7右クリックでEXスキルを発動できる！\",\"§r§7これで勝ち確！！\"]]"
+                                    "item replace entity ${player.name} container.3 with iron_ingot[minecraft:item_model=bell,custom_name=\"§l§b祝福の響き C:65\",minecraft:lore=[\"§r§7半径5m以内の味方の攻撃力を43%加算する(15秒間)\",\"§r§7消費コストcost60,CT15秒\"]]"
+                                )
+                                Bukkit.dispatchCommand(
+                                    Bukkit.getConsoleSender(),
+                                    "item replace entity ${player.name} container.2 with copper_ingot[minecraft:item_model=red_dye,custom_name=\"§l§b集中治療セットA C:30\",minecraft:lore=[\"§r§7右クリック時、半径5m以内の味方HPを6回復する\",\"§r§7左クリック時、自身のHPを4回復する\",\"§r§7両者共に消費コストcost30,CT15秒\"]]"
                                 )
                             }
                             if (kit2Score == 1) {
@@ -58,11 +62,15 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                                 )
                                 Bukkit.dispatchCommand(
                                     Bukkit.getConsoleSender(),
-                                    "item replace entity ${player.name} container.7 with netherite_ingot[minecraft:item_model=honeycomb,custom_name=\"§l§fEXスキル2\",minecraft:lore=[\"§r§7右クリックでEXスキルを発動できる！\",\"§r§7これで勝ち確！！\"]]"
+                                    "item replace entity ${player.name} container.8 with emerald[minecraft:item_model=nether_star,custom_name=\"§l§dお祈りの時間 ULT100\",minecraft:lore=[\"§r§7半径30m以内の自身含む味方に対して50HP回復\",\"§r§7HPを超えた100%分オーバーHPを付与\",\"§r§7消費ULTコスト100,CT50秒\"]]"
                                 )
                                 Bukkit.dispatchCommand(
                                     Bukkit.getConsoleSender(),
-                                    "item replace entity ${player.name} container.6 with gold_ingot[minecraft:item_model=heart_of_the_sea,custom_name=\"§l§fEXスキル1\",minecraft:lore=[\"§r§7右クリックでEXスキルを発動できる！\",\"§r§7これで勝ち確！！\"]]"
+                                    "item replace entity ${player.name} container.7 with netherite_ingot[minecraft:item_model=honeycomb,custom_name=\"§l§b溢れるハート C20\",minecraft:lore=[\"§r§7視点の先の味方に対して10HP回復し自身に対して5HP回復\",\"§r§7HPを超えた100%分オーバーHPを付与\",\"§r§7さらに「ファンサービス」を1個獲得\",\"§r§7消費コストcost20,CT5秒\"]]"
+                                )
+                                Bukkit.dispatchCommand(
+                                    Bukkit.getConsoleSender(),
+                                    "item replace entity ${player.name} container.6 with gold_ingot[minecraft:item_model=heart_of_the_sea,custom_name=\"§l§b聖なる加護 C:30\",minecraft:lore=[\"§r§7自身に6のシールドを付与(20秒間)\",\"§r§7さらに弱体状態を1つ解除\"]]"
                                 )
                             }
                         }

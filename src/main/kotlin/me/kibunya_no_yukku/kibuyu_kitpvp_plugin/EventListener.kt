@@ -35,18 +35,20 @@ class EventListener(private val plugin: JavaPlugin): Listener {
         //listOf("§bパッシブスキル1", "§7","§bパッシブスキル2", "§7"),
         //listOf("§bサブスキル1", "§7","§bサブスキル2", "§7")
         Material.CAKE to listOf(
-            listOf("§7ヒール、バフを両方持っているバランスの良いサポーター", "§7生存能力も高くサポーターとして完成している", "§7ブルーアーカイブより参戦"),
+            listOf("§7ヒール、バフを両方持っているバランスの良いサポーター", "§7生存能力も高くサポーターとして完成している", "§7ブルーアーカイブより"),
             listOf("§bEXスキル1「集中治療セットA」", "§7右クリック時、半径5m以内の味方HPを6回復する", "§7左クリック時、自身のHPを4回復する", "§7両者共に消費コストcost30,CT15秒","§bEXスキル2「祝福の響き」","§7半径5m以内の味方の攻撃力を43%加算する(15秒間)","§7消費コストcost60,CT15秒"),
             listOf("§bノーマルスキル1「緊急治療セットB」", "§735秒毎に、HPの最も低い味方に対して2HP回復","§bノーマルスキル2「プレゼントボックスC」", "§7通常攻撃130回毎に、自身の攻撃力を27%加算(10秒間)") ,
             listOf("§bパッシブスキル1「白衣の天使」", "§7自身の治癒力を30増加","§bパッシブスキル2「守護天使の意志」", "§7自身の最大HPを5増加"),
-            listOf("§bサブスキル1「天使の微笑み」", "§7味方全員のCC抵抗値を5増加","§bサブスキル2「聖なる加護」", "§7リロード時、自身の移動速度を100%加算(1秒間)","§7CT3秒")
+            listOf("§bサブスキル1「天使の微笑み」", "§7味方全員のCC抵抗値を5増加","§bサブスキル2「聖なる加護」", "§7リロード時、自身の移動速度を100%加算(1秒間)","§7CT3秒"),
+            listOf("§dアルティメット「神出鬼没」", "§7右クリック時、半径100m以内の一番近い味方にテレポートする","§7左クリック時、視点の30m先にテレポートする")
         ),
         Material.SUNFLOWER to listOf(
-            listOf("§7圧倒的な回復力を持つヒーラー", "§7弱体状態の解除、スキルコスト減少、防御デバフとやれることは意外と多い", "§7ブルーアーカイブより参戦"),
+            listOf("§7圧倒的な回復力を持つヒーラー", "§7弱体状態の解除、スキルコスト減少、防御デバフとやれることは意外と多い", "§7ブルーアーカイブより"),
             listOf("§bEXスキル1「聖なる加護」", "§7自身に6のシールドを付与(20秒間)","§7さらに弱体状態を1つ解除", "§7消費コストcost30,CT15秒","§bEXスキル2「溢れるハート」","§7視点の先の味方に対して10HP回復し自身に対して5HP回復","§7HPを超えた100%分オーバーHPを付与","§7さらに「ファンサービス」を1個獲得","§7消費コストcost20,CT5秒"),
             listOf("§bノーマルスキル1「浄化の洗礼」", "§725秒毎に、最も近い敵を中心とした円形範囲に5ダメージ","§7さらに防御力を24%減少","§bノーマルスキル2「慈愛の投げキッス」","§730秒毎に最もHPの低い味方一人に対して3HPの回復","§7さらに自身に対して2HPの回復") ,
             listOf("§bパッシブスキル1「応援の心構え」", "§7自身の防御力を5増加","§bパッシブスキル2「たゆまぬ努力」", "§7自身の治癒力を30増加"),
-            listOf("§bサブスキル1「慈愛の心」", "§7味方全員のHPを5増加","§bサブスキル2「今だけは楽しんで」", "§7「ファンサービス」を3個獲得時、味方全員のスキルコストを10減少(EXスキルの使用1回分)","§7(「ファンサービス」は初期化されます)")
+            listOf("§bサブスキル1「慈愛の心」", "§7味方全員のHPを5増加","§bサブスキル2「今だけは楽しんで」", "§7「ファンサービス」を3個獲得時、味方全員のスキルコストを10減少(EXスキルの使用1回分)","§7(「ファンサービス」は初期化されます)"),
+            listOf("§dアルティメット「お祈りの時間」", "§7半径30m以内の自身含む味方に対して50HP回復","§7HPを超えた100%分オーバーHPを付与")
         )
         // 他のアイテムも追加可能
     )
@@ -402,6 +404,8 @@ class EventListener(private val plugin: JavaPlugin): Listener {
                 val costUse11Score = costUse11Obj.getScore(player.name)
                 val costUse12Obj = scoreboard.getObjective("cost_use1_2") ?: return
                 val costUse12Score = costUse12Obj.getScore(player.name)
+                val ultUse1Obj = scoreboard.getObjective("ult_use_1") ?: return
+                val utUse1Score = ultUse1Obj.getScore(player.name)
 
 
 
@@ -415,6 +419,7 @@ class EventListener(private val plugin: JavaPlugin): Listener {
                             costUse12Score.score = 30
                             costUse11AScore.score = 60
                             costUse12AScore.score = 30
+                            utUse1Score.score = 50
                             player.closeInventory()
                         }
                         if(event.isRightClick) {
@@ -433,7 +438,180 @@ class EventListener(private val plugin: JavaPlugin): Listener {
                             clicked.itemMeta = meta
                             event.inventory.setItem(event.slot, clicked)
                         }
+                    }
+                    11 -> { // kit1を2に()
+                        if (event.isLeftClick) {
+                            ki1Score?.let { it.score = 2 }
+                            player.sendMessage("§bストライカーキットをマジカホリックに変更しました")
+                            ns2MaxScore.score = 700
+                            costUse11Score.score = 60
+                            costUse12Score.score = 30
+                            costUse11AScore.score = 60
+                            costUse12AScore.score = 30
+                            utUse1Score.score = 75
+                            player.closeInventory()
+                        }
+                        if (event.isRightClick) {
+                            val clicked: ItemStack = event.currentItem ?: return
+                            if (clicked.type == Material.AIR) return
+                            val meta = clicked.itemMeta ?: return
+                            val container = meta.persistentDataContainer
+                            val patterns = loreMap[clicked.type] ?: return
+                            val currentIndex = container.get(loreKey, PersistentDataType.INTEGER) ?: -1
+                            val nextIndex = (currentIndex + 1) % patterns.size
 
+                            val newLore = patterns[nextIndex].map { Component.text(it) }
+                            meta.lore(newLore)
+
+                            container.set(loreKey, PersistentDataType.INTEGER, nextIndex)
+                            clicked.itemMeta = meta
+                            event.inventory.setItem(event.slot, clicked)
+                        }
+                    }
+                    12 -> { // kit1を2に()
+                        if (event.isLeftClick) {
+                            ki1Score?.let { it.score = 3 }
+                            player.sendMessage("§bストライカーキットを???に変更しました")
+                            ns2MaxScore.score = 700
+                            costUse11Score.score = 60
+                            costUse12Score.score = 30
+                            costUse11AScore.score = 60
+                            costUse12AScore.score = 30
+                            utUse1Score.score = 50
+                            player.closeInventory()
+                        }
+                        if (event.isRightClick) {
+                            val clicked: ItemStack = event.currentItem ?: return
+                            if (clicked.type == Material.AIR) return
+                            val meta = clicked.itemMeta ?: return
+                            val container = meta.persistentDataContainer
+                            val patterns = loreMap[clicked.type] ?: return
+                            val currentIndex = container.get(loreKey, PersistentDataType.INTEGER) ?: -1
+                            val nextIndex = (currentIndex + 1) % patterns.size
+
+                            val newLore = patterns[nextIndex].map { Component.text(it) }
+                            meta.lore(newLore)
+
+                            container.set(loreKey, PersistentDataType.INTEGER, nextIndex)
+                            clicked.itemMeta = meta
+                            event.inventory.setItem(event.slot, clicked)
+                        }
+                    }
+                    13 -> { // kit1を2に()
+                        if (event.isLeftClick) {
+                            ki1Score?.let { it.score = 4 }
+                            player.sendMessage("§bストライカーキットを???に変更しました")
+                            ns2MaxScore.score = 700
+                            costUse11Score.score = 60
+                            costUse12Score.score = 30
+                            costUse11AScore.score = 60
+                            costUse12AScore.score = 30
+                            utUse1Score.score = 50
+                            player.closeInventory()
+                        }
+                        if (event.isRightClick) {
+                            val clicked: ItemStack = event.currentItem ?: return
+                            if (clicked.type == Material.AIR) return
+                            val meta = clicked.itemMeta ?: return
+                            val container = meta.persistentDataContainer
+                            val patterns = loreMap[clicked.type] ?: return
+                            val currentIndex = container.get(loreKey, PersistentDataType.INTEGER) ?: -1
+                            val nextIndex = (currentIndex + 1) % patterns.size
+
+                            val newLore = patterns[nextIndex].map { Component.text(it) }
+                            meta.lore(newLore)
+
+                            container.set(loreKey, PersistentDataType.INTEGER, nextIndex)
+                            clicked.itemMeta = meta
+                            event.inventory.setItem(event.slot, clicked)
+                        }
+                    }
+                    14 -> { // kit1を2に()
+                        if (event.isLeftClick) {
+                            ki1Score?.let { it.score = 5 }
+                            player.sendMessage("§bストライカーキットを???に変更しました")
+                            ns2MaxScore.score = 700
+                            costUse11Score.score = 60
+                            costUse12Score.score = 30
+                            costUse11AScore.score = 60
+                            costUse12AScore.score = 30
+                            utUse1Score.score = 50
+                            player.closeInventory()
+                        }
+                        if (event.isRightClick) {
+                            val clicked: ItemStack = event.currentItem ?: return
+                            if (clicked.type == Material.AIR) return
+                            val meta = clicked.itemMeta ?: return
+                            val container = meta.persistentDataContainer
+                            val patterns = loreMap[clicked.type] ?: return
+                            val currentIndex = container.get(loreKey, PersistentDataType.INTEGER) ?: -1
+                            val nextIndex = (currentIndex + 1) % patterns.size
+
+                            val newLore = patterns[nextIndex].map { Component.text(it) }
+                            meta.lore(newLore)
+
+                            container.set(loreKey, PersistentDataType.INTEGER, nextIndex)
+                            clicked.itemMeta = meta
+                            event.inventory.setItem(event.slot, clicked)
+                        }
+                    }
+                    15 -> { // kit1を2に()
+                        if (event.isLeftClick) {
+                            ki1Score?.let { it.score = 6 }
+                            player.sendMessage("§bストライカーキットを???に変更しました")
+                            ns2MaxScore.score = 700
+                            costUse11Score.score = 60
+                            costUse12Score.score = 30
+                            costUse11AScore.score = 60
+                            costUse12AScore.score = 30
+                            utUse1Score.score = 50
+                            player.closeInventory()
+                        }
+                        if (event.isRightClick) {
+                            val clicked: ItemStack = event.currentItem ?: return
+                            if (clicked.type == Material.AIR) return
+                            val meta = clicked.itemMeta ?: return
+                            val container = meta.persistentDataContainer
+                            val patterns = loreMap[clicked.type] ?: return
+                            val currentIndex = container.get(loreKey, PersistentDataType.INTEGER) ?: -1
+                            val nextIndex = (currentIndex + 1) % patterns.size
+
+                            val newLore = patterns[nextIndex].map { Component.text(it) }
+                            meta.lore(newLore)
+
+                            container.set(loreKey, PersistentDataType.INTEGER, nextIndex)
+                            clicked.itemMeta = meta
+                            event.inventory.setItem(event.slot, clicked)
+                        }
+                    }
+                    16 -> { // kit1を2に()
+                        if (event.isLeftClick) {
+                            ki1Score?.let { it.score = 7 }
+                            player.sendMessage("§bストライカーキットを???に変更しました")
+                            ns2MaxScore.score = 700
+                            costUse11Score.score = 60
+                            costUse12Score.score = 30
+                            costUse11AScore.score = 60
+                            costUse12AScore.score = 30
+                            utUse1Score.score = 50
+                            player.closeInventory()
+                        }
+                        if (event.isRightClick) {
+                            val clicked: ItemStack = event.currentItem ?: return
+                            if (clicked.type == Material.AIR) return
+                            val meta = clicked.itemMeta ?: return
+                            val container = meta.persistentDataContainer
+                            val patterns = loreMap[clicked.type] ?: return
+                            val currentIndex = container.get(loreKey, PersistentDataType.INTEGER) ?: -1
+                            val nextIndex = (currentIndex + 1) % patterns.size
+
+                            val newLore = patterns[nextIndex].map { Component.text(it) }
+                            meta.lore(newLore)
+
+                            container.set(loreKey, PersistentDataType.INTEGER, nextIndex)
+                            clicked.itemMeta = meta
+                            event.inventory.setItem(event.slot, clicked)
+                        }
                     }
 
                     18 -> { // メインメニューへ戻る
@@ -459,6 +637,8 @@ class EventListener(private val plugin: JavaPlugin): Listener {
                 val costUse21Score = costUse21Obj.getScore(player.name)
                 val costUse22Obj = scoreboard.getObjective("cost_use2_2") ?: return
                 val costUse22Score = costUse22Obj.getScore(player.name)
+                val ultUse2Obj = scoreboard.getObjective("ult_use_2") ?: return
+                val utUse2Score = ultUse2Obj.getScore(player.name)
 
                 when (event.slot) {
                     10 -> { // kit2を1に(マリー)
@@ -471,6 +651,187 @@ class EventListener(private val plugin: JavaPlugin): Listener {
                             costUse22Score.score = 20
                             costUse21AScore.score = 30
                             costUse22AScore.score = 20
+                            utUse2Score.score = 100
+                            player.closeInventory()
+                        }
+                        if(event.isRightClick) {
+                            val clicked: ItemStack = event.currentItem ?: return
+                            if (clicked.type == Material.AIR) return
+                            val meta = clicked.itemMeta ?: return
+                            val container = meta.persistentDataContainer
+                            val patterns = loreMap[clicked.type] ?: return
+                            val currentIndex = container.get(loreKey, PersistentDataType.INTEGER) ?: -1
+                            val nextIndex = (currentIndex + 1) % patterns.size
+
+                            val newLore = patterns[nextIndex].map { Component.text(it) }
+                            meta.lore(newLore)
+
+                            container.set(loreKey, PersistentDataType.INTEGER, nextIndex)
+                            clicked.itemMeta = meta
+                            event.inventory.setItem(event.slot, clicked)
+                        }
+                    }
+                    11 -> { // kit2を2に()
+                        if(event.isLeftClick) {
+                            ki2Score?.let { it.score = 2 }
+                            player.sendMessage("§bスペシャルキットを??に変更しました")
+                            ns1MaxScore2.score = 500
+                            ns2MaxScore2.score = 600
+                            costUse21Score.score = 30
+                            costUse22Score.score = 20
+                            costUse21AScore.score = 30
+                            costUse22AScore.score = 20
+                            utUse2Score.score = 100
+                            player.closeInventory()
+                        }
+                        if(event.isRightClick) {
+                            val clicked: ItemStack = event.currentItem ?: return
+                            if (clicked.type == Material.AIR) return
+                            val meta = clicked.itemMeta ?: return
+                            val container = meta.persistentDataContainer
+                            val patterns = loreMap[clicked.type] ?: return
+                            val currentIndex = container.get(loreKey, PersistentDataType.INTEGER) ?: -1
+                            val nextIndex = (currentIndex + 1) % patterns.size
+
+                            val newLore = patterns[nextIndex].map { Component.text(it) }
+                            meta.lore(newLore)
+
+                            container.set(loreKey, PersistentDataType.INTEGER, nextIndex)
+                            clicked.itemMeta = meta
+                            event.inventory.setItem(event.slot, clicked)
+                        }
+                    }
+                    12 -> { // kit2を2に()
+                        if(event.isLeftClick) {
+                            ki2Score?.let { it.score = 3 }
+                            player.sendMessage("§bスペシャルキットを??に変更しました")
+                            ns1MaxScore2.score = 500
+                            ns2MaxScore2.score = 600
+                            costUse21Score.score = 30
+                            costUse22Score.score = 20
+                            costUse21AScore.score = 30
+                            costUse22AScore.score = 20
+                            utUse2Score.score = 100
+                            player.closeInventory()
+                        }
+                        if(event.isRightClick) {
+                            val clicked: ItemStack = event.currentItem ?: return
+                            if (clicked.type == Material.AIR) return
+                            val meta = clicked.itemMeta ?: return
+                            val container = meta.persistentDataContainer
+                            val patterns = loreMap[clicked.type] ?: return
+                            val currentIndex = container.get(loreKey, PersistentDataType.INTEGER) ?: -1
+                            val nextIndex = (currentIndex + 1) % patterns.size
+
+                            val newLore = patterns[nextIndex].map { Component.text(it) }
+                            meta.lore(newLore)
+
+                            container.set(loreKey, PersistentDataType.INTEGER, nextIndex)
+                            clicked.itemMeta = meta
+                            event.inventory.setItem(event.slot, clicked)
+                        }
+                    }
+                    13 -> { // kit2を2に()
+                        if(event.isLeftClick) {
+                            ki2Score?.let { it.score = 4 }
+                            player.sendMessage("§bスペシャルキットを??に変更しました")
+                            ns1MaxScore2.score = 500
+                            ns2MaxScore2.score = 600
+                            costUse21Score.score = 30
+                            costUse22Score.score = 20
+                            costUse21AScore.score = 30
+                            costUse22AScore.score = 20
+                            utUse2Score.score = 100
+                            player.closeInventory()
+                        }
+                        if(event.isRightClick) {
+                            val clicked: ItemStack = event.currentItem ?: return
+                            if (clicked.type == Material.AIR) return
+                            val meta = clicked.itemMeta ?: return
+                            val container = meta.persistentDataContainer
+                            val patterns = loreMap[clicked.type] ?: return
+                            val currentIndex = container.get(loreKey, PersistentDataType.INTEGER) ?: -1
+                            val nextIndex = (currentIndex + 1) % patterns.size
+
+                            val newLore = patterns[nextIndex].map { Component.text(it) }
+                            meta.lore(newLore)
+
+                            container.set(loreKey, PersistentDataType.INTEGER, nextIndex)
+                            clicked.itemMeta = meta
+                            event.inventory.setItem(event.slot, clicked)
+                        }
+                    }
+                    14 -> { // kit2を2に()
+                        if(event.isLeftClick) {
+                            ki2Score?.let { it.score = 5 }
+                            player.sendMessage("§bスペシャルキットを??に変更しました")
+                            ns1MaxScore2.score = 500
+                            ns2MaxScore2.score = 600
+                            costUse21Score.score = 30
+                            costUse22Score.score = 20
+                            costUse21AScore.score = 30
+                            costUse22AScore.score = 20
+                            utUse2Score.score = 100
+                            player.closeInventory()
+                        }
+                        if(event.isRightClick) {
+                            val clicked: ItemStack = event.currentItem ?: return
+                            if (clicked.type == Material.AIR) return
+                            val meta = clicked.itemMeta ?: return
+                            val container = meta.persistentDataContainer
+                            val patterns = loreMap[clicked.type] ?: return
+                            val currentIndex = container.get(loreKey, PersistentDataType.INTEGER) ?: -1
+                            val nextIndex = (currentIndex + 1) % patterns.size
+
+                            val newLore = patterns[nextIndex].map { Component.text(it) }
+                            meta.lore(newLore)
+
+                            container.set(loreKey, PersistentDataType.INTEGER, nextIndex)
+                            clicked.itemMeta = meta
+                            event.inventory.setItem(event.slot, clicked)
+                        }
+                    }
+                    15 -> { // kit2を2に()
+                        if(event.isLeftClick) {
+                            ki2Score?.let { it.score = 6 }
+                            player.sendMessage("§bスペシャルキットを??に変更しました")
+                            ns1MaxScore2.score = 500
+                            ns2MaxScore2.score = 600
+                            costUse21Score.score = 30
+                            costUse22Score.score = 20
+                            costUse21AScore.score = 30
+                            costUse22AScore.score = 20
+                            utUse2Score.score = 100
+                            player.closeInventory()
+                        }
+                        if(event.isRightClick) {
+                            val clicked: ItemStack = event.currentItem ?: return
+                            if (clicked.type == Material.AIR) return
+                            val meta = clicked.itemMeta ?: return
+                            val container = meta.persistentDataContainer
+                            val patterns = loreMap[clicked.type] ?: return
+                            val currentIndex = container.get(loreKey, PersistentDataType.INTEGER) ?: -1
+                            val nextIndex = (currentIndex + 1) % patterns.size
+
+                            val newLore = patterns[nextIndex].map { Component.text(it) }
+                            meta.lore(newLore)
+
+                            container.set(loreKey, PersistentDataType.INTEGER, nextIndex)
+                            clicked.itemMeta = meta
+                            event.inventory.setItem(event.slot, clicked)
+                        }
+                    }
+                    16 -> { // kit2を2に()
+                        if(event.isLeftClick) {
+                            ki2Score?.let { it.score = 7 }
+                            player.sendMessage("§bスペシャルキットを??に変更しました")
+                            ns1MaxScore2.score = 500
+                            ns2MaxScore2.score = 600
+                            costUse21Score.score = 30
+                            costUse22Score.score = 20
+                            costUse21AScore.score = 30
+                            costUse22AScore.score = 20
+                            utUse2Score.score = 100
                             player.closeInventory()
                         }
                         if(event.isRightClick) {
