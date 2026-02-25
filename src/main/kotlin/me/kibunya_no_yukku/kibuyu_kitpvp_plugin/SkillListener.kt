@@ -2,6 +2,9 @@ package me.kibunya_no_yukku.kibuyu_kitpvp_plugin
 
 
 import me.kibunya_no_yukku.kibuyu_kitpvp_plugin.Kibuyu_kitpvp_plugin.Companion.shieldMap
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.Particle
@@ -60,7 +63,9 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
                     kit1Skill1(player)
             } else player.sendMessage("§cクールタイム中・・・")
 
-            2 -> kit2Skill1(player)
+            2 ->  if (oneCtScore < 1) {
+                kit2Skill1(player)
+            } else player.sendMessage("§cクールタイム中・・・")
             3 -> kit3Skill1(player)
             else -> return
         }
@@ -332,7 +337,9 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
                     }
                 } else player.sendMessage("§cクールタイム中・・・")
 
-                2 -> kit2Skill2(player)
+                2 -> if (oneCtTwoScore < 1) {
+                    kit2Skill2(player)
+                }else player.sendMessage("§cクールタイム中・・・")
                 3 -> kit3Skill2(player)
                 else -> return
             }
@@ -966,6 +973,16 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         targetLocation.pitch = player.location.pitch
 
         player.teleport(targetLocation)
+
+        val team = scoreboard.getEntryTeam(player.name)
+        val color: TextColor? = team?.color() ?: NamedTextColor.WHITE
+
+        Bukkit.broadcast(
+            Component.text("【${player.name}】", color)
+                .append(Component.text("ULT≪神出鬼没≫", NamedTextColor.WHITE))
+                .append(Component.text("byセリナ", NamedTextColor.GRAY))
+        )
+
     }
 
     fun kit101Ult2(player: Player) {
@@ -1004,12 +1021,23 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
             player.sendMessage("§c半径 $radius ブロック以内に味方が見つかりません。")
             ultCt2Score.score -= 495
             ultScore.score += 50
+            val item = player.inventory.itemInMainHand
+            player.setCooldown(item.type, 5)
             return
         }
         // 最も近いプレイヤーを選ぶ
         val nearest = candidates.minByOrNull { it.location.distanceSquared(player.location) }!!
 
         player.teleport(nearest.location)
+
+        val team = scoreboard.getEntryTeam(player.name)
+        val color: TextColor? = team?.color() ?: NamedTextColor.WHITE
+
+        Bukkit.broadcast(
+            Component.text("【${player.name}】", color)
+                .append(Component.text("ULT≪神出鬼没≫", NamedTextColor.WHITE))
+                .append(Component.text("byセリナ", NamedTextColor.GRAY))
+        )
 
     }
 
@@ -1152,6 +1180,15 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
                         targetHpScore.score += targetHpAmount
                     }, 1L)
                 }
+
+                val team = scoreboard.getEntryTeam(player.name)
+                val color: TextColor? = team?.color() ?: NamedTextColor.WHITE
+
+                Bukkit.broadcast(
+                    Component.text("【${player.name}】", color)
+                        .append(Component.text("ULT≪神出鬼没≫", NamedTextColor.WHITE))
+                        .append(Component.text("byセリナ", NamedTextColor.GRAY))
+                )
             }
         }
     }
