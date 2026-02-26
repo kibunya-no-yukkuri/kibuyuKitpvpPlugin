@@ -27,6 +27,26 @@ import org.bukkit.FluidCollisionMode
 
 class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
 
+    fun healAmount(healAmount: Double, healScore: Int): Int {
+        val finalAmount = healAmount * (1 + (healScore / 100.0))
+        return finalAmount.roundToInt()
+
+    }
+
+    fun costAmount(costAmount: Int, costDownScore: Int): Int {
+       val finalAmount = costAmount - costDownScore
+        return finalAmount
+    }
+
+    fun buffTimeAmount( buffTimeAmount: Double, buffTimeScore: Int): Int {
+        val finalAmount = buffTimeAmount * (1 + (buffTimeScore / 100.0))
+
+        return finalAmount.roundToInt()
+
+    }
+
+
+
     @EventHandler
     fun onClickIronIngot(event: PlayerInteractEvent) {
         val player = event.player
@@ -52,7 +72,7 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         val costDownObj = scoreboard.getObjective("costDown_buff") ?: return
         val costDownScore = costDownObj.getScore(player.name)
 
-        val downUseCost11 = costUse11Score - costDownAmountScore.score
+        val downUseCost11 = costAmount(costUse11Score,costDownAmountScore.score)
 
         if (costScore >= downUseCost11) {
             if(costDownScore.score >= 1){
@@ -89,7 +109,7 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         val costDownObj = scoreboard.getObjective("costDown_buff") ?: return
         val costDownScore = costDownObj.getScore(player.name)
         ctScore.score += 300
-        costScore.score -= costUse11Score.score - costDownAmountScore.score
+        costScore.score -= costAmount(costUse11Score.score,costDownAmountScore.score)
         if(costDownScore.score <= 0){
             costDownScore.score = 0
             costDownAmountScore.score = 0
@@ -154,10 +174,11 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
                         val timeScore = timeObj.getScore(other.name)
                         val attackScore = attackObj.getScore(other.name)
                         val buffTimeScore = buffTimeObj.getScore(player.name)
-                        if (timeScore.score == 0) {
-                            attackScore.score = 43
-                        }
-                        timeScore.score = 300 * (1 + (buffTimeScore.score / 100))
+                        attackScore.score = 43
+
+                        timeScore.score = buffTimeAmount(300.0,buffTimeScore.score)
+
+
                         other.sendMessage("§e${player.name}「この音と共に希望があらんことを」", "§c攻撃力§eが15秒間+43！")
                         //頭上に八分音符もどき
                         spawnEighthNote(other)
@@ -317,9 +338,9 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         val costDownObj = scoreboard.getObjective("costDown_buff") ?: return
         val costDownScore = costDownObj.getScore(player.name)
 
-        val downUseCost11 = costUse12Score - costDownAmountScore.score
+        val downUseCost12 = costAmount(costUse12Score,costDownAmountScore.score)
 
-        if (costScore >= downUseCost11) {
+        if (costScore >= downUseCost12) {
             if (costDownScore.score >= 1) {
                 costDownScore.score -= 1
             }
@@ -363,7 +384,7 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         val costDownObj = scoreboard.getObjective("costDown_buff") ?: return
         val costDownScore = costDownObj.getScore(player.name)
         oneCtTwoScore.score += 300
-        costScore.score -= costUse12Score.score - costDownAmountScore.score
+        costScore.score -= costAmount(costUse12Score.score,costDownAmountScore.score)
         if(costDownScore.score <= 0){
             costDownScore.score = 0
             costDownAmountScore.score = 0
@@ -397,13 +418,13 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
 
         // ヒール量(6)に治癒力をかけてInt型に治してからHPスコアに反映
         val hpScore = hpObj.getScore(nearest.name)
-        val healAmount = 6.0 * (1 + (healScore.score.toDouble() / 100.0))
-        hpScore.score += healAmount.roundToInt()
+        val healAmount = healAmount(6.0,healScore.score)
+        hpScore.score += healAmount
 
         plugin.listener.markSync(nearest)
 
-        player.sendMessage("§e${nearest.name}のHPを${healAmount.roundToInt()}回復！(現在のHP:${hpScore.score})")
-        nearest.sendMessage("§e${player.name} によりHPが${healAmount.roundToInt()}回復！")
+        player.sendMessage("§e${nearest.name}のHPを${healAmount}回復！(現在のHP:${hpScore.score})")
+        nearest.sendMessage("§e${player.name} によりHPが${healAmount}回復！")
         val item = player.inventory.itemInMainHand
         player.setCooldown(item.type, 20 * 15)
 
@@ -451,19 +472,19 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         val costDownScore = costDownObj.getScore(player.name)
         //CT&cost処理.
         oneCtTwoScore.score += 300
-        costScore.score -= costUse12Score.score - costDownAmountScore.score
+        costScore.score -= costAmount(costUse12Score.score,costDownAmountScore.score)
         if(costDownScore.score <= 0){
             costDownScore.score = 0
             costDownAmountScore.score = 0
         }
 
         // hpスコアを +4(治癒力分加算)
-        val healAmount = 4.0 * (1 + (healScore.score.toDouble() / 100.0))
-        hpScore.score += healAmount.roundToInt()
+        val healAmount = healAmount(4.0,healScore.score)
+        hpScore.score += healAmount
         //hp同期タスク呼び出し.
         plugin.listener.markSync(player)
         //msg.
-        player.sendMessage("§aHPを${healAmount.roundToInt()} 回復！")
+        player.sendMessage("§aHPを${healAmount} 回復！")
         val item = player.inventory.itemInMainHand
         player.setCooldown(item.type, 20 * 15)
 
@@ -516,9 +537,9 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         val costDownObj = scoreboard.getObjective("costDown_buff") ?: return
         val costDownScore = costDownObj.getScore(player.name)
 
-        val downUseCost11 = costUse21Score - costDownAmountScore.score
+        val downUseCost21 = costAmount(costUse21Score,costDownAmountScore.score)
 
-        if (costScore >= downUseCost11) {
+        if (costScore >= downUseCost21) {
             if (costDownScore.score >= 1) {
                 costDownScore.score -= 1
             }
@@ -558,25 +579,23 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         val costDownScore = costDownObj.getScore(player.name)
         //CT&cost処理.
         twoCtOneScore.score += 200
-        costScore.score -= costUse21Score - costDownAmountScore.score
+        costScore.score -= costAmount(costUse21Score,costDownAmountScore.score)
         if(costDownScore.score <= 0){
             costDownScore.score = 0
             costDownAmountScore.score = 0
         }
 
         //Double型でシールド6に治癒力の倍率をかける
-        val shieldAmount: Double = 6.0 * (1 + (healScore.score.toDouble() / 100.0))
+        val shieldAmount = healAmount(6.0,healScore.score)
         //四捨五入してint型に
-        val shieldScoreValue: Int = shieldAmount.roundToInt()
+        val shieldScoreValue: Int = shieldAmount
         //int型にしたからスコアにそのまま代入できる
         shieldScore.score = shieldScoreValue
 
-        //Double型でシールド効果時間にバフ持続時間の倍率をかける
-        val shieldTimeAmount: Double = 400.0 * (1 + (buffTimeScore.score / 100))
-        //四捨五入してint型に
-        val shieldTimeScoreValue: Int = shieldTimeAmount.roundToInt()
-        //int型にしたからスコアにそのまま代入できる
-        shieldTimeScore.score = shieldTimeScoreValue
+        //シールド効果時間にバフ持続時間の倍率をかける
+        val shieldTimeAmount = buffTimeAmount(400.0,buffTimeScore.score)
+
+        shieldTimeScore.score = shieldTimeAmount
 
         //デバフ解除処理.
         deBuffRemove(player, 1)
@@ -621,7 +640,7 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         val costDownObj = scoreboard.getObjective("costDown_buff") ?: return
         val costDownScore = costDownObj.getScore(player.name)
 
-        val downUseCost11 = costUse22Score - costDownAmountScore.score
+        val downUseCost11 = costAmount(costUse22Score,costDownAmountScore.score)
 
         if (costScore >= downUseCost11) {
             if (costDownScore.score >= 1) {
@@ -684,7 +703,7 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         val removeOtherHpBuffObj = scoreboard.getObjective("other_over_hp_buff_EX_remove_speed") ?: return
         //CT&cost処理.
         twoCtTwoScore.score += 160
-        costScore.score -= costUse22Score - costDownAmountScore.score
+        costScore.score -= costAmount(costUse22Score,costDownAmountScore.score)
         if(costDownScore.score <= 0){
             costDownScore.score = 0
             costDownAmountScore.score = 0
@@ -702,11 +721,11 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         }
 
         // 回復量計算
-        val playerHealAmount = 5.0 * (1 + (healScore.score.toDouble() / 100.0))
+        val playerHealAmount = healAmount(5.0,healScore.score)
         //プレイヤーのHPに回復量を+
-        playerHpScore.score += playerHealAmount.roundToInt()
+        playerHpScore.score += playerHealAmount
 
-        player.sendMessage("§e自身のHPを${playerHealAmount.roundToInt()} 回復！")
+        player.sendMessage("§e自身のHPを${playerHealAmount} 回復！")
 
         if(playerHpScore.score > playerHpMaxScore.score){
 
@@ -751,11 +770,11 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         val targetHpScore = hpObj.getScore(target.name)
         val targetHpMaxScore = hpMaxObj.getScore(target.name)
         // 回復量計算
-        val targetHealAmount = 10.0 * (1 + (healScore.score.toDouble() / 100.0))
+        val targetHealAmount = healAmount(10.0,healScore.score)
         //ターゲットのHPに回復量を+
-        targetHpScore.score += targetHealAmount.roundToInt()
+        targetHpScore.score += targetHealAmount
 
-        target.sendMessage("§e${player.name} によりHPが${targetHealAmount.roundToInt()} 回復！")
+        target.sendMessage("§e${player.name} によりHPが${targetHealAmount} 回復！")
 
         if(targetHpScore.score > targetHpMaxScore.score){
 
@@ -772,7 +791,7 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
             removeOtherHpBuffScore.score = 20
             timerOtherHpBuffScore.score = targetHpAmount * 20
 
-            target.sendMessage("§eさらに${targetHealAmount.roundToInt()} のオーバーHPを獲得")
+            target.sendMessage("§eさらに${targetHpAmount} のオーバーHPを獲得")
 
             // 1tick後にオーバーHP分の回復
             Bukkit.getScheduler().runTaskLater(plugin, Runnable {
@@ -783,7 +802,7 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         //hpスコア同期フラグ
         plugin.listener.markSync(target)
 
-        player.sendMessage("§e${target.name}のHPを${targetHealAmount.roundToInt()} 回復！(現在のHP:${targetHpScore.score})")
+        player.sendMessage("§e${target.name}のHPを${targetHealAmount} 回復！(現在のHP:${targetHpScore.score})")
     }
 
 
@@ -1106,11 +1125,11 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         player.setCooldown(item.type, 20 * 50)
 
         // 回復量計算
-        val playerHealAmount = 50.0 * (1 + (healScore.score.toDouble() / 100.0))
+        val playerHealAmount = healAmount(50.0,healScore.score)
         //プレイヤーのHPに回復量を+
-        playerHpScore.score += playerHealAmount.roundToInt()
+        playerHpScore.score += playerHealAmount
 
-        player.sendMessage("§e自身のHPを${playerHealAmount.roundToInt()} 回復！")
+        player.sendMessage("§e自身のHPを${playerHealAmount} 回復！")
 
         if(playerHpScore.score > playerHpMaxScore.score){
 
@@ -1158,11 +1177,11 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
                 val timerOtherHpBuffScore = timerOtherHpBuffObj.getScore(target.name)
                 val removeOtherHpBuffScore = removeOtherHpBuffObj.getScore(target.name)
                 // 回復量計算
-                val targetHealAmount = 50.0 * (1 + (healScore.score.toDouble() / 100.0))
+                val targetHealAmount = healAmount(50.0,healScore.score)
                 //ターゲットのHPに回復量を+
-                targetHpScore.score += targetHealAmount.roundToInt()
+                targetHpScore.score += targetHealAmount
 
-                target.sendMessage("§e${player.name} によりHPが${targetHealAmount.roundToInt()} 回復！")
+                target.sendMessage("§e${player.name} によりHPが${targetHealAmount} 回復！")
                 if(targetHpScore.score > targetHpMaxScore.score) {
 
                     var targetHpAmount = targetHpScore.score
@@ -1173,7 +1192,7 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
                     removeOtherHpBuffScore.score = 10
                     timerOtherHpBuffScore.score = targetHpAmount * 10
 
-                    target.sendMessage("§eさらに${targetHealAmount.roundToInt()} のオーバーHPを獲得")
+                    target.sendMessage("§eさらに${targetHpAmount} のオーバーHPを獲得")
 
                     // 1tick後にオーバーHP分の回復
                     Bukkit.getScheduler().runTaskLater(plugin, Runnable {

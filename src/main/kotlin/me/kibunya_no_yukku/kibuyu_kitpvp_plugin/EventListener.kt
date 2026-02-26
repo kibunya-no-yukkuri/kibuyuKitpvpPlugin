@@ -91,7 +91,13 @@ class EventListener(private val plugin: JavaPlugin): Listener {
 
     }
 
-    //銃でダメージ与えたの検知
+
+    fun attackAmount(attackAmount: Double, attackScore: Int): Double {
+        val finalAmount = attackAmount * (1 + (attackScore / 100.0))
+        return finalAmount
+    }
+
+    //wmの武器でダメージ与えたの検知
     @EventHandler
     fun onWeaponDamage(event: WeaponDamageEntityEvent) {
         val shooter = event.entity
@@ -103,8 +109,8 @@ class EventListener(private val plugin: JavaPlugin): Listener {
 
         // 元のダメージに攻撃力を反映（ここでは +1 ダメージ/1スコア）
         val baseDamage = event.baseDamage
-        val bonusDamage = baseDamage * attackScore.toDouble() / 100.0  // 1スコアで元の攻撃力の1%分のボーナスダメージを加算
-        event.baseDamage = baseDamage + bonusDamage
+        val finalDamage = attackAmount(baseDamage,attackScore)
+        event.baseDamage = finalDamage
     }
 
 
