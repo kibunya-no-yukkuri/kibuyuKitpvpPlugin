@@ -1,7 +1,6 @@
 package me.kibunya_no_yukku.kibuyu_kitpvp_plugin
 
 
-import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponDamageEntityEvent
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponReloadEvent
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponShootEvent
 import me.kibunya_no_yukku.kibuyu_kitpvp_gui.*
@@ -24,6 +23,7 @@ import org.bukkit.persistence.PersistentDataType
 import org.bukkit.plugin.java.JavaPlugin
 import kotlin.math.roundToInt
 import net.kyori.adventure.text.Component
+import org.bukkit.event.entity.EntityDamageByEntityEvent
 
 
 class EventListener(private val plugin: JavaPlugin): Listener {
@@ -97,20 +97,37 @@ class EventListener(private val plugin: JavaPlugin): Listener {
         return finalAmount
     }
 
-    //wmの武器でダメージ与えたの検知
-    @EventHandler
-    fun onWeaponDamage(event: WeaponDamageEntityEvent) {
-        val shooter = event.entity
-        if (shooter !is Player) return
-
+    //wmの武器でダメージ与えたの検知 → 一個下のやつでおｋ.
+    //@EventHandler
+    //fun onWeaponDamage(event: WeaponDamageEntityEvent) {
+    //    val shooter = event.entity
+    //    if (shooter !is Player) return
+    //
         // 攻撃力スコアを取得（例：攻撃力はスコアボードの "attack"）
-        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
-        val attackScore = scoreboard.getObjective("attack")?.getScore(shooter.name)?.score ?: 0
+    //    val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+    //    val attackScore = scoreboard.getObjective("attack")?.getScore(shooter.name)?.score ?: 0
+    //
+    //    // 元のダメージに攻撃力を反映（ここでは +1 ダメージ/1スコア）
+    //    val baseDamage = event.baseDamage
+    //    val finalDamage = attackAmount(baseDamage,attackScore)
+    //    event.baseDamage = finalDamage
+    //}
 
-        // 元のダメージに攻撃力を反映（ここでは +1 ダメージ/1スコア）
-        val baseDamage = event.baseDamage
-        val finalDamage = attackAmount(baseDamage,attackScore)
-        event.baseDamage = finalDamage
+    @EventHandler
+    fun onDamage(event: EntityDamageByEntityEvent) {
+
+        val attacker = event.damager
+
+        if (attacker !is Player) return
+
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+        val attackScore = scoreboard.getObjective("attack")?.getScore(attacker.name)?.score ?: 0
+
+        if (attackScore <= 0) return
+
+        val finalDamage = attackAmount(event.damage,attackScore)
+
+        event.damage = finalDamage
     }
 
 
@@ -223,7 +240,7 @@ class EventListener(private val plugin: JavaPlugin): Listener {
 
                 if (speed <= 0) continue
 
-                var currentOverHp = timer.toDouble() / speed.toDouble()
+                val currentOverHp = timer.toDouble() / speed.toDouble()
 
                 if (currentOverHp <= 0) continue
 

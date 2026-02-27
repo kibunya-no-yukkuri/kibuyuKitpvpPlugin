@@ -2,8 +2,7 @@ package me.kibunya_no_yukku.kibuyu_kitpvp_plugin
 
 import me.deecaad.weaponmechanics.utils.CustomTag
 import me.kibunya_no_yukku.kibuyu_kitpvp_plugin.Kibuyu_kitpvp_plugin.Companion.shieldMap
-import net.md_5.bungee.api.ChatMessageType
-import net.md_5.bungee.api.chat.TextComponent
+import net.kyori.adventure.text.Component
 import org.bukkit.*
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
@@ -76,7 +75,7 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                         }
                     }
 
-                    Bukkit.broadcastMessage("§aキットが配布されました！")
+                    Bukkit.broadcast(Component.text("§aキットが配布されました！"))
                     kitGiveObjective.getScore("give").score = 0
 
                 }
@@ -488,9 +487,8 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                     val ultUse2Score = ultUse2Obj.getScore(player.name).score
 
 
-                    player.spigot().sendMessage(
-                        ChatMessageType.ACTION_BAR,
-                        TextComponent("§e残弾数: $ammoLeft 発 | シールド: $shieldHp | コスト減少値: $costDownAmountScore | ウルト: $ultScore /$ultUse1Score,$ultUse2Score")
+                    player.sendActionBar(
+                        Component.text("§e残弾数: $ammoLeft 発 | シールド: $shieldHp | コスト減少値: $costDownAmountScore | ウルト: $ultScore /$ultUse1Score,$ultUse2Score")
                     )
 
                     //ここからオーバーHP処理.
@@ -671,6 +669,38 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
 
             }
         }.runTaskTimer(plugin, 0L, 20L) // 1秒毎.
+
+        //ここからコスト回復処理
+        object : BukkitRunnable() {
+            override fun run() {
+                for (player in Bukkit.getOnlinePlayers()) {
+                    val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+                    val costObj = scoreboard.getObjective("cost") ?: return
+                    val costIntervalObj = scoreboard.getObjective("cost_interval") ?: return
+                    val costIntervalCObj = scoreboard.getObjective("cost_interval_count") ?: return
+
+                    val costScore = costObj.getScore(player.name)
+                    val costIntervalScore = costIntervalObj.getScore(player.name).score
+                    val costIntervalCScore = costIntervalCObj.getScore(player.name)
+
+
+
+                    if(costScore.score < 100){
+
+                        costIntervalCScore.score -= 1
+
+                        if(costIntervalCScore.score <= 0) {
+
+                            costScore.score += 1
+                            costIntervalCScore.score = costIntervalScore / 100
+                        }
+
+                    }
+
+                }
+
+            }
+        }.runTaskTimer(plugin, 0L, 1L) // 1tick毎.
 
 
 
