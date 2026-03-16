@@ -23,8 +23,16 @@ import org.bukkit.persistence.PersistentDataType
 import org.bukkit.plugin.java.JavaPlugin
 import kotlin.math.roundToInt
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.TextColor
+import org.bukkit.Sound
 import org.bukkit.event.entity.EntityDamageByEntityEvent
-
+import org.bukkit.event.entity.PlayerDeathEvent
+import org.bukkit.event.player.PlayerCommandPreprocessEvent
+import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.inventory.meta.Damageable
+import org.bukkit.scoreboard.Criteria
+import org.bukkit.scoreboard.DisplaySlot
 
 class EventListener(private val plugin: JavaPlugin): Listener {
 
@@ -40,7 +48,7 @@ class EventListener(private val plugin: JavaPlugin): Listener {
             listOf("§bノーマルスキル1「緊急治療セットB」", "§735秒毎に、HPの最も低い味方に対して2HP回復","§bノーマルスキル2「プレゼントボックスC」", "§7通常攻撃130回毎に、自身の攻撃力を27%加算(10秒間)") ,
             listOf("§bパッシブスキル1「白衣の天使」", "§7自身の治癒力を30増加","§bパッシブスキル2「守護天使の意志」", "§7自身の最大HPを5増加"),
             listOf("§bサブスキル1「天使の微笑み」", "§7味方全員のCC抵抗値を5増加","§bサブスキル2「聖なる加護」", "§7リロード時、自身の移動速度を100%加算(1秒間)","§7CT3秒"),
-            listOf("§dアルティメット「神出鬼没」", "§7右クリック時、半径100m以内の一番近い味方にテレポートする","§7左クリック時、視点の30m先にテレポートする")
+            listOf("§dアルティメット「神出鬼没」", "§7右クリック時、半径100m以内の一番近い味方にテレポートする","§7左クリック時、視点の30m先にテレポートする", "§7消費ULTコストult50,CT25秒")
         ),
         Material.SUNFLOWER to listOf(
             listOf("§7圧倒的な回復力を持つヒーラー", "§7弱体状態の解除、スキルコスト減少、防御デバフとやれることは意外と多い", "§7ブルーアーカイブより"),
@@ -48,14 +56,63 @@ class EventListener(private val plugin: JavaPlugin): Listener {
             listOf("§bノーマルスキル1「浄化の洗礼」", "§725秒毎に、最も近い敵を中心とした円形範囲に5ダメージ","§7さらに防御力を24%減少","§bノーマルスキル2「慈愛の投げキッス」","§730秒毎に最もHPの低い味方一人に対して3HPの回復","§7さらに自身に対して2HPの回復") ,
             listOf("§bパッシブスキル1「応援の心構え」", "§7自身の防御力を5増加","§bパッシブスキル2「たゆまぬ努力」", "§7自身の治癒力を30増加"),
             listOf("§bサブスキル1「慈愛の心」", "§7味方全員のHPを5増加","§bサブスキル2「今だけは楽しんで」", "§7「ファンサービス」を3個獲得時、味方全員のスキルコストを10減少(EXスキルの使用1回分)","§7(「ファンサービス」は初期化されます)"),
-            listOf("§dアルティメット「お祈りの時間」", "§7半径30m以内の自身含む味方に対して50HP回復","§7HPを超えた100%分オーバーHPを付与")
-        )
+            listOf("§dアルティメット「お祈りの時間」", "§7半径30m以内の自身含む味方に対して50HP回復","§7HPを超えた100%分オーバーHPを付与", "§7消費ULTコストult100,CT50秒")
+        ),
         // 他のアイテムも追加可能
+        Material.STICK to listOf(
+            listOf("§7ステータスの高さで敵を殴りまくるアタッカー", "§7スキルによるデバフをウルトで解除し、ウルトによるデバフをスキルで解除する", "§7そんなスキル回しが重要なkit"),
+            listOf("§b武器「§b§l脆い§f魔法剣§b」", "§7攻撃力:2","§7攻撃速度+100", "§b武器スキル「マジカルプロテクト」","§7正面からの攻撃をガードする","§7主な銃撃は25%分のダメージが貫通する"),
+            listOf("§bEXスキル1「レアアイテムを無数手にして」", "§7自身の攻撃力を50%、移動速度を75%加算(10秒間)", "§7消費コストcost45,CT15秒","§bEXスキル2「再生！脆い剣を壊しては直し」","§7自身の防御力を100加算(10秒間)","§7さらに魔法剣の耐久値を回復","§7消費コストcost35,CT15秒"),
+            listOf("§bノーマルスキル1「手を伸ばしたらリフレイン」", "§7自身のEXスキルによるデバフをアルティメット発動時解除","§7またアルティメットによるデバフをスキル発動時解除する","§bノーマルスキル2「眩しい暗闇の中」","§7EXスキル2発動時、魔法剣の減った耐久値に応じてULTを加算(最大10)") ,
+            listOf("§bパッシブスキル1「フル装備を着て」", "§7自身の防御力を50増加","§bパッシブスキル2「未回復でも笑顔を魅せて」", "§7自身HPが10未満の時、CC抵抗値を5加算"),
+            listOf("§bサブスキル1「うつくしく倒してあげるから」", "§7敵を倒した時、ULTを40加算","§bサブスキル2「魔法中毒」", "§7EXスキル、アルティメット共に効果時間終了後","§7バフと同種のデバフを自身に付与"),
+            listOf("§dアルティメット「変身！」", "§7自身の攻撃力を75%、移動速度を100%、防御力を100加算(15秒間)","§7さらに発動時、コストを10得る", "§7消費ULTコストult75,CT2秒")
+        )
     )
 
     private val loreKey = NamespacedKey(plugin, "lore_index")
 
 
+
+    @EventHandler
+    fun blockingMazikahorikkuSword(event: EntityDamageByEntityEvent){
+
+        val player = event.entity as? Player ?: return
+
+        if (player.isBlocking &&
+            player.inventory.itemInMainHand.type == Material.IRON_SWORD
+        ) {
+            player.playSound(player.location, Sound.BLOCK_AMETHYST_BLOCK_PLACE, 1.0f, 1f)
+            val item = player.inventory.itemInMainHand
+            val meta = item.itemMeta as? Damageable ?: return
+
+            val maxDurability = item.type.maxDurability
+
+            val currentDamage = meta.damage
+
+            val remaining = maxDurability - currentDamage
+
+
+            if (remaining <= 3) {
+
+                Bukkit.dispatchCommand(
+                    Bukkit.getConsoleSender(),
+                    "item replace entity ${player.name} weapon.mainhand with iron_sword[custom_name=\"§b§l脆い§f魔法剣§7(broken)\",minecraft:lore=[\"§r§7使い古され、壊れてしまった魔法剣\",\"§r§7直せばまだ使えるかもしれない\",\"§r§7☆スキルをつかってけんをなおしてあげよう！☆\"],minecraft:attribute_modifiers=[{type:\"attack_speed\",amount:-3,operation:\"add_value\",id:\"custom:fast_speed\"},{type:\"attack_damage\",amount:1,operation:\"add_value\",id:\"custom:keep_damage\"}],minecraft:item_model=mazikahorikku_sword]"
+                )
+                player.playSound(player.location, Sound.ENTITY_ITEM_BREAK, 1.0f, 1.0f)
+            }
+
+            // 最大耐久の5%
+            val damageAmount = (maxDurability * 0.05).toInt().coerceAtLeast(1)
+
+            meta.damage = (currentDamage + damageAmount)
+                .coerceAtMost(maxDurability.toInt())
+
+            item.itemMeta = meta
+
+        }
+
+    }
 
     //銃撃った人検知
     @EventHandler
@@ -92,8 +149,14 @@ class EventListener(private val plugin: JavaPlugin): Listener {
     }
 
 
-    fun attackAmount(attackAmount: Double, attackScore: Int): Double {
-        val finalAmount = attackAmount * (1 + (attackScore / 100.0))
+    fun attackAmount(attackAmount: Double, attackScore: Int, attackDebuffScore: Int): Double {
+        val newAttackDebuff = if (attackDebuffScore > 0) {
+            attackDebuffScore / (attackDebuffScore + 100.0)
+        } else 0.0
+
+        val newAttackAmount = attackAmount *  (1.0 + (attackScore / 100.0))  // 10%増なら 1.1
+        val finalAmount = (newAttackAmount * (1 - newAttackDebuff))
+
         return finalAmount
     }
 
@@ -122,10 +185,10 @@ class EventListener(private val plugin: JavaPlugin): Listener {
 
         val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
         val attackScore = scoreboard.getObjective("attack")?.getScore(attacker.name)?.score ?: 0
+        val attackDebuffScore = scoreboard.getObjective("attack_debuff")?.getScore(attacker.name)?.score ?: 0
 
-        if (attackScore <= 0) return
 
-        val finalDamage = attackAmount(event.damage,attackScore)
+        val finalDamage = attackAmount(event.damage,attackScore,attackDebuffScore)
 
         event.damage = finalDamage
     }
@@ -177,7 +240,8 @@ class EventListener(private val plugin: JavaPlugin): Listener {
         )
 
 
-
+        val shieldObj = scoreboard.getObjective("shield")
+        val shieldScore = shieldObj?.getScore(player.name)
 
         val shieldInt = shieldMap[player.uniqueId] ?: 0 // UUID から取得、無ければ 0.
         val shield = shieldInt.toDouble()// Int → Double に変換.
@@ -199,6 +263,15 @@ class EventListener(private val plugin: JavaPlugin): Listener {
             // シールドが足りない場合 → 残りをHPに通す.
             shieldMap[player.uniqueId] = 0
             event.damage = damage - shield
+            shieldScore?.let { it.score = 0 }
+            if(shield > 0) {
+                player.world.playSound(
+                    player.location,
+                    Sound.BLOCK_GLASS_BREAK,
+                    1.0f, // 音量
+                    1.0f  // ピッチ.
+                )
+            }
         }
 
 
@@ -301,6 +374,21 @@ class EventListener(private val plugin: JavaPlugin): Listener {
         player.health = maxHp.toDouble()
     }
 
+    @EventHandler
+    fun onCommand(event: PlayerCommandPreprocessEvent){
+        val player = event.player
+
+        // プレイヤーがTag(s)を持っているか
+        if (!player.scoreboardTags.contains("s")) return
+        val command = event.message.lowercase()
+
+        if (command.startsWith("/menu") || command.startsWith("/menu")) {
+            player.sendMessage("§c現在このコマンドを使用することはできません")
+            event.isCancelled = true
+        }
+    }
+
+
     private fun syncToScore(player: Player) {
         val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
         val hpObj = scoreboard.getObjective("hp") ?: return
@@ -315,6 +403,86 @@ class EventListener(private val plugin: JavaPlugin): Listener {
         syncNeeded.remove(player)
     }
 
+
+    @EventHandler
+    fun kit102SS1(event : PlayerDeathEvent){
+        val victim = event.entity
+        val killer = victim.killer ?: return
+
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+        val kit1Obj = scoreboard.getObjective("kit1") ?: return
+        val kit1Score = kit1Obj.getScore(killer.name)
+        val ultObj = scoreboard.getObjective("ult") ?: return
+        val ultScore = ultObj.getScore(killer.name)
+        if(kit1Score.score == 2){
+            ultScore.score += 40
+            killer.sendMessage("§a${victim.name} を倒しました！")
+        }
+    }
+
+
+
+
+    //サイドバーセット.
+    @EventHandler
+    fun onJoin(event: PlayerJoinEvent) {
+        val player = event.player
+        val manager = Bukkit.getScoreboardManager()
+
+        val board = manager.newScoreboard
+        val main = manager.mainScoreboard
+
+        for (team in main.teams) {
+
+            val newTeam = board.getTeam(team.name) ?: board.registerNewTeam(team.name)
+
+            for (entry in team.entries) {
+                newTeam.addEntry(entry)
+            }
+
+            val color = when (team.name) {
+                "red" -> NamedTextColor.RED
+                "blue" -> NamedTextColor.BLUE
+                "yellow" -> NamedTextColor.YELLOW
+                "green" -> NamedTextColor.GREEN
+                else -> null
+            }
+
+            if (color != null) {
+                newTeam.color(color)
+            }
+        }
+
+        val obj = board.registerNewObjective(
+            "sidebar",
+            Criteria.DUMMY,
+            Component.text("ゲーム情報", NamedTextColor.GOLD)
+        )
+
+        obj.displaySlot = DisplaySlot.SIDEBAR
+
+        var score = 15
+
+        fun createLine(teamName: String, entry: String) {
+            val team = board.getTeam(teamName) ?: board.registerNewTeam(teamName)
+            team.addEntry(entry)
+            obj.getScore(entry).score = score--
+        }
+
+        createLine("sb_map", "§0§r")
+
+        createLine("sb_red", "§1§r")
+        createLine("sb_blue", "§2§r")
+        createLine("sb_yellow", "§3§r")
+        createLine("sb_green", "§4§r")
+
+        createLine("sb_buff", "§5§r")
+        createLine("sb_debuff", "§6§r")
+
+        createLine("sb_players", "§7§r")
+
+        player.scoreboard = board
+    }
 
 
     //GUI系
@@ -462,15 +630,15 @@ class EventListener(private val plugin: JavaPlugin): Listener {
                             event.inventory.setItem(event.slot, clicked)
                         }
                     }
-                    11 -> { // kit1を2に()
+                    11 -> { // kit1を2に(マジカホリック)
                         if (event.isLeftClick) {
                             ki1Score?.let { it.score = 2 }
                             player.sendMessage("§bストライカーキットをマジカホリックに変更しました")
                             ns2MaxScore.score = 700
-                            costUse11Score.score = 60
-                            costUse12Score.score = 30
-                            costUse11AScore.score = 60
-                            costUse12AScore.score = 30
+                            costUse11Score.score = 45
+                            costUse12Score.score = 35
+                            costUse11AScore.score = 45
+                            costUse12AScore.score = 35
                             utUse1Score.score = 75
                             player.closeInventory()
                         }

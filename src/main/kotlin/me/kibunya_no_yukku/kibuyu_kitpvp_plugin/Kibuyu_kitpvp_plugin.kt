@@ -29,7 +29,6 @@ class Kibuyu_kitpvp_plugin : JavaPlugin() {
         server.pluginManager.registerEvents(skillListener, this)
         HpSyncTask(listener ).runTaskTimer(this, 0L, 1L)
 
-        server.pluginManager.registerEvents(SkillListener(this), this)
         SpeedSyncTask(this).runTaskTimer(this, 0L, 1L) // 20 tick = 1秒ごとに更新
 
 

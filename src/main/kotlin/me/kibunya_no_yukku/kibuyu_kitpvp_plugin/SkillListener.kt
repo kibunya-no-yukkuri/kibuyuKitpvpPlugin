@@ -6,6 +6,7 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Bukkit
+import org.bukkit.Color
 import org.bukkit.Material
 import org.bukkit.Particle
 import org.bukkit.Sound
@@ -24,6 +25,12 @@ import kotlin.math.sin
 import org.bukkit.Location
 import org.bukkit.util.Vector
 import org.bukkit.FluidCollisionMode
+import org.bukkit.NamespacedKey
+import org.bukkit.SoundCategory
+import org.bukkit.event.entity.PlayerDeathEvent
+import org.bukkit.inventory.meta.Damageable
+import org.bukkit.potion.PotionEffect
+import org.bukkit.potion.PotionEffectType
 
 class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
 
@@ -84,7 +91,7 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
             } else player.sendMessage("§cクールタイム中・・・")
 
             2 ->  if (oneCtScore < 1) {
-                kit2Skill1(player)
+                    kit2Skill1(player)
             } else player.sendMessage("§cクールタイム中・・・")
             3 -> kit3Skill1(player)
             else -> return
@@ -305,7 +312,154 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         }
     }
     fun kit2Skill1(player: Player) {
-        player.sendMessage("§eスキル発動！")
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+        val attackObj = scoreboard.getObjective("self_attack_buff_EX") ?: return
+        val attackScore = attackObj.getScore(player.name)
+        val speedObj = scoreboard.getObjective("self_speed_buff_EX") ?: return
+        val speedScore = speedObj.getScore(player.name)
+        val speedDebuffObj = scoreboard.getObjective("self_speed_debuff_EX") ?: return
+        val speedDebuffScore = speedDebuffObj.getScore(player.name)
+        val attackDebuffObj = scoreboard.getObjective("self_attack_debuff_EX") ?: return
+        val attackDebuffScore = attackDebuffObj.getScore(player.name)
+        val attackTimeObj = scoreboard.getObjective("timer_self_attack_buff_EX") ?: return
+        val attackTimeScore = attackTimeObj.getScore(player.name)
+        val speedTimeObj = scoreboard.getObjective("timer_self_speed_buff_EX") ?: return
+        val speedTimeScore = speedTimeObj.getScore(player.name)
+        val speedDebuffTimeObj = scoreboard.getObjective("timer_self_speed_debuff_EX") ?: return
+        val speedDebuffTimeScore = speedDebuffTimeObj.getScore(player.name)
+        val attackDebuffTimeObj = scoreboard.getObjective("timer_self_attack_debuff_EX") ?: return
+        val attackDebuffTimeScore = attackDebuffTimeObj.getScore(player.name)
+        val speedDebuffTimeULTObj = scoreboard.getObjective("timer_self_speed_debuff_ULT") ?: return
+        val speedDebuffTimeULTScore = speedDebuffTimeULTObj.getScore(player.name)
+        val attackDebuffTimeULTObj = scoreboard.getObjective("timer_self_attack_debuff_ULT") ?: return
+        val attackDebuffTimeULTScore = attackDebuffTimeULTObj.getScore(player.name)
+        val buffTimeObj = scoreboard.getObjective("add_buff_time") ?: return
+        val buffTimeScore = buffTimeObj.getScore(player.name)
+        val costDownAmountObj = scoreboard.getObjective("costDown_buff_amount") ?: return
+        val costDownAmountScore = costDownAmountObj.getScore(player.name)
+        val costDownObj = scoreboard.getObjective("costDown_buff") ?: return
+        val costDownScore = costDownObj.getScore(player.name)
+        val ctObj = scoreboard.getObjective("1_ct") ?: return
+        val ctScore = ctObj.getScore(player.name)
+        val costUse11Obj = scoreboard.getObjective("cost_use1_1") ?: return
+        val costUse11Score = costUse11Obj.getScore(player.name)
+        val costObj = scoreboard.getObjective("cost") ?: return
+        val costScore = costObj.getScore(player.name)
+        //CT.
+        ctScore.score += 300
+        costScore.score -= costAmount(costUse11Score.score,costDownAmountScore.score)
+        if(costDownScore.score <= 0){
+            costDownScore.score = 0
+            costDownAmountScore.score = 0
+        }
+        val item = player.inventory.itemInMainHand
+        player.setCooldown(item.type, 20 * 15)
+
+        //エフェクト.
+        player.addPotionEffect(PotionEffect(PotionEffectType.SLOWNESS, 30, 4, false, true, true))
+        player.playSound(player.location, Sound.BLOCK_WOOD_BREAK, 1.0f, 0f)
+        player.playSound(player.location, Sound.BLOCK_WOOD_BREAK, 1.0f, 0f)
+        player.playSound(player.location, Sound.BLOCK_WOOD_BREAK, 1.0f, 0f)
+        player.playSound(player.location, Sound.BLOCK_WOOD_BREAK, 1.0f, 0f)
+        object : BukkitRunnable() {
+            var count = 0
+            override fun run() {
+                if (count >= 3) { // 3回鳴らしたら終了.
+                    cancel()
+                    return
+                }
+                player.playSound(player.location, Sound.ENTITY_GENERIC_DRINK, 1.0f, 1.0f)
+                count++
+
+                player.world.spawnParticle(
+                    Particle.ENTITY_EFFECT,
+                    player.location,
+                    20,
+                    1.0,1.0,1.0,
+                    Color.fromRGB(49, 240, 255)
+                )
+            }
+        }.runTaskTimer(plugin, 7L, 6L) // 0L = 最初すぐ, 10L = 0.5秒ごと(20ticks = 1秒).
+
+
+
+        Bukkit.getScheduler().runTaskLater(plugin, Runnable {
+            object : BukkitRunnable() {
+                var count = 0
+                override fun run() {
+                    if (count >= 200) {
+                        cancel()
+                        return
+                    }
+                    player.world.spawnParticle(
+                        Particle.TRIAL_SPAWNER_DETECTION_OMINOUS,
+                        player.location,
+                        7,
+                        1.0, 1.0, 1.0,
+                        0.01
+                    )
+                    count++
+                }
+            }.runTaskTimer(plugin, 0L, 1L)
+            player.playSound(player.location, Sound.BLOCK_GLASS_BREAK, 1.0f, 0f)
+            player.playSound(player.location, Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1.0f, 2f)
+            player.playSound(player.location, Sound.BLOCK_BREWING_STAND_BREW, 1.0f, 1f)
+            val dust = Particle.DustOptions(
+                Color.fromRGB(49, 240, 255),
+                1.5f // サイズ
+            )
+            player.world.spawnParticle(
+                Particle.DUST,
+                player.location,
+                100,
+                1.0, 1.0, 1.0 ,
+                dust
+            )
+
+        //バフ.
+        attackScore.score = 50
+        attackTimeScore.score = buffTimeAmount(200.0,buffTimeScore.score)
+
+        speedScore.score = 75
+        speedTimeScore.score = buffTimeAmount(200.0,buffTimeScore.score)
+
+        //デバフ解除
+        speedDebuffTimeULTScore.score = 0
+        attackDebuffTimeULTScore.score = 0
+        player.removePotionEffect(PotionEffectType.NAUSEA)
+
+        //バフ後デバフ.
+        Bukkit.getScheduler().runTaskLater(plugin, Runnable {
+            player.addPotionEffect(
+                PotionEffect(
+                    PotionEffectType.NAUSEA,
+                    200,
+                    0,
+                    false, // 環境
+                    false, // パーティクル
+                    true  // アイコン
+                )
+            )
+        }, 140L)
+        Bukkit.getScheduler().runTaskLater(plugin, Runnable {
+            attackDebuffScore.score = 50
+            attackDebuffTimeScore.score = buffTimeAmount(300.0,buffTimeScore.score)
+
+            speedDebuffScore.score = 50
+            speedDebuffTimeScore.score = buffTimeAmount(300.0,buffTimeScore.score)
+
+            player.addPotionEffect(
+                PotionEffect(
+                    PotionEffectType.NAUSEA,
+                    60,
+                    0,
+                    false, // 環境
+                    false, // パーティクル
+                    true  // アイコン
+                )
+            )
+        }, 200L)
+        }, 30L)
     }
 
     fun kit3Skill1(player: Player) {
@@ -359,10 +513,11 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
                 } else player.sendMessage("§cクールタイム中・・・")
 
                 2 -> if (oneCtTwoScore < 1) {
-                    kit2Skill2(player)
+                        kit2Skill2(player)
                 }else player.sendMessage("§cクールタイム中・・・")
-                3 -> kit3Skill2(player)
-                else -> return
+                3 -> if (oneCtTwoScore < 1) {
+                    kit3Skill2(player)
+                }else player.sendMessage("§cクールタイム中・・・")
             }
         }
     }
@@ -506,7 +661,82 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         return
     }
     fun kit2Skill2(player: Player) {
-        player.sendMessage("§aスキル発動！")
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+        val defenseObj = scoreboard.getObjective("self_defense_buff_EX") ?: return
+        val defenseScore = defenseObj.getScore(player.name)
+        val defenseDebuffObj = scoreboard.getObjective("self_defense_debuff_EX") ?: return
+        val defenseDebuffScore = defenseDebuffObj.getScore(player.name)
+        val defenseTimeObj = scoreboard.getObjective("timer_self_defense_buff_EX") ?: return
+        val defenseTimeScore = defenseTimeObj.getScore(player.name)
+        val defenseDebuffTimeObj = scoreboard.getObjective("timer_self_defense_debuff_EX") ?: return
+        val defenseDebuffTimeScore = defenseDebuffTimeObj.getScore(player.name)
+        val defenseDebuffTimeULTObj = scoreboard.getObjective("timer_self_defense_debuff_ULT") ?: return
+        val defenseDebuffTimeULTScore = defenseDebuffTimeULTObj.getScore(player.name)
+        val buffTimeObj = scoreboard.getObjective("add_buff_time") ?: return
+        val buffTimeScore = buffTimeObj.getScore(player.name)
+        val oneCtTwoObj = scoreboard.getObjective("1_ct2") ?: return
+        val oneCtTwoScore = oneCtTwoObj.getScore(player.name)
+        val costObj = scoreboard.getObjective("cost") ?: return
+        val costScore = costObj.getScore(player.name)
+        val costUse12Obj = scoreboard.getObjective("cost_use1_2") ?: return
+        val costUse12Score = costUse12Obj.getScore(player.name)
+        val costDownAmountObj = scoreboard.getObjective("costDown_buff_amount") ?: return
+        val costDownAmountScore = costDownAmountObj.getScore(player.name)
+        val costDownObj = scoreboard.getObjective("costDown_buff") ?: return
+        val costDownScore = costDownObj.getScore(player.name)
+        val ultObj = scoreboard.getObjective("ult") ?: return
+        val ultScore = ultObj.getScore(player.name)
+        //CT.
+        oneCtTwoScore.score += 300
+        costScore.score -= costAmount(costUse12Score.score,costDownAmountScore.score)
+        if(costDownScore.score <= 0){
+            costDownScore.score = 0
+            costDownAmountScore.score = 0
+        }
+        val item = player.inventory.itemInMainHand
+        player.setCooldown(item.type, 20 * 15)
+
+        //エフェクト.
+        player.playSound(player.location, Sound.BLOCK_ANVIL_USE, 1.0f, 0f)
+        player.addPotionEffect(PotionEffect(PotionEffectType.SLOWNESS, 30, 4, false, true, true))
+
+
+        Bukkit.getScheduler().runTaskLater(plugin, Runnable {
+
+        //バフ.
+        defenseScore.score = 100
+        defenseTimeScore.score = buffTimeAmount(200.0,buffTimeScore.score)
+        //デバフ解除
+        defenseDebuffTimeULTScore.score = 0
+
+        //バフ後デバフ.
+        Bukkit.getScheduler().runTaskLater(plugin, Runnable {
+            defenseDebuffScore.score = 100
+            defenseDebuffTimeScore.score = buffTimeAmount(300.0,buffTimeScore.score)
+
+        }, 200L)
+
+        //ホットバーのどこに剣があるか判定後その場所にアイテムをリプレイス.
+        for (slot in 0..8) {
+            val item = player.inventory.getItem(slot) ?: continue
+            val meta = item.itemMeta as? Damageable ?: continue
+            if (!meta.hasItemModel()) continue
+            if (meta.itemModel == NamespacedKey.fromString("minecraft:mazikahorikku_sword")) {
+                val currentDamage = meta.damage
+                val chargeUlt = currentDamage / 25
+                ultScore.score += chargeUlt
+
+                Bukkit.dispatchCommand(
+                    Bukkit.getConsoleSender(),
+                    "item replace entity ${player.name} container.${slot} with iron_sword[custom_name=\"§b§l脆い§f魔法剣\",minecraft:lore=[\"§r§7使い古された魔法剣\",\"§r§7手入れがされているため、まだ使える\",\"§r§7☆モンスターをうつくしくたおしてあげよう！☆\"],minecraft:attribute_modifiers=[{type:\"attack_speed\",amount:100,operation:\"add_value\",id:\"custom:fast_speed\"},{type:\"attack_damage\",amount:2,operation:\"add_value\",id:\"custom:keep_damage\"}],minecraft:item_model=mazikahorikku_sword,minecraft:blocks_attacks={}]"
+                )
+                if(currentDamage >= 1){
+                    player.playSound(player.location, Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.BLOCKS, 1.0f, 0f,)
+                }
+            }
+        }
+        }, 30L)
+
     }
     fun kit3Skill2(player: Player) {
         player.sendMessage("§aスキル発動！")
@@ -844,14 +1074,36 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
 
         // 対象のデバフ名一覧（必要に応じて追加）
         val debuffNames = listOf(
+            "timer_other_defense_debuff_ULT",
+            "timer_other_defense_debuff_EX",
+            "timer_other_defense_debuff_NS",
+            "timer_other_defense_debuff_PS",
+            "timer_other_defense_debuff_SS",
+            "timer_other_attack_debuff_ULT",
+            "timer_other_attack_debuff_EX",
+            "timer_other_attack_debuff_NS",
+            "timer_other_attack_debuff_PS",
+            "timer_other_attack_debuff_SS",
+            "timer_other_speed_debuff_ULT",
+            "timer_other_speed_debuff_EX",
+            "timer_other_speed_debuff_NS",
+            "timer_other_speed_debuff_PS",
+            "timer_other_speed_debuff_SS",
+            "timer_self_defense_debuff_ULT",
             "timer_self_defense_debuff_EX",
             "timer_self_defense_debuff_NS",
             "timer_self_defense_debuff_PS",
             "timer_self_defense_debuff_SS",
-            "timer_other_defense_debuff_EX",
-            "timer_other_defense_debuff_NS",
-            "timer_other_defense_debuff_PS",
-            "timer_other_defense_debuff_SS"
+            "timer_self_attack_debuff_ULT",
+            "timer_self_attack_debuff_EX",
+            "timer_self_attack_debuff_NS",
+            "timer_self_attack_debuff_PS",
+            "timer_self_attack_debuff_SS",
+            "timer_self_speed_debuff_ULT",
+            "timer_self_speed_debuff_EX",
+            "timer_self_speed_debuff_NS",
+            "timer_self_speed_debuff_PS",
+            "timer_self_speed_debuff_SS"
         )
 
         // 実際に存在し、スコアが1以上のものだけを抽出
@@ -894,6 +1146,17 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         val task = object : BukkitRunnable() {
             override fun run() {
                 shieldMap.remove(player.uniqueId)
+                val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+                val shieldObj = scoreboard.getObjective("shield") ?: return
+                val shieldScore = shieldObj.getScore(player.name)
+                if (shieldScore.score > 0) {
+                    player.world.playSound(
+                        player.location,
+                        Sound.BLOCK_GLASS_BREAK,
+                        1.0f, // 音量
+                        1.0f  // ピッチ
+                    )
+                }
             }
 
         }
@@ -927,6 +1190,7 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
             if(ultCt1Score < 1) {
 
                 ultScore.score -= ultUse1Score
+                ultChat(player,kit1Score,1)
 
                 when (kit1Score) {
                     1 -> {
@@ -993,15 +1257,6 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
 
         player.teleport(targetLocation)
 
-        val team = scoreboard.getEntryTeam(player.name)
-        val color: TextColor? = team?.color() ?: NamedTextColor.WHITE
-
-        Bukkit.broadcast(
-            Component.text("【${player.name}】", color)
-                .append(Component.text("ULT≪神出鬼没≫", NamedTextColor.WHITE))
-                .append(Component.text("byセリナ", NamedTextColor.GRAY))
-        )
-
     }
 
     fun kit101Ult2(player: Player) {
@@ -1049,19 +1304,131 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
 
         player.teleport(nearest.location)
 
-        val team = scoreboard.getEntryTeam(player.name)
-        val color: TextColor? = team?.color() ?: NamedTextColor.WHITE
-
-        Bukkit.broadcast(
-            Component.text("【${player.name}】", color)
-                .append(Component.text("ULT≪神出鬼没≫", NamedTextColor.WHITE))
-                .append(Component.text("byセリナ", NamedTextColor.GRAY))
-        )
-
     }
 
     fun kit102Ult(player: Player) {
-        player.sendMessage("§eウルト発動！")
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+        val ultCt2Obj = scoreboard.getObjective("ult_ct2") ?: return
+        val ultCt2Score = ultCt2Obj.getScore(player.name)
+        val attackObj = scoreboard.getObjective("self_attack_buff_ULT") ?: return
+        val attackScore = attackObj.getScore(player.name)
+        val defenseObj = scoreboard.getObjective("self_defense_buff_ULT") ?: return
+        val defenseScore = defenseObj.getScore(player.name)
+        val speedObj = scoreboard.getObjective("self_speed_buff_ULT") ?: return
+        val speedScore = speedObj.getScore(player.name)
+        val speedDebuffObj = scoreboard.getObjective("self_speed_debuff_ULT") ?: return
+        val speedDebuffScore = speedDebuffObj.getScore(player.name)
+        val attackDebuffObj = scoreboard.getObjective("self_attack_debuff_ULT") ?: return
+        val attackDebuffScore = attackDebuffObj.getScore(player.name)
+        val defenseDebuffObj = scoreboard.getObjective("self_defense_debuff_ULT") ?: return
+        val defenseDebuffScore = defenseDebuffObj.getScore(player.name)
+        val attackTimeObj = scoreboard.getObjective("timer_self_attack_buff_ULT") ?: return
+        val attackTimeScore = attackTimeObj.getScore(player.name)
+        val defenseTimeObj = scoreboard.getObjective("timer_self_defense_buff_ULT") ?: return
+        val defenseTimeScore = defenseTimeObj.getScore(player.name)
+        val speedTimeObj = scoreboard.getObjective("timer_self_speed_buff_ULT") ?: return
+        val speedTimeScore = speedTimeObj.getScore(player.name)
+        val speedDebuffTimeObj = scoreboard.getObjective("timer_self_speed_debuff_ULT") ?: return
+        val speedDebuffTimeScore = speedDebuffTimeObj.getScore(player.name)
+        val attackDebuffTimeObj = scoreboard.getObjective("timer_self_attack_debuff_ULT") ?: return
+        val attackDebuffTimeScore = attackDebuffTimeObj.getScore(player.name)
+        val defenseDebuffTimeObj = scoreboard.getObjective("timer_self_defense_debuff_ULT") ?: return
+        val defenseDebuffTimeScore = defenseDebuffTimeObj.getScore(player.name)
+        val speedDebuffTimeEXObj = scoreboard.getObjective("timer_self_speed_debuff_EX") ?: return
+        val speedDebuffTimeEXScore = speedDebuffTimeEXObj.getScore(player.name)
+        val attackDebuffTimeEXObj = scoreboard.getObjective("timer_self_attack_debuff_EX") ?: return
+        val attackDebuffTimeEXScore = attackDebuffTimeEXObj.getScore(player.name)
+        val defenseDebuffTimeEXObj = scoreboard.getObjective("timer_self_defense_debuff_EX") ?: return
+        val defenseDebuffTimeEXScore = defenseDebuffTimeEXObj.getScore(player.name)
+        val buffTimeObj = scoreboard.getObjective("add_buff_time") ?: return
+        val buffTimeScore = buffTimeObj.getScore(player.name)
+        val costObj = scoreboard.getObjective("cost") ?: return
+        val costScore = costObj.getScore(player.name)
+        //CT&cost処理.
+        ultCt2Score.score += 40
+        //CT可視化
+        val item = player.inventory.itemInMainHand
+        player.setCooldown(item.type, 20 * 2)
+
+        //エフェクト.
+        player.playSound(player.location, Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.BLOCKS, 1.0f, 1f,)
+        player.playSound(player.location, Sound.ENTITY_ALLAY_DEATH, 1.0f, 1.5f,)
+
+        object : BukkitRunnable() {
+            var count = 0
+            override fun run() {
+                if (count >= 5) {
+                    cancel()
+                    return }
+                player.world.spawnParticle(Particle.WAX_OFF, player.location, 20, 1.0, 1.0, 1.0, 0.1)
+                player.world.spawnParticle(Particle.END_ROD, player.location, 20, 1.0, 1.0, 1.0, 0.1)
+                player.world.spawnParticle(Particle.GLOW, player.location, 20, 1.0, 1.0, 1.0, 0.1)
+                player.world.spawnParticle(Particle.GLOW_SQUID_INK, player.location, 20, 1.0, 1.0, 1.0, 0.1)
+                player.world.spawnParticle(Particle.FLASH, player.location, 3, 0.1, 0.1, 0.1, 0.1)
+                count++
+            }
+        }.runTaskTimer(plugin, 0L, 1L)
+        object : BukkitRunnable() {
+            var count = 0
+            override fun run() {
+                if (count >= 300) {
+                    cancel()
+                    return
+                }
+                player.world.spawnParticle(
+                    Particle.TRIAL_SPAWNER_DETECTION_OMINOUS,
+                    player.location,
+                    7,
+                    1.0, 1.0, 1.0,
+                    0.01
+                )
+                count++
+            }
+        }.runTaskTimer(plugin, 0L, 1L)
+
+        //バフ.
+        attackScore.score = 75
+        attackTimeScore.score = buffTimeAmount(300.0,buffTimeScore.score)
+
+        defenseScore.score = 100
+        defenseTimeScore.score = buffTimeAmount(300.0,buffTimeScore.score)
+
+        speedScore.score = 100
+        speedTimeScore.score = buffTimeAmount(300.0,buffTimeScore.score)
+
+        //デバフ解除
+        speedDebuffTimeEXScore.score = 0
+        attackDebuffTimeEXScore.score = 0
+        defenseDebuffTimeEXScore.score = 0
+        player.removePotionEffect(PotionEffectType.NAUSEA)
+
+        //コスト増加.
+        costScore.score += 10
+
+        //バフ後デバフ.
+        Bukkit.getScheduler().runTaskLater(plugin, Runnable {
+            player.addPotionEffect(
+                PotionEffect(
+                    PotionEffectType.NAUSEA,
+                    200,
+                    0,
+                    false, // 環境
+                    false, // パーティクル
+                    true  // アイコン
+                )
+            )
+        }, 240L)
+        Bukkit.getScheduler().runTaskLater(plugin, Runnable {
+            attackDebuffScore.score = 100
+            attackDebuffTimeScore.score = buffTimeAmount(300.0,buffTimeScore.score)
+
+            defenseDebuffScore.score = 100
+            defenseDebuffTimeScore.score = buffTimeAmount(300.0,buffTimeScore.score)
+
+            speedDebuffScore.score = 100
+            speedDebuffTimeScore.score = buffTimeAmount(300.0,buffTimeScore.score)
+        }, 300L)
+
     }
 
     fun kit103Ult(player: Player) {
@@ -1094,6 +1461,7 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         if (ultScore.score >= ultUse2Score) {
             if(ultCt2Score < 1) {
                 ultScore.score -= ultUse2Score
+                ultChat(player,kit2Score,2)
                     when (kit2Score) {
                         1 -> kit201Ult(player)
                         2 -> kit202Ult(player)
@@ -1199,15 +1567,6 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
                         targetHpScore.score += targetHpAmount
                     }, 1L)
                 }
-
-                val team = scoreboard.getEntryTeam(player.name)
-                val color: TextColor? = team?.color() ?: NamedTextColor.WHITE
-
-                Bukkit.broadcast(
-                    Component.text("【${player.name}】", color)
-                        .append(Component.text("ULT≪神出鬼没≫", NamedTextColor.WHITE))
-                        .append(Component.text("byセリナ", NamedTextColor.GRAY))
-                )
             }
         }
     }
@@ -1220,4 +1579,34 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         player.sendMessage("§eウルト発動！")
     }
 
+    fun ultChat(player: Player, kit: Int, position: Int){
+
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+        val team = scoreboard.getEntryTeam(player.name)
+        val color: TextColor? = team?.color() ?: NamedTextColor.WHITE
+
+        var ult = "バグウルト"
+        var name = "バグkit"
+
+        when (position) {
+            1 -> when (kit){
+                1 -> {ult = "神出鬼没"
+                name = "セリナ"}
+                2 -> {ult = "変身！"
+                    name = "マジカホリック"}
+            }
+
+            2 -> when (kit){
+                1 -> when (kit){
+                    1 -> {ult = "お祈りの時間"
+                        name = "マリー"}
+                }
+            }
+            }
+
+
+        Bukkit.broadcast(Component.text("【${player.name}】", color)
+            .append(Component.text("ULT≪${ult}≫", NamedTextColor.WHITE))
+            .append(Component.text("by${name}", NamedTextColor.GRAY)))
+    }
 }

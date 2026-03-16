@@ -3,8 +3,10 @@ package me.kibunya_no_yukku.kibuyu_kitpvp_plugin
 import me.deecaad.weaponmechanics.utils.CustomTag
 import me.kibunya_no_yukku.kibuyu_kitpvp_plugin.Kibuyu_kitpvp_plugin.Companion.shieldMap
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.*
 import org.bukkit.entity.Player
+import org.bukkit.inventory.meta.Damageable
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.scheduler.BukkitRunnable
 import kotlin.math.cos
@@ -52,6 +54,24 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                                 Bukkit.dispatchCommand(
                                     Bukkit.getConsoleSender(),
                                     "item replace entity ${player.name} container.2 with copper_ingot[minecraft:item_model=red_dye,custom_name=\"§l§b集中治療セットA C:30\",minecraft:lore=[\"§r§7右クリック時、半径5m以内の味方HPを6回復する\",\"§r§7左クリック時、自身のHPを4回復する\",\"§r§7両者共に消費コストcost30,CT15秒\"]]"
+                                )
+                            }
+                            if (kit1Score == 2) {
+                                Bukkit.dispatchCommand(
+                                    Bukkit.getConsoleSender(),
+                                    "item replace entity ${player.name} container.4 with iron_sword[custom_name=\"§b§l脆い§f魔法剣\",minecraft:lore=[\"§r§7使い古された魔法剣\",\"§r§7手入れがされているため、まだ使える\",\"§r§7☆モンスターをうつくしくたおしてあげよう！☆\"],minecraft:attribute_modifiers=[{type:\"attack_speed\",amount:100,operation:\"add_value\",id:\"custom:fast_speed\"},{type:\"attack_damage\",amount:2,operation:\"add_value\",id:\"custom:keep_damage\"}],minecraft:item_model=mazikahorikku_sword,minecraft:blocks_attacks={}]"
+                                )
+                                Bukkit.dispatchCommand(
+                                    Bukkit.getConsoleSender(),
+                                    "item replace entity ${player.name} container.1 with diamond[minecraft:item_model=allay_spawn_egg,custom_name=\"§l§d変身！ ULT:75\",minecraft:lore=[\"§r§7自身の攻撃力を75%、移動速度を100%、防御力を100加算(15秒間)\",\"§r§7さらに発動時、コストを10得る\",\"§r§7消費ULTコスト75,CT2秒\"]]"
+                                )
+                                Bukkit.dispatchCommand(
+                                    Bukkit.getConsoleSender(),
+                                    "item replace entity ${player.name} container.3 with iron_ingot[minecraft:item_model=potion,potion_contents={custom_color:4325373},custom_name=\"§l§b決戦！レアアイテムを無数手にして C:45\",minecraft:lore=[\"§r§7自身の攻撃力を50%、移動速度を75%加算(10秒間)\",\"§r§7消費コストcost45,CT15秒\"]]"
+                                )
+                                Bukkit.dispatchCommand(
+                                    Bukkit.getConsoleSender(),
+                                    "item replace entity ${player.name} container.2 with copper_ingot[minecraft:item_model=chipped_anvil,custom_name=\"§l§b再生！脆い剣を壊しては治し C:35\",minecraft:lore=[\"§r§7自身の防御力を100加算(10秒間)\",\"§r§7さらに魔法剣の耐久値を回復\",\"§r§7消費コストcost35,CT15秒\"]]"
                                 )
                             }
                             if (kit2Score == 1) {
@@ -620,7 +640,235 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
 
             }
         }.runTaskTimer(plugin, 0L, 1L) // 1tick毎.
-        //SS処理
+
+
+
+        //サイドバー.
+        object : BukkitRunnable() {
+            override fun run() {
+                for (player in Bukkit.getOnlinePlayers()) {
+                    val board = player.scoreboard
+                    val manager = Bukkit.getScoreboardManager()
+                    val main = manager.mainScoreboard
+
+                    for (team in main.teams) {
+
+                        val playerTeam = board.getTeam(team.name) ?: board.registerNewTeam(team.name)
+
+                        for (entry in team.entries) {
+                            if (!playerTeam.entries.contains(entry)) {
+                                playerTeam.addEntry(entry)
+                            }
+                        }
+                    }
+
+                    // ===== マップ =====
+
+                    board.getTeam("sb_map")?.apply {
+                        prefix(Component.text("マップ: ", NamedTextColor.AQUA))
+                        suffix(Component.text("異界ノ書物庫"))
+                    }
+
+                    // ===== チームライフ =====
+
+                    val life = main.getObjective("life")
+
+                    fun updateLife(team: String, color: NamedTextColor, entry: String) {
+
+                        val value = life?.getScore(entry)?.score ?: 0
+
+                        board.getTeam(team)?.apply {
+                            if (value > 0) {
+                                when(entry){
+                                    "red_life" -> prefix(Component.text("赤チーム残りライフ: ", color))
+                                    "blue_life" -> prefix(Component.text("青チーム残りライフ: ", color))
+                                    "yellow_life" -> prefix(Component.text("黄チーム残りライフ: ", color))
+                                    "green_life" -> prefix(Component.text("緑チーム残りライフ: ", color))
+                                }
+                                suffix(Component.text(value))
+                            } else {
+                                prefix(Component.empty())
+                                suffix(Component.empty())
+                            }
+                        }
+                    }
+
+                    updateLife("sb_red", NamedTextColor.RED, "red_life")
+                    updateLife("sb_blue", NamedTextColor.BLUE, "blue_life")
+                    updateLife("sb_yellow", NamedTextColor.YELLOW, "yellow_life")
+                    updateLife("sb_green", NamedTextColor.GREEN, "green_life")
+
+                    // ===== バフ =====
+
+                    val buffs = listOf(
+                        "speed" to "§b速度§r",
+                        "attack" to "§4攻撃§r",
+                        "defense" to "§7防御§r",
+                        "heal" to "§c治癒§r",
+                        "CC_resist" to "§eCC§r",
+                        "add_buff_time" to "§fバフ時間§r",
+                        "add_debuff_time" to "§0デバフ時間§r",
+                        "cost_interval_buff" to "§6コスト§r"
+                    )
+
+                    val buffList = mutableListOf<String>()
+
+                    for ((objective, name) in buffs) {
+
+                        val obj = main.getObjective(objective) ?: continue
+                        val value = obj.getScore(player.name).score
+
+                        if (value >= 1) {
+                            buffList.add(name)
+                        }
+                    }
+
+                    board.getTeam("sb_buff")?.apply {
+
+                        if (buffList.isNotEmpty()) {
+                            prefix(Component.text("バフ: ", NamedTextColor.GREEN))
+                            suffix(Component.text(buffList.joinToString(" ")))
+                        } else {
+                            prefix(Component.empty())
+                            suffix(Component.empty())
+                        }
+                    }
+
+                    // ===== デバフ =====
+
+                    val debuffs = listOf(
+                        "speed_debuff" to "§b速度",
+                        "attack_debuff" to "§4攻撃",
+                        "defense_debuff" to "§7防御"
+                    )
+
+                    val debuffList = mutableListOf<String>()
+
+                    for ((objective, name) in debuffs) {
+
+                        val obj = main.getObjective(objective) ?: continue
+                        val value = obj.getScore(player.name).score
+
+                        if (value >= 1) {
+                            debuffList.add(name)
+                        }
+                    }
+
+                    board.getTeam("sb_debuff")?.apply {
+
+                        if (debuffList.isNotEmpty()) {
+                            prefix(Component.text("デバフ: ", NamedTextColor.RED))
+                            suffix(Component.text(debuffList.joinToString(" ")))
+                        } else {
+                            prefix(Component.empty())
+                            suffix(Component.empty())
+                        }
+                    }
+
+                    // ===== 人数 =====
+
+                    board.getTeam("sb_players")?.apply {
+                        prefix(Component.text("ログイン人数: "))
+                        suffix(Component.text(Bukkit.getOnlinePlayers().size, NamedTextColor.AQUA))
+                    }
+                }
+            }
+        }.runTaskTimer(plugin, 0L, 1L) // 1tick毎
+
+
+        //MHWeapon.
+        object : BukkitRunnable() {
+            override fun run() {
+                for (player in Bukkit.getOnlinePlayers()) {
+                    val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+                    val kit1Obj = scoreboard.getObjective("kit1") ?: return
+                    val kit1Score = kit1Obj.getScore(player.name)
+
+                    if (player.inventory.itemInMainHand.type == Material.IRON_SWORD &&
+                        kit1Score.score == 2
+                    ) {
+                        val item = player.inventory.itemInMainHand
+                        val meta = item.itemMeta as? Damageable ?: return
+
+                        val maxDurability = item.type.maxDurability
+                        val currentDamage = meta.damage
+                        val remaining = maxDurability - currentDamage
+
+                        if (remaining <= 3) {
+                            Bukkit.dispatchCommand(
+                                Bukkit.getConsoleSender(),
+                                "item replace entity ${player.name} weapon.mainhand with iron_sword[custom_name=\"§b§l脆い§f魔法剣§7(broken)\",minecraft:lore=[\"§r§7使い古され、壊れてしまった魔法剣\",\"§r§7直せばまだ使えるかもしれない\",\"§r§7☆スキルをつかってけんをなおしてあげよう！☆\"],minecraft:attribute_modifiers=[{type:\"attack_speed\",amount:-3,operation:\"add_value\",id:\"custom:fast_speed\"},{type:\"attack_damage\",amount:1,operation:\"add_value\",id:\"custom:keep_damage\"}],minecraft:item_model=mazikahorikku_sword]"
+                            )
+                            player.playSound(player.location, Sound.ENTITY_ITEM_BREAK, 1.0f, 1.0f)
+                        }
+                    }
+
+                }
+            }
+        }.runTaskTimer(plugin, 0L, 1L) // 1tick毎
+
+        //PS処理.
+        object : BukkitRunnable() {
+            override fun run() {
+                for (player in Bukkit.getOnlinePlayers()) {
+                    val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+                    val kit1Obj = scoreboard.getObjective("kit1") ?: return
+                    val kit1Score = kit1Obj.getScore(player.name)
+                    val kit2Obj = scoreboard.getObjective("kit2") ?: return
+                    val kit2Score = kit2Obj.getScore(player.name)
+                    val hpObj = scoreboard.getObjective("hp") ?: return
+                    val hpScore = hpObj.getScore(player.name)
+                    val hpBuffTimeObj = scoreboard.getObjective("timer_self_hp_buff_PS") ?: return
+                    val hpBuffTimeScore = hpBuffTimeObj.getScore(player.name)
+                    val hpBuffObj = scoreboard.getObjective("self_hp_buff_PS") ?: return
+                    val hpBuffScore = hpBuffObj.getScore(player.name)
+                    val healBuffTimeObj = scoreboard.getObjective("timer_self_heal_buff_PS") ?: return
+                    val healBuffTimeScore = healBuffTimeObj.getScore(player.name)
+                    val healBuffObj = scoreboard.getObjective("self_heal_buff_PS") ?: return
+                    val healBuffScore = healBuffObj.getScore(player.name)
+                    val defenseBuffTimeObj = scoreboard.getObjective("timer_self_defense_buff_PS") ?: return
+                    val defenseBuffTimeScore = defenseBuffTimeObj.getScore(player.name)
+                    val defenseBuffObj = scoreboard.getObjective("self_defense_buff_PS") ?: return
+                    val defenseBuffScore = defenseBuffObj.getScore(player.name)
+                    val ccResistBuffTimeObj = scoreboard.getObjective("timer_self_CC_resist_buff_PS") ?: return
+                    val ccResistTimeScore = ccResistBuffTimeObj.getScore(player.name)
+                    val ccResistBuffObj = scoreboard.getObjective("self_CC_resist_buff_PS") ?: return
+                    val ccResistBuffScore = ccResistBuffObj.getScore(player.name)
+                    //kit1.
+                    if(kit1Score.score == 1){
+                        hpBuffTimeScore.score = 2
+                        hpBuffScore.score = 5
+                    }
+                    if(kit1Score.score == 1){
+                        healBuffTimeScore.score = 2
+                        healBuffScore.score = 30
+                    }
+                    if(kit1Score.score == 2){
+                        defenseBuffTimeScore.score = 2
+                        defenseBuffScore.score = 50
+                    }
+                    if(kit1Score.score == 2 && hpScore.score <= 10){
+                        ccResistTimeScore.score = 2
+                        ccResistBuffScore.score = 10
+                    }
+
+                    //kit2.
+                    if(kit2Score.score == 1){
+                        defenseBuffTimeScore.score = 2
+                        defenseBuffScore.score = 5
+                    }
+                    if(kit2Score.score == 1){
+                        healBuffTimeScore.score = 2
+                        healBuffScore.score = 30
+                    }
+
+
+                }
+            }
+        }.runTaskTimer(plugin, 0L, 1L) // 1tick.
+
+
+        //SS処理.
         object : BukkitRunnable() {
             override fun run() {
                 for (player in Bukkit.getOnlinePlayers()) {
