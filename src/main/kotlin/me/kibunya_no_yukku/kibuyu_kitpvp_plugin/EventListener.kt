@@ -24,7 +24,6 @@ import org.bukkit.plugin.java.JavaPlugin
 import kotlin.math.roundToInt
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
-import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Sound
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.PlayerDeathEvent

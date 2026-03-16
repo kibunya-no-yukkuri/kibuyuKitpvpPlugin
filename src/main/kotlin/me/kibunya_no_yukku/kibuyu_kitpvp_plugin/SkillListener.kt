@@ -27,7 +27,6 @@ import org.bukkit.util.Vector
 import org.bukkit.FluidCollisionMode
 import org.bukkit.NamespacedKey
 import org.bukkit.SoundCategory
-import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.inventory.meta.Damageable
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
