@@ -1,14 +1,18 @@
 package me.kibunya_no_yukku.kibuyu_kitpvp_plugin
 
+import me.deecaad.weaponmechanics.WeaponMechanicsAPI
 import me.deecaad.weaponmechanics.utils.CustomTag
 import me.kibunya_no_yukku.kibuyu_kitpvp_plugin.Kibuyu_kitpvp_plugin.Companion.shieldMap
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.*
 import org.bukkit.entity.Player
+import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.Damageable
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.scheduler.BukkitRunnable
+import org.bukkit.scoreboard.Team
 import kotlin.math.cos
 import kotlin.math.roundToInt
 import kotlin.math.sin
@@ -92,6 +96,24 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                                     "item replace entity ${player.name} container.6 with gold_ingot[minecraft:item_model=heart_of_the_sea,custom_name=\"§l§b聖なる加護 C:30\",minecraft:lore=[\"§r§7自身に6のシールドを付与(20秒間)\",\"§r§7さらに弱体状態を1つ解除\"]]"
                                 )
                             }
+                            if (kit2Score == 2) {
+                                Bukkit.dispatchCommand(
+                                    Bukkit.getConsoleSender(),
+                                    "wm give ${player.name} sniper 1 slot:5"
+                                )
+                                Bukkit.dispatchCommand(
+                                    Bukkit.getConsoleSender(),
+                                    "item replace entity ${player.name} container.8 with emerald[minecraft:item_model=ender_eye,custom_name=\"§l§d究極の一 ULT100\",minecraft:lore=[\"§r§7威力の高いAX-50ULTIMATEを取り出す\",\"§r§7一発AX-50ULTIMATEを撃つとAX-50ULTIMATEをしまう\",\"§r§7消費ULTコスト100,CT50秒\"]]"
+                                )
+                                Bukkit.dispatchCommand(
+                                    Bukkit.getConsoleSender(),
+                                    "item replace entity ${player.name} container.7 with netherite_ingot[minecraft:item_model=crossbow,custom_name=\"§l§bフックショット C40\",minecraft:lore=[\"§r§7視点方向にフックショットを射出(35m)\",\"§r§7さらに「マーカー」を所持していた場合\",\"§r§7「マーカー」を一つ消費し\",\"§7使用時、半径10m以内の敵を一人発光させる\",\"§r§7消費コストcost40,CT1秒\"]]"
+                                )
+                                Bukkit.dispatchCommand(
+                                    Bukkit.getConsoleSender(),
+                                    "item replace entity ${player.name} container.6 with gold_ingot[minecraft:item_model=gray_dye,custom_name=\"§l§b深呼吸 C:30\",minecraft:lore=[\"§r§7自身の攻撃力を100%分加算(攻撃をするまで)(5秒間)\",\"§r§7消費コストcost30,CT20秒\"]]"
+                                )
+                            }
                         }
                     }
 
@@ -137,6 +159,9 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                             1 -> {
                                 kit201NS1(plugin, player)
                             }
+                            2 -> {
+                                kit202NS1(player)
+                            }
 
                         }
                     }
@@ -144,6 +169,9 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                         when (kit2Score.score) {
                             1 -> {
                                 kit201NS2(player)
+                            }
+                            2 -> {
+                                kit202NS2(player)
                             }
 
                         }
@@ -414,6 +442,60 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
             }
 
 
+            fun kit202NS1(player: Player){
+                val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+                val ns1Obj = scoreboard.getObjective("NS_timer1_2") ?: return
+                val ns1MaxObj = scoreboard.getObjective("NS_timer1_max2") ?: return
+                val ns1Score = ns1Obj.getScore(player.name)
+                val ns1MaxScore = ns1MaxObj.getScore(player.name)
+                val defenseBuffTimeObj = scoreboard.getObjective("timer_self_defense_buff_NS") ?: return
+                val defenseBuffTimeScore = defenseBuffTimeObj.getScore(player.name)
+                val defenseBuffObj = scoreboard.getObjective("self_defense_buff_NS") ?: return
+                val defenseBuffScore = defenseBuffObj.getScore(player.name)
+                ns1Score.score = ns1MaxScore.score
+
+                val item = ItemStack(Material.REDSTONE_TORCH)
+                val meta = item.itemMeta!!
+
+                meta.displayName(Component.text("マーカー").color(NamedTextColor.RED).decoration(TextDecoration.ITALIC, false))
+                item.itemMeta = meta
+
+                player.inventory.addItem(item)
+                player.sendMessage("§eNS発動！マーカーを1つ獲得")
+                //ここから防御バフ.
+                defenseBuffTimeScore.score = 800
+                defenseBuffScore.score = 10
+
+            }
+
+            fun kit202NS2(player: Player){
+                val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+                val ns2Obj = scoreboard.getObjective("NS_timer2_2") ?: return
+                val ns2MaxObj = scoreboard.getObjective("NS_timer2_max2") ?: return
+                val ns2Score = ns2Obj.getScore(player.name)
+                val ns2MaxScore = ns2MaxObj.getScore(player.name)
+                val attackBuffTimeObj = scoreboard.getObjective("timer_self_attack_buff_NS") ?: return
+                val attackBuffTimeScore = attackBuffTimeObj.getScore(player.name)
+                val attackBuffObj = scoreboard.getObjective("self_attack_buff_NS") ?: return
+                val attackBuffScore = attackBuffObj.getScore(player.name)
+                val myTeam = scoreboard.getEntryTeam(player.name)
+                ns2Score.score = ns2MaxScore.score
+
+                for (target in player.world.getNearbyEntities(player.location, 10.0, 10.0, 10.0)) {
+                    if (target is Player && target != player) {
+                        val targetTeam = scoreboard.getEntryTeam(target.name)
+
+                        // 敵が1人でもいたら発動不可
+                        if (myTeam == null || targetTeam == null || myTeam != targetTeam) {
+                            player.sendMessage("§cNS不発")
+                            return
+                        }
+                    }
+                }
+                attackBuffTimeScore.score = 800
+                attackBuffScore.score = 10
+                player.sendMessage("§eNS発動！攻撃力を10%加算")
+            }
 
 
 
@@ -646,15 +728,27 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
         //サイドバー.
         object : BukkitRunnable() {
             override fun run() {
-                for (player in Bukkit.getOnlinePlayers()) {
-                    val board = player.scoreboard
-                    val manager = Bukkit.getScoreboardManager()
-                    val main = manager.mainScoreboard
 
+                val manager = Bukkit.getScoreboardManager()
+                val main = manager.mainScoreboard
+
+                for (player in Bukkit.getOnlinePlayers()) {
+
+                    val board = player.scoreboard
+
+                    // ===== チーム同期＋ネームタグ制御 =====
                     for (team in main.teams) {
 
-                        val playerTeam = board.getTeam(team.name) ?: board.registerNewTeam(team.name)
+                        val playerTeam = board.getTeam(team.name)
+                            ?: board.registerNewTeam(team.name)
 
+                        // ★ ネームタグ：同チームのみ表示
+                        playerTeam.setOption(
+                            Team.Option.NAME_TAG_VISIBILITY,
+                            Team.OptionStatus.FOR_OTHER_TEAMS
+                        )
+
+                        // エントリーコピー
                         for (entry in team.entries) {
                             if (!playerTeam.entries.contains(entry)) {
                                 playerTeam.addEntry(entry)
@@ -662,15 +756,16 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                         }
                     }
 
-                    // ===== マップ =====
+                    // ★ 念のため（未設定なら）
+                    player.scoreboard = board
 
+                    // ===== マップ =====
                     board.getTeam("sb_map")?.apply {
                         prefix(Component.text("マップ: ", NamedTextColor.AQUA))
                         suffix(Component.text("異界ノ書物庫"))
                     }
 
                     // ===== チームライフ =====
-
                     val life = main.getObjective("life")
 
                     fun updateLife(team: String, color: NamedTextColor, entry: String) {
@@ -679,12 +774,15 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
 
                         board.getTeam(team)?.apply {
                             if (value > 0) {
-                                when(entry){
-                                    "red_life" -> prefix(Component.text("赤チーム残りライフ: ", color))
-                                    "blue_life" -> prefix(Component.text("青チーム残りライフ: ", color))
-                                    "yellow_life" -> prefix(Component.text("黄チーム残りライフ: ", color))
-                                    "green_life" -> prefix(Component.text("緑チーム残りライフ: ", color))
-                                }
+                                prefix(
+                                    when (entry) {
+                                        "red_life" -> Component.text("赤チーム残りライフ: ", color)
+                                        "blue_life" -> Component.text("青チーム残りライフ: ", color)
+                                        "yellow_life" -> Component.text("黄チーム残りライフ: ", color)
+                                        "green_life" -> Component.text("緑チーム残りライフ: ", color)
+                                        else -> Component.empty()
+                                    }
+                                )
                                 suffix(Component.text(value))
                             } else {
                                 prefix(Component.empty())
@@ -699,7 +797,6 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                     updateLife("sb_green", NamedTextColor.GREEN, "green_life")
 
                     // ===== バフ =====
-
                     val buffs = listOf(
                         "speed" to "§b速度§r",
                         "attack" to "§4攻撃§r",
@@ -714,7 +811,6 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                     val buffList = mutableListOf<String>()
 
                     for ((objective, name) in buffs) {
-
                         val obj = main.getObjective(objective) ?: continue
                         val value = obj.getScore(player.name).score
 
@@ -724,7 +820,6 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                     }
 
                     board.getTeam("sb_buff")?.apply {
-
                         if (buffList.isNotEmpty()) {
                             prefix(Component.text("バフ: ", NamedTextColor.GREEN))
                             suffix(Component.text(buffList.joinToString(" ")))
@@ -735,7 +830,6 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                     }
 
                     // ===== デバフ =====
-
                     val debuffs = listOf(
                         "speed_debuff" to "§b速度",
                         "attack_debuff" to "§4攻撃",
@@ -745,7 +839,6 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                     val debuffList = mutableListOf<String>()
 
                     for ((objective, name) in debuffs) {
-
                         val obj = main.getObjective(objective) ?: continue
                         val value = obj.getScore(player.name).score
 
@@ -755,7 +848,6 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                     }
 
                     board.getTeam("sb_debuff")?.apply {
-
                         if (debuffList.isNotEmpty()) {
                             prefix(Component.text("デバフ: ", NamedTextColor.RED))
                             suffix(Component.text(debuffList.joinToString(" ")))
@@ -766,14 +858,13 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                     }
 
                     // ===== 人数 =====
-
                     board.getTeam("sb_players")?.apply {
                         prefix(Component.text("ログイン人数: "))
                         suffix(Component.text(Bukkit.getOnlinePlayers().size, NamedTextColor.AQUA))
                     }
                 }
             }
-        }.runTaskTimer(plugin, 0L, 1L) // 1tick毎
+        }.runTaskTimer(plugin, 0L, 1L)
 
 
         //MHWeapon.
@@ -800,6 +891,32 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                                 "item replace entity ${player.name} weapon.mainhand with iron_sword[custom_name=\"§b§l脆い§f魔法剣§7(broken)\",minecraft:lore=[\"§r§7使い古され、壊れてしまった魔法剣\",\"§r§7直せばまだ使えるかもしれない\",\"§r§7☆スキルをつかってけんをなおしてあげよう！☆\"],minecraft:attribute_modifiers=[{type:\"attack_speed\",amount:-3,operation:\"add_value\",id:\"custom:fast_speed\"},{type:\"attack_damage\",amount:1,operation:\"add_value\",id:\"custom:keep_damage\"}],minecraft:item_model=mazikahorikku_sword]"
                             )
                             player.playSound(player.location, Sound.ENTITY_ITEM_BREAK, 1.0f, 1.0f)
+                        }
+                    }
+
+                }
+            }
+        }.runTaskTimer(plugin, 0L, 1L) // 1tick毎
+
+        //sniperUlt終了処理.
+        object : BukkitRunnable() {
+            override fun run() {
+                for (player in Bukkit.getOnlinePlayers()) {
+                    val item = player.inventory.itemInMainHand
+
+                    val ammoLeft = if (item.type != Material.AIR) {
+                        CustomTag.AMMO_LEFT.getInteger(item)
+                    } else 100000
+                    val meta = item.itemMeta ?: return
+                    val model = meta.itemModel ?: return
+                    val weapon = WeaponMechanicsAPI.generateWeapon("sniper")
+
+
+                    if (model == NamespacedKey.fromString("minecraft:ax50")) {
+                        if (player.inventory.itemInMainHand.type == Material.FEATHER) {
+                            if(ammoLeft == 0){
+                                player.inventory.setItem(0, weapon)
+                            }
                         }
                     }
 
@@ -834,6 +951,10 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                     val ccResistTimeScore = ccResistBuffTimeObj.getScore(player.name)
                     val ccResistBuffObj = scoreboard.getObjective("self_CC_resist_buff_PS") ?: return
                     val ccResistBuffScore = ccResistBuffObj.getScore(player.name)
+                    val attackBuffTimeObj = scoreboard.getObjective("timer_self_attack_buff_PS") ?: return
+                    val attackBuffTimeScore = attackBuffTimeObj.getScore(player.name)
+                    val attackBuffObj = scoreboard.getObjective("self_attack_buff_PS") ?: return
+                    val attackBuffScore = attackBuffObj.getScore(player.name)
                     //kit1.
                     if(kit1Score.score == 1){
                         hpBuffTimeScore.score = 2
@@ -860,6 +981,11 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                     if(kit2Score.score == 1){
                         healBuffTimeScore.score = 2
                         healBuffScore.score = 30
+                    }
+
+                    if(kit2Score.score == 2){
+                        attackBuffTimeScore.score = 2
+                        attackBuffScore.score = 5
                     }
 
 

@@ -1,6 +1,7 @@
 package me.kibunya_no_yukku.kibuyu_kitpvp_plugin
 
 
+import me.deecaad.weaponmechanics.WeaponMechanicsAPI
 import me.kibunya_no_yukku.kibuyu_kitpvp_plugin.Kibuyu_kitpvp_plugin.Companion.shieldMap
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
@@ -780,7 +781,11 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
                     } else player.sendMessage("§cコストが高すぎます！")
                 } else player.sendMessage("§cクールタイム中・・・")
 
-                2 -> kit2Skill2(player)
+                2 -> if (twoCtOneScore < 1) {
+                    if (costScore > costUse21Score - 1) {
+                        kit022Skill1(player)
+                    } else player.sendMessage("§cコストが高すぎます！")
+                } else player.sendMessage("§cクールタイム中・・・")
                 3 -> kit3Skill2(player)
                 else -> return
             }
@@ -833,6 +838,66 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         val item = player.inventory.itemInMainHand
         player.setCooldown(item.type, 20 * 10)
         return
+    }
+
+    fun kit022Skill1(player: Player) {
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+        val shootBuffAmountObj = scoreboard.getObjective("self_shoot_attack_buff_amount_EX") ?: return
+        val shootBuffAmountScore = shootBuffAmountObj.getScore(player.name)
+        val shootBuffCountObj = scoreboard.getObjective("self_shoot_attack_buff_count_EX") ?: return
+        val shootBuffCountScore = shootBuffCountObj.getScore(player.name)
+        val shootBuffTimerObj = scoreboard.getObjective("timer_self_shoot_attack_buff_EX") ?: return
+        val shootBuffTimerScore = shootBuffTimerObj.getScore(player.name)
+        val buffTimeObj = scoreboard.getObjective("add_buff_time") ?: return
+        val buffTimeScore = buffTimeObj.getScore(player.name)
+        val twoCtOneObj = scoreboard.getObjective("2_ct1") ?: return
+        val twoCtOneScore = twoCtOneObj.getScore(player.name)
+        val costObj = scoreboard.getObjective("cost") ?: return
+        val costScore = costObj.getScore(player.name)
+        val costUse21Obj = scoreboard.getObjective("cost_use2_1") ?: return
+        val costUse21Score = costUse21Obj.getScore(player.name)
+        val costDownAmountObj = scoreboard.getObjective("costDown_buff_amount") ?: return
+        val costDownAmountScore = costDownAmountObj.getScore(player.name)
+        val costDownObj = scoreboard.getObjective("costDown_buff") ?: return
+        val costDownScore = costDownObj.getScore(player.name)
+        //CT.
+        twoCtOneScore.score += 400
+        costScore.score -= costAmount(costUse21Score.score,costDownAmountScore.score)
+        if(costDownScore.score <= 0){
+            costDownScore.score = 0
+            costDownAmountScore.score = 0
+        }
+        val item = player.inventory.itemInMainHand
+        player.setCooldown(item.type, 20 * 20)
+
+
+        player.playSound(player.location, Sound.ENTITY_BLAZE_AMBIENT, 1.0f, 0.9f)
+
+        val dust = Particle.DustOptions(
+            Color.fromRGB(171, 171, 171),
+            1f // サイズ
+        )
+        player.world.spawnParticle(
+            Particle.DUST,
+            player.location.clone().add(0.0, 1.0, 0.0),
+            100,
+            1.0, 1.0, 1.0 ,
+            dust
+        )
+        player.world.spawnParticle(
+            Particle.END_ROD,
+            player.location.clone().add(0.0, 1.0, 0.0),
+            20,
+            1.0, 1.0, 1.0 ,
+            0.1
+        )
+
+        //攻撃力を100加算.
+        shootBuffAmountScore.score = 100
+        //1回まで.
+        shootBuffCountScore.score = 1
+        //5秒間の間.
+        shootBuffTimerScore.score = buffTimeAmount(100.0, buffTimeScore.score)
     }
 
 
@@ -890,8 +955,15 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
                 }
 
                 2 -> {
-                    player.sendMessage("§7[DEBUG] kit2 == 2 -> kit2Skill2")
-                    kit2Skill2(player)
+                    if (twoCtTwoScore < 1) {
+                        if (costScore >= costUse22Score) {
+                            kit022Skill2(player)
+                        } else {
+                            player.sendMessage("§cコストが高すぎます！(cost=$costScore, need=$costUse22Score)")
+                        }
+                    } else {
+                        player.sendMessage("§cクールタイム中・・・(ct=$twoCtTwoScore)")
+                    }
                 }
 
                 3 -> {
@@ -1035,7 +1107,174 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
     }
 
 
+    fun kit022Skill2(player: Player) {
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+        val twoCtTwoObj = scoreboard.getObjective("2_ct2") ?: return
+        val twoCtTwoScore = twoCtTwoObj.getScore(player.name)
+        val costObj = scoreboard.getObjective("cost") ?: return
+        val costScore = costObj.getScore(player.name)
+        val costUse22Obj = scoreboard.getObjective("cost_use2_2") ?: return
+        val costUse22Score = costUse22Obj.getScore(player.name)
+        val costDownAmountObj = scoreboard.getObjective("costDown_buff_amount") ?: return
+        val costDownAmountScore = costDownAmountObj.getScore(player.name)
+        val costDownObj = scoreboard.getObjective("costDown_buff") ?: return
+        val costDownScore = costDownObj.getScore(player.name)
+        val myTeam = scoreboard.getEntryTeam(player.name)
+        //CT.
+        twoCtTwoScore.score += 20
+        costScore.score -= costAmount(costUse22Score.score,costDownAmountScore.score)
+        if(costDownScore.score <= 0){
+            costDownScore.score = 0
+            costDownAmountScore.score = 0
+        }
+        val item = player.inventory.itemInMainHand
+        player.setCooldown(item.type, 20 * 1)
 
+        //マーカーカウント.
+        var count = 0
+
+        val targetMaterial = Material.REDSTONE_TORCH // 判定したいアイテム
+
+        for (item in player.inventory.contents) {
+            if (item != null && item.type == targetMaterial) {
+                count += item.amount
+            }
+        }
+
+        //敵発光.
+        if(count >= 1) {
+            var nearest: Player? = null
+            var nearestDistance = Double.MAX_VALUE
+
+            for (target in player.world.players) {
+
+                if (target == player) continue
+
+                val distance = target.location.distance(player.location)
+                if (distance > 10) continue
+
+                val targetTeam = scoreboard.getEntryTeam(target.name)
+
+                // 同じチームならスキップ.
+                if (myTeam != null && myTeam == targetTeam) continue
+
+                // 一番近いプレイヤーを更新.
+                if (distance < nearestDistance) {
+                    nearestDistance = distance
+                    nearest = target
+                }
+            }
+
+            // 見つかった場合のみ発光.
+            if(nearest != null){
+                for (i in player.inventory.contents.indices) {
+                    val item = player.inventory.getItem(i) ?: continue
+
+                    if (item.type == targetMaterial) {
+                        if (item.amount > 1) {
+                            item.amount -= 1
+                        } else {
+                            player.inventory.setItem(i, null)
+                        }
+                    }
+                }
+            }
+            nearest?.addPotionEffect(
+                PotionEffect(
+                    PotionEffectType.GLOWING,
+                    20 * 5,
+                    0,
+                    false,
+                    false
+                )
+            )
+        }
+
+        //グラップル.
+        val world = player.world
+        val eye = player.eyeLocation
+        val direction = eye.direction.normalize()
+
+        val maxDistance = 35.0
+
+        val result = world.rayTrace(
+            eye,
+            direction,
+            maxDistance,
+            FluidCollisionMode.NEVER,
+            true,   // passableブロック無視（草とか）
+            0.5     // エンティティの当たり判定の太さ
+        ) { entity ->
+            entity != player // 自分は除外
+        }
+
+        val hit = result?.hitEntity != null || result?.hitBlock != null
+
+        val hitLocation = when {
+            result?.hitEntity != null -> result.hitEntity!!.location
+            result?.hitBlock != null -> result.hitPosition.toLocation(world)
+            else -> eye.clone().add(direction.clone().multiply(maxDistance))
+        }
+
+        val safeLocation = hitLocation.clone().subtract(direction.clone().multiply(0.1))
+
+        // 距離を計算
+        val distance = eye.distance(safeLocation)
+
+        player.playSound(player.location, Sound.BLOCK_DISPENSER_LAUNCH, 1.0f, 1.2f)
+        player.playSound(player.location, Sound.ITEM_CROSSBOW_QUICK_CHARGE_1, 1.0f, 1.0f)
+
+        object : BukkitRunnable() {
+            var currentDistance = 0.0
+            val step = 0.5
+            override fun run() {
+                repeat(6) {
+                    if (currentDistance >= distance) {
+                        if (hit) {
+                            val power = getPower(distance)
+                            val velocity = direction.clone().multiply(power)
+                            velocity.y += 0.4
+                            player.velocity = velocity
+
+                            player.playSound(player.location, Sound.ITEM_FIRECHARGE_USE, 1.0f, 1.5f)
+
+                            result.let {
+                                if (it.hitEntity is Player) {
+                                    val target = result.hitEntity as Player
+                                    val targetTeam = scoreboard.getEntryTeam(target.name)
+                                    if (myTeam != null && myTeam != targetTeam) {
+                                        target.damage(6.0, player)
+                                    }
+                                }
+                            }
+                        }
+                        cancel()
+                        return
+                    }
+
+                    val point = eye.clone().add(direction.clone().multiply(currentDistance))
+
+                    world.spawnParticle(
+                        Particle.END_ROD,
+                        point,
+                        1,
+                        0.0, 0.0, 0.0,
+                        0.01
+                    )
+
+                    currentDistance += step
+                }
+            }
+        }.runTaskTimer(plugin, 0L, 1L) // 1tickごと（0.05秒）
+    }
+
+fun getPower(distance: Double): Double {
+    val minPower = 0.5
+    val maxPower = 4.0
+    val maxDistance = 35.0
+
+    return (distance / maxDistance) * (maxPower - minPower) + minPower
+}
 
     //視点の先にいる味方をtargetとして取得
     private fun getTargetTeammate(player: Player, range: Double): Player? {
@@ -1350,8 +1589,8 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         player.setCooldown(item.type, 20 * 2)
 
         //エフェクト.
-        player.playSound(player.location, Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.BLOCKS, 1.0f, 1f,)
-        player.playSound(player.location, Sound.ENTITY_ALLAY_DEATH, 1.0f, 1.5f,)
+        player.playSound(player.location, Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.BLOCKS, 50.0f, 1f,)
+        player.playSound(player.location, Sound.ENTITY_ALLAY_DEATH, 50.0f, 1.5f,)
 
         object : BukkitRunnable() {
             var count = 0
@@ -1527,7 +1766,7 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         //音
         Bukkit.dispatchCommand(
             player,
-            "playsound minecraft:tomodati_one_step master @a ~ ~ ~"
+            "playsound minecraft:tomodati_one_step master @a ~ ~ ~ 5 1"
         )
 
 
@@ -1571,7 +1810,33 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
     }
 
     fun kit202Ult(player: Player) {
-        player.sendMessage("§eウルト発動！")
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+        val ultCt2Obj = scoreboard.getObjective("ult_ct2") ?: return
+        val ultCt2Score = ultCt2Obj.getScore(player.name)
+        //CT&cost処理.
+        ultCt2Score.score += 1000
+        //CT可視化
+        val item = player.inventory.itemInMainHand
+        player.setCooldown(item.type, 20 * 50)
+
+        player.playSound(player.location, Sound.ITEM_TRIDENT_THUNDER, 10.0f, 1f)
+        player.addPotionEffect(PotionEffect(PotionEffectType.SLOWNESS, 20, 4, false, true, true))
+
+        Bukkit.getScheduler().runTaskLater(plugin, Runnable {
+        //ホットバーのどこに剣があるか判定後その場所にアイテムをリプレイス.
+        for (slot in 0..8) {
+            val item = player.inventory.getItem(slot) ?: continue
+            val weaponTitle = WeaponMechanicsAPI.getWeaponTitle(item)
+            if (weaponTitle == "sniper") {
+
+                Bukkit.dispatchCommand(
+                    Bukkit.getConsoleSender(),
+                    "wm give ${player.name} sniper_ult 1 slot:${slot}"
+                )
+
+            }
+        }
+    }, 20L)
     }
 
     fun kit203Ult(player: Player) {
@@ -1593,14 +1858,14 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
                 name = "セリナ"}
                 2 -> {ult = "変身！"
                     name = "マジカホリック"}
-            }
-
-            2 -> when (kit){
-                1 -> when (kit){
-                    1 -> {ult = "お祈りの時間"
-                        name = "マリー"}
                 }
-            }
+
+            2 -> when (kit) {
+                1 -> { ult = "お祈りの時間"
+                    name = "マリー" }
+                2 -> {ult = "究極の一"
+                    name = "スナイパー"}
+                }
             }
 
 

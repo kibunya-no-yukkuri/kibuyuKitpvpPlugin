@@ -72,7 +72,7 @@ object KitMenu {
         // スロット18番目 矢
         val arrow = ItemStack(Material.ARROW, 1)
         val arrowMeta = arrow.itemMeta
-        barrierMeta.displayName(Component.text("メインメニューに戻る").color(NamedTextColor.WHITE).decoration(TextDecoration.ITALIC, false))
+        arrowMeta.displayName(Component.text("メインメニューに戻る").color(NamedTextColor.WHITE).decoration(TextDecoration.ITALIC, false))
         arrow.itemMeta = arrowMeta
         inventory.setItem(18, arrow)
 

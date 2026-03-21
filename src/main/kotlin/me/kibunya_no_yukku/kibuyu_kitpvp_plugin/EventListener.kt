@@ -1,6 +1,7 @@
 package me.kibunya_no_yukku.kibuyu_kitpvp_plugin
 
 
+import me.deecaad.weaponmechanics.WeaponMechanicsAPI
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponReloadEvent
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponShootEvent
 import me.kibunya_no_yukku.kibuyu_kitpvp_gui.*
@@ -42,7 +43,7 @@ class EventListener(private val plugin: JavaPlugin): Listener {
         //listOf("§bパッシブスキル1", "§7","§bパッシブスキル2", "§7"),
         //listOf("§bサブスキル1", "§7","§bサブスキル2", "§7")
         Material.CAKE to listOf(
-            listOf("§7ヒール、バフを両方持っているバランスの良いサポーター", "§7生存能力も高くサポーターとして完成している", "§7ブルーアーカイブより"),
+            listOf("§7ヒール、バフを両方持っているバランスの良いサポーター", "§7生存能力も高くサポーターとして完成している"),
             listOf("§bEXスキル1「集中治療セットA」", "§7右クリック時、半径5m以内の味方HPを6回復する", "§7左クリック時、自身のHPを4回復する", "§7両者共に消費コストcost30,CT15秒","§bEXスキル2「祝福の響き」","§7半径5m以内の味方の攻撃力を43%加算する(15秒間)","§7消費コストcost60,CT15秒"),
             listOf("§bノーマルスキル1「緊急治療セットB」", "§735秒毎に、HPの最も低い味方に対して2HP回復","§bノーマルスキル2「プレゼントボックスC」", "§7通常攻撃130回毎に、自身の攻撃力を27%加算(10秒間)") ,
             listOf("§bパッシブスキル1「白衣の天使」", "§7自身の治癒力を30増加","§bパッシブスキル2「守護天使の意志」", "§7自身の最大HPを5増加"),
@@ -50,7 +51,7 @@ class EventListener(private val plugin: JavaPlugin): Listener {
             listOf("§dアルティメット「神出鬼没」", "§7右クリック時、半径100m以内の一番近い味方にテレポートする","§7左クリック時、視点の30m先にテレポートする", "§7消費ULTコストult50,CT25秒")
         ),
         Material.SUNFLOWER to listOf(
-            listOf("§7圧倒的な回復力を持つヒーラー", "§7弱体状態の解除、スキルコスト減少、防御デバフとやれることは意外と多い", "§7ブルーアーカイブより"),
+            listOf("§7圧倒的な回復力を持つヒーラー", "§7弱体状態の解除、スキルコスト減少、防御デバフとやれることは意外と多い"),
             listOf("§bEXスキル1「聖なる加護」", "§7自身に6のシールドを付与(20秒間)","§7さらに弱体状態を1つ解除", "§7消費コストcost30,CT15秒","§bEXスキル2「溢れるハート」","§7視点の先の味方に対して10HP回復し自身に対して5HP回復","§7HPを超えた100%分オーバーHPを付与","§7さらに「ファンサービス」を1個獲得","§7消費コストcost20,CT5秒"),
             listOf("§bノーマルスキル1「浄化の洗礼」", "§725秒毎に、最も近い敵を中心とした円形範囲に5ダメージ","§7さらに防御力を24%減少","§bノーマルスキル2「慈愛の投げキッス」","§730秒毎に最もHPの低い味方一人に対して3HPの回復","§7さらに自身に対して2HPの回復") ,
             listOf("§bパッシブスキル1「応援の心構え」", "§7自身の防御力を5増加","§bパッシブスキル2「たゆまぬ努力」", "§7自身の治癒力を30増加"),
@@ -66,7 +67,18 @@ class EventListener(private val plugin: JavaPlugin): Listener {
             listOf("§bパッシブスキル1「フル装備を着て」", "§7自身の防御力を50増加","§bパッシブスキル2「未回復でも笑顔を魅せて」", "§7自身HPが10未満の時、CC抵抗値を5加算"),
             listOf("§bサブスキル1「うつくしく倒してあげるから」", "§7敵を倒した時、ULTを40加算","§bサブスキル2「魔法中毒」", "§7EXスキル、アルティメット共に効果時間終了後","§7バフと同種のデバフを自身に付与"),
             listOf("§dアルティメット「変身！」", "§7自身の攻撃力を75%、移動速度を100%、防御力を100加算(15秒間)","§7さらに発動時、コストを10得る", "§7消費ULTコストult75,CT2秒")
+        ),
+        Material.SPYGLASS to listOf(
+            listOf("§7「撃って移動」を繰り返す。", "§7ただそれだけ"),
+            listOf("§b武器「§6AX-50§b」", "§6➣§7 10 §6⟸ §7ダメージ","§6➣§7 5 §6⟸ §7マガジン容量", "§6➣§7 2.25 §6⟸ §7拡散","§6➣§7 250 §6⟸ §7弾速","§6➣§7 -0.001 §6⟸ §7移動速度ボーナス"),
+            listOf("§bEXスキル1「深呼吸」", "§7自身の攻撃力を100%分加算(攻撃をするまで)(5秒間)", "§7消費コストcost30,CT20秒","§bEXスキル2「フックショット」","§7視点方向にフックショットを射出(35m)","§7さらに「マーカー」を所持していた場合","§7「マーカー」を一つ消費し","§7使用時、半径10m以内の敵を一人発光させる","§7消費コストcost40,CT1秒"),
+            listOf("§bノーマルスキル1「物資補給」", "§750秒毎に自身の防御力を10加算(40秒)","§7また「マーカー」を1つ付与","§bノーマルスキル2「戦地適正」","§760秒毎に攻撃を10%加算(半径15m以内に敵がいない場合)(40秒間)") ,
+            listOf("§bパッシブスキル1「急所」", "§7自身の攻撃力を5%加算","§bパッシブスキル2「???」", "§7思いつかない:maow:"),
+            listOf("§bサブスキル1「衝撃吸収ブーツ」", "§7落下ダメージを無効化","§bサブスキル2「ポジション変更」", "§7AX-50の攻撃を命中させた際、自身の移動速度を50%加算"),
+            listOf("§dアルティメット「究極の一」", "§7威力の高いAX-50ULTIMATEを取り出す","§7一発AX-50ULTIMATEを撃つとAX-50ULTIMATEをしまう", "§7消費ULTコストult100,CT50秒")
         )
+
+
     )
 
     private val loreKey = NamespacedKey(plugin, "lore_index")
@@ -148,6 +160,7 @@ class EventListener(private val plugin: JavaPlugin): Listener {
     }
 
 
+    //攻撃力バフデバフ計算プレイヤーを関数に送ってからスコア取得したほうが楽じゃね.
     fun attackAmount(attackAmount: Double, attackScore: Int, attackDebuffScore: Int): Double {
         val newAttackDebuff = if (attackDebuffScore > 0) {
             attackDebuffScore / (attackDebuffScore + 100.0)
@@ -186,10 +199,25 @@ class EventListener(private val plugin: JavaPlugin): Listener {
         val attackScore = scoreboard.getObjective("attack")?.getScore(attacker.name)?.score ?: 0
         val attackDebuffScore = scoreboard.getObjective("attack_debuff")?.getScore(attacker.name)?.score ?: 0
 
-
         val finalDamage = attackAmount(event.damage,attackScore,attackDebuffScore)
 
         event.damage = finalDamage
+
+        //攻撃時攻撃力バフの残り回数を減少.
+        val shootAttackBuffCountObj = scoreboard.getObjective("self_shoot_attack_buff_count_EX")
+        val shootAttackBuffCountScore = shootAttackBuffCountObj?.getScore(attacker.name)
+        val shootAttackBuffTimerObj = scoreboard.getObjective("timer_self_shoot_attack_buff_EX")
+        val shootAttackBuffTimerScore = shootAttackBuffTimerObj?.getScore(attacker.name)
+
+        shootAttackBuffTimerScore?.let {
+            if (shootAttackBuffTimerScore.score >= 1) {
+                shootAttackBuffCountScore?.let {
+                    if (shootAttackBuffCountScore.score >= 1) {
+                        shootAttackBuffCountScore.score -= 1
+                    }
+                }
+            }
+        }
     }
 
 
@@ -417,6 +445,59 @@ class EventListener(private val plugin: JavaPlugin): Listener {
             ultScore.score += 40
             killer.sendMessage("§a${victim.name} を倒しました！")
         }
+    }
+
+    @EventHandler
+    fun kit202ult(event: WeaponShootEvent) {
+        val player = event.entity as? Player ?: return
+
+        for (slot in 0..8) {
+            val item = player.inventory.getItem(slot) ?: continue
+            val weaponTitle = WeaponMechanicsAPI.getWeaponTitle(item)
+            if (weaponTitle == "sniper_ult") {
+
+                Bukkit.dispatchCommand(
+                    Bukkit.getConsoleSender(),
+                    "wm give ${player.name} sniper 1 slot:${slot}"
+                )
+
+            }
+        }
+    }
+
+    @EventHandler
+    fun kit202ss1(event: EntityDamageEvent) {
+        val player = event.entity as? Player ?: return
+        // 落下ダメージ以外は無視
+        if (event.cause != EntityDamageEvent.DamageCause.FALL) return
+
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+        val obj = scoreboard.getObjective("kit2") ?: return
+        val score = obj.getScore(player.name).score
+        if (score == 2) {
+            event.isCancelled = true
+        }
+
+        }
+
+    @EventHandler
+    fun kit202ss2(event: EntityDamageByEntityEvent) {
+        val damager = event.damager as? Player ?: return
+        val item = damager.inventory.itemInMainHand
+        val weaponTitle = WeaponMechanicsAPI.getWeaponTitle(item)
+        if (weaponTitle == "sniper_ult" || weaponTitle == "sniper") {
+            val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+            val speedBuffTimeObj = scoreboard.getObjective("timer_self_speed_buff_SS") ?: return
+            val speedBuffTimeScore = speedBuffTimeObj.getScore(damager.name)
+            val speedBuffObj = scoreboard.getObjective("self_speed_buff_SS") ?: return
+            val speedBuffScore = speedBuffObj.getScore(damager.name)
+
+            speedBuffTimeScore.score = 20
+            speedBuffScore.score = 50
+        }
+
+
+
     }
 
 
@@ -861,16 +942,16 @@ class EventListener(private val plugin: JavaPlugin): Listener {
                             event.inventory.setItem(event.slot, clicked)
                         }
                     }
-                    11 -> { // kit2を2に()
+                    11 -> { // kit2を2に(スナイパー)
                         if(event.isLeftClick) {
                             ki2Score?.let { it.score = 2 }
-                            player.sendMessage("§bスペシャルキットを??に変更しました")
-                            ns1MaxScore2.score = 500
-                            ns2MaxScore2.score = 600
+                            player.sendMessage("§bスペシャルキットをスナイパーに変更しました")
+                            ns1MaxScore2.score = 1000
+                            ns2MaxScore2.score = 1200
                             costUse21Score.score = 30
-                            costUse22Score.score = 20
+                            costUse22Score.score = 40
                             costUse21AScore.score = 30
-                            costUse22AScore.score = 20
+                            costUse22AScore.score = 40
                             utUse2Score.score = 100
                             player.closeInventory()
                         }

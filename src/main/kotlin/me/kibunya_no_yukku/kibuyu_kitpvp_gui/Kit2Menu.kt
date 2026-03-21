@@ -18,9 +18,9 @@ object Kit2Menu {
         inventory.setItem(10, sunFlower)
 
         // スロット11番目
-        val barrier = ItemStack(Material.BARRIER, 1)
+        val barrier = ItemStack(Material.SPYGLASS, 1)
         val barrierMeta = barrier.itemMeta
-        barrierMeta?.setDisplayName("§b??")
+        barrierMeta?.setDisplayName("§8スナイパー")
         barrierMeta?.lore = listOf("§7右クリックで詳細を確認")
         barrier.itemMeta = barrierMeta
         inventory.setItem(11, barrier)
