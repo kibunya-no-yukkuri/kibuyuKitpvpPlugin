@@ -30,10 +30,11 @@ object KitMenu {
         inventory.setItem(11, barrier)
 
         // スロット12番目
-        val barrier2 = ItemStack(Material.BARRIER, 1)
+        val barrier2 = ItemStack(Material.SHIELD, 1)
         val barrierMeta2 = barrier2.itemMeta
-        barrierMeta.displayName(Component.text("?").color(NamedTextColor.AQUA).decoration(TextDecoration.ITALIC, false))
-        barrierMeta.lore(listOf(Component.text("右クリックで詳細を確認", NamedTextColor.GRAY)))
+        barrierMeta2.displayName(Component.text("ミネ").color(NamedTextColor.BLUE).decoration(TextDecoration.ITALIC, false))
+        barrierMeta2.lore(listOf(Component.text("右クリックで詳細を確認", NamedTextColor.GRAY)))
+        barrierMeta2.itemModel = NamespacedKey("minecraft", "mine_shield")
         barrier2.itemMeta = barrierMeta2
         inventory.setItem(12, barrier2)
 

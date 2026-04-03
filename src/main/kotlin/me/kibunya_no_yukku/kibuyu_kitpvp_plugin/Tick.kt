@@ -11,6 +11,8 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.Damageable
 import org.bukkit.plugin.java.JavaPlugin
+import org.bukkit.potion.PotionEffect
+import org.bukkit.potion.PotionEffectType
 import org.bukkit.scheduler.BukkitRunnable
 import org.bukkit.scoreboard.Team
 import kotlin.math.cos
@@ -78,6 +80,31 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                                     "item replace entity ${player.name} container.2 with copper_ingot[minecraft:item_model=chipped_anvil,custom_name=\"§l§b再生！脆い剣を壊しては治し C:35\",minecraft:lore=[\"§r§7自身の防御力を100加算(10秒間)\",\"§r§7さらに魔法剣の耐久値を回復\",\"§r§7消費コストcost35,CT15秒\"]]"
                                 )
                             }
+                            if (kit1Score == 3) {
+                                Bukkit.dispatchCommand(
+                                    Bukkit.getConsoleSender(),
+                                    "item replace entity ${player.name} container.0 with shield[minecraft:item_model=mine_shield,custom_name=\"§l§bライオットシールド\",minecraft:lore=[\"§r§7ミネの所持しているライオットシールド\"]]"
+                                )
+                                Bukkit.dispatchCommand(
+                                    Bukkit.getConsoleSender(),
+                                    "wm give ${player.name} kyugo_no_syomei 1 slot:4"
+                                )
+                                Bukkit.dispatchCommand(
+                                    Bukkit.getConsoleSender(),
+                                    "item replace entity ${player.name} container.1 with diamond[minecraft:item_model=netherite_ingot,custom_name=\"§l§d未完成 ULT:最後のその瞬間まで！ ULT:88\",minecraft:lore=[\"§r§7自身に耐性エフェクトレベル1～5を付与し続ける(10秒間)\",\"§r§7(レベルは自身の残りHPが少ないほど高くなります)\",\"§r§7消費ULTコスト88,CT44秒\"]]"
+                                )
+                                Bukkit.dispatchCommand(
+                                    Bukkit.getConsoleSender(),
+                                    "item replace entity ${player.name} container.3 with iron_ingot[minecraft:item_model=blaze_powder,custom_name=\"§l§b誇りと信念 C:40\",minecraft:lore=[\"§r§7前方方向に跳躍した後、自身を中心とした円形範囲内の敵に対して、4ダメージ\",\"§r§7消費コストcost40,CT15秒\"]]"
+                                )
+                                Bukkit.dispatchCommand(
+                                    Bukkit.getConsoleSender(),
+                                    "item replace entity ${player.name} container.2 with copper_ingot[minecraft:item_model=note_block,custom_name=\"§l§b:スーパーアイドルランディング C:40\",minecraft:lore=[\"§r§7自身の移動速度を50%加算(10秒間)\",\"§r§7「ペンライト」を5個獲得（「ペンライト」は最大30個まで重複）\",\"§r§7舞台装置を召喚する(10秒間)\",\"§r§7舞台装置を右クリックした味方に対して移動速度を50%加算(10秒間)\",\"§r§7消費コストcost40,CT15秒\"]]"
+                                )
+                            }
+
+                            //ここからkit2.
+
                             if (kit2Score == 1) {
                                 Bukkit.dispatchCommand(
                                     Bukkit.getConsoleSender(),
@@ -107,7 +134,7 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                                 )
                                 Bukkit.dispatchCommand(
                                     Bukkit.getConsoleSender(),
-                                    "item replace entity ${player.name} container.7 with netherite_ingot[minecraft:item_model=crossbow,custom_name=\"§l§bフックショット C40\",minecraft:lore=[\"§r§7視点方向にフックショットを射出(35m)\",\"§r§7さらに「マーカー」を所持していた場合\",\"§r§7「マーカー」を一つ消費し\",\"§7使用時、半径10m以内の敵を一人発光させる\",\"§r§7消費コストcost40,CT1秒\"]]"
+                                    "item replace entity ${player.name} container.7 with netherite_ingot[minecraft:item_model=crossbow,custom_name=\"§l§bフックショット C40\",minecraft:lore=[\"§r§7視点方向にフックショットを射出(35m)\",\"§r§7さらに「マーカー」を所持していた場合\",\"§r§7「マーカー」を一つ消費し\",\"§7使用時、半径10m以内の敵を一人発光させる\",\"§r§7消費コストcost40,CT15秒\"]]"
                                 )
                                 Bukkit.dispatchCommand(
                                     Bukkit.getConsoleSender(),
@@ -151,7 +178,9 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                                 kit101NS2(player)
                             }
                             //2 -> {kit102NS2(player)}
-
+                            3 -> {
+                                kit103NS2(player)
+                            }
                         }
                     }
                     if(ns3Score.score <= 0) {
@@ -495,6 +524,58 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                 attackBuffTimeScore.score = 800
                 attackBuffScore.score = 10
                 player.sendMessage("§eNS発動！攻撃力を10%加算")
+            }
+            fun kit103NS2(player: Player){
+                val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+                val mineObj = scoreboard.getObjective("mine_NS_count") ?: return
+                val ns2Obj = scoreboard.getObjective("NS_timer2") ?: return
+                val ns2MaxObj = scoreboard.getObjective("NS_timer2_max") ?: return
+                val ns2Score = ns2Obj.getScore(player.name)
+                val ns2MaxScore = ns2MaxObj.getScore(player.name)
+                val mineScore = mineObj.getScore(player.name)
+                ns2Score.score = ns2MaxScore.score
+
+                var count = 0
+                val targetMaterial = Material.BREEZE_ROD // 判定したいアイテム.
+
+                for (item in player.inventory.contents) {
+                    if (item != null && item.type == targetMaterial) {
+                        count += item.amount
+                    }
+                }
+                val item = ItemStack(Material.BREEZE_ROD)
+                val meta = item.itemMeta!!
+                meta.displayName(
+                    Component.text("ペンライト").color(NamedTextColor.BLUE).decoration(TextDecoration.ITALIC, false)
+                )
+                item.itemMeta = meta
+
+                if(count in 10..20) {
+                    repeat(10) {
+                        player.inventory.removeItem(item)
+                    }
+                    mineScore.score = 23
+                    player.sendMessage("§eNS発動！10")
+                    return
+                }
+                if(count in 20..30) {
+                    repeat(20) {
+                        player.inventory.removeItem(item)
+                    }
+                    mineScore.score = 27
+                    player.sendMessage("§eNS発動！20")
+                    return
+                }
+                if(count >= 30) {
+                    repeat(30) {
+                        player.inventory.removeItem(item)
+                    }
+                    mineScore.score = 32
+                    player.sendMessage("§eNS発動！30")
+                    return
+                }
+                mineScore.score = 20
+                player.sendMessage("§eNS発動！00")
             }
 
 
@@ -972,6 +1053,14 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                         ccResistTimeScore.score = 2
                         ccResistBuffScore.score = 10
                     }
+                    if(kit1Score.score == 3){
+                        defenseBuffTimeScore.score = 2
+                        defenseBuffScore.score = 10
+                    }
+                    if(kit1Score.score == 3){
+                        hpBuffTimeScore.score = 2
+                        hpBuffScore.score = 20
+                    }
 
                     //kit2.
                     if(kit2Score.score == 1){
@@ -1075,6 +1164,100 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
 
             }
         }.runTaskTimer(plugin, 0L, 1L) // 1tick毎.
+
+        //フォーカス.
+        object : BukkitRunnable() {
+            override fun run() {
+                val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+                val sneakFocusObj = scoreboard.getObjective("sneak_focus") ?: return
+                val costObj = scoreboard.getObjective("cost") ?: return
+                val sneakObj = scoreboard.getObjective("sneak") ?: return
+                val kit1Obj = scoreboard.getObjective("kit1") ?: return
+
+
+                for (player in Bukkit.getOnlinePlayers()) {
+
+                    val world = player.world
+                    val loc = player.location
+
+                    val sneakFocus = sneakFocusObj.getScore(player.name).score
+                    val cost = costObj.getScore(player.name).score
+                    val sneak = sneakObj.getScore(player.name).score
+
+                    if (sneakFocus in 35..59) {
+                        world.spawnParticle(
+                            Particle.END_ROD,
+                            loc,
+                            10,
+                            0.1, 0.1, 0.1,
+                            0.1
+                        )
+                    }
+
+                    if (sneakFocus >= 60) {
+
+                        world.spawnParticle(
+                            Particle.END_ROD,
+                            loc,
+                            100,
+                            0.3, 0.3, 0.3,
+                            0.5
+                        )
+
+                        // effect give
+                        player.addPotionEffect(PotionEffect(PotionEffectType.REGENERATION, 60, 2))
+                        player.addPotionEffect(PotionEffect(PotionEffectType.GLOWING, 40, 1, false, false))
+                        // cost減少
+                        costObj.getScore(player.name).score = cost - 25
+                        // sneak_focusリセット
+                        sneakFocusObj.getScore(player.name).score = 0
+
+                        for (player2 in Bukkit.getOnlinePlayers()) {
+                            val kit1Score = kit1Obj.getScore(player2.name)
+                            val targetTeam = scoreboard.getEntryTeam(player2.name)
+                            val myTeam = scoreboard.getEntryTeam(player2.name)
+                            if(kit1Score.score == 3){
+                                if(targetTeam == myTeam){
+                                    var count = 0
+
+                                    val targetMaterial = Material.BREEZE_ROD // 判定したいアイテム.
+
+                                    for (item in player2.inventory.contents) {
+                                        if (item != null && item.type == targetMaterial) {
+                                            count += item.amount
+                                        }
+                                    }
+                                    if(count <= 30) {
+                                        val item = ItemStack(Material.BREEZE_ROD)
+                                        val meta = item.itemMeta!!
+
+                                        meta.displayName(
+                                            Component.text("ペンライト").color(NamedTextColor.BLUE).decoration(TextDecoration.ITALIC, false)
+                                        )
+                                        meta.lore(listOf(Component.text("NS2で使用する", NamedTextColor.GRAY)))
+                                        item.itemMeta = meta
+                                        repeat(2) {
+                                            player2.inventory.addItem(item)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // cost足りない
+                    if (cost <= 24) {
+                        sneakFocusObj.getScore(player.name).score = 0
+                    }
+                    // sneakしてない
+                    if (sneak == 0) {
+                        sneakFocusObj.getScore(player.name).score = 0
+                    }
+                    // sneakリセット
+                    sneakObj.getScore(player.name).score = 0
+                }
+            }
+        }.runTaskTimer(plugin, 0L, 1L)
 
 
 

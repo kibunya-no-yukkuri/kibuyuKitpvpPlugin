@@ -43,7 +43,7 @@ class EventListener(private val plugin: JavaPlugin): Listener {
         //listOf("§bパッシブスキル1", "§7","§bパッシブスキル2", "§7"),
         //listOf("§bサブスキル1", "§7","§bサブスキル2", "§7")
         Material.CAKE to listOf(
-            listOf("§7ヒール、バフを両方持っているバランスの良いサポーター", "§7生存能力も高くサポーターとして完成している"),
+            listOf("§7ヒール、バフを両方持っているバランスの良いサポーター", "§7生存能力も高くサポーターとして完成している","§7右クリックでページをめくる"),
             listOf("§bEXスキル1「集中治療セットA」", "§7右クリック時、半径5m以内の味方HPを6回復する", "§7左クリック時、自身のHPを4回復する", "§7両者共に消費コストcost30,CT15秒","§bEXスキル2「祝福の響き」","§7半径5m以内の味方の攻撃力を43%加算する(15秒間)","§7消費コストcost60,CT15秒"),
             listOf("§bノーマルスキル1「緊急治療セットB」", "§735秒毎に、HPの最も低い味方に対して2HP回復","§bノーマルスキル2「プレゼントボックスC」", "§7通常攻撃130回毎に、自身の攻撃力を27%加算(10秒間)") ,
             listOf("§bパッシブスキル1「白衣の天使」", "§7自身の治癒力を30増加","§bパッシブスキル2「守護天使の意志」", "§7自身の最大HPを5増加"),
@@ -51,7 +51,7 @@ class EventListener(private val plugin: JavaPlugin): Listener {
             listOf("§dアルティメット「神出鬼没」", "§7右クリック時、半径100m以内の一番近い味方にテレポートする","§7左クリック時、視点の30m先にテレポートする", "§7消費ULTコストult50,CT25秒")
         ),
         Material.SUNFLOWER to listOf(
-            listOf("§7圧倒的な回復力を持つヒーラー", "§7弱体状態の解除、スキルコスト減少、防御デバフとやれることは意外と多い"),
+            listOf("§7圧倒的な回復力を持つヒーラー", "§7弱体状態の解除、スキルコスト減少、防御デバフとやれることは意外と多い","§7右クリックでページをめくる"),
             listOf("§bEXスキル1「聖なる加護」", "§7自身に6のシールドを付与(20秒間)","§7さらに弱体状態を1つ解除", "§7消費コストcost30,CT15秒","§bEXスキル2「溢れるハート」","§7視点の先の味方に対して10HP回復し自身に対して5HP回復","§7HPを超えた100%分オーバーHPを付与","§7さらに「ファンサービス」を1個獲得","§7消費コストcost20,CT5秒"),
             listOf("§bノーマルスキル1「浄化の洗礼」", "§725秒毎に、最も近い敵を中心とした円形範囲に5ダメージ","§7さらに防御力を24%減少","§bノーマルスキル2「慈愛の投げキッス」","§730秒毎に最もHPの低い味方一人に対して3HPの回復","§7さらに自身に対して2HPの回復") ,
             listOf("§bパッシブスキル1「応援の心構え」", "§7自身の防御力を5増加","§bパッシブスキル2「たゆまぬ努力」", "§7自身の治癒力を30増加"),
@@ -60,7 +60,7 @@ class EventListener(private val plugin: JavaPlugin): Listener {
         ),
         // 他のアイテムも追加可能
         Material.STICK to listOf(
-            listOf("§7ステータスの高さで敵を殴りまくるアタッカー", "§7スキルによるデバフをウルトで解除し、ウルトによるデバフをスキルで解除する", "§7そんなスキル回しが重要なkit"),
+            listOf("§7ステータスの高さで敵を殴りまくるアタッカー", "§7スキルによるデバフをウルトで解除し、ウルトによるデバフをスキルで解除する", "§7そんなスキル回しが重要なkit","§7右クリックでページをめくる"),
             listOf("§b武器「§b§l脆い§f魔法剣§b」", "§7攻撃力:2","§7攻撃速度+100", "§b武器スキル「マジカルプロテクト」","§7正面からの攻撃をガードする","§7主な銃撃は25%分のダメージが貫通する"),
             listOf("§bEXスキル1「レアアイテムを無数手にして」", "§7自身の攻撃力を50%、移動速度を75%加算(10秒間)", "§7消費コストcost45,CT15秒","§bEXスキル2「再生！脆い剣を壊しては直し」","§7自身の防御力を100加算(10秒間)","§7さらに魔法剣の耐久値を回復","§7消費コストcost35,CT15秒"),
             listOf("§bノーマルスキル1「手を伸ばしたらリフレイン」", "§7自身のEXスキルによるデバフをアルティメット発動時解除","§7またアルティメットによるデバフをスキル発動時解除する","§bノーマルスキル2「眩しい暗闇の中」","§7EXスキル2発動時、魔法剣の減った耐久値に応じてULTを加算(最大10)") ,
@@ -69,20 +69,36 @@ class EventListener(private val plugin: JavaPlugin): Listener {
             listOf("§dアルティメット「変身！」", "§7自身の攻撃力を75%、移動速度を100%、防御力を100加算(15秒間)","§7さらに発動時、コストを10得る", "§7消費ULTコストult75,CT2秒")
         ),
         Material.SPYGLASS to listOf(
-            listOf("§7「撃って移動」を繰り返す。", "§7ただそれだけ"),
+            listOf("§7「撃って移動」を繰り返す。", "§7ただそれだけ","§7右クリックでページをめくる"),
             listOf("§b武器「§6AX-50§b」", "§6➣§7 10 §6⟸ §7ダメージ","§6➣§7 5 §6⟸ §7マガジン容量", "§6➣§7 2.25 §6⟸ §7拡散","§6➣§7 250 §6⟸ §7弾速","§6➣§7 -0.001 §6⟸ §7移動速度ボーナス"),
-            listOf("§bEXスキル1「深呼吸」", "§7自身の攻撃力を100%分加算(攻撃をするまで)(5秒間)", "§7消費コストcost30,CT20秒","§bEXスキル2「フックショット」","§7視点方向にフックショットを射出(35m)","§7さらに「マーカー」を所持していた場合","§7「マーカー」を一つ消費し","§7使用時、半径10m以内の敵を一人発光させる","§7消費コストcost40,CT1秒"),
+            listOf("§bEXスキル1「深呼吸」", "§7自身の攻撃力を100%分加算(攻撃をするまで)(5秒間)", "§7消費コストcost30,CT20秒","§bEXスキル2「フックショット」","§7視点方向にフックショットを射出(35m)","§7さらに「マーカー」を所持していた場合","§7「マーカー」を一つ消費し","§7使用時、半径10m以内の敵を一人発光させる","§7消費コストcost40,CT15秒"),
             listOf("§bノーマルスキル1「物資補給」", "§750秒毎に自身の防御力を10加算(40秒)","§7また「マーカー」を1つ付与","§bノーマルスキル2「戦地適正」","§760秒毎に攻撃を10%加算(半径15m以内に敵がいない場合)(40秒間)") ,
             listOf("§bパッシブスキル1「急所」", "§7自身の攻撃力を5%加算","§bパッシブスキル2「???」", "§7思いつかない:maow:"),
             listOf("§bサブスキル1「衝撃吸収ブーツ」", "§7落下ダメージを無効化","§bサブスキル2「ポジション変更」", "§7AX-50の攻撃を命中させた際、自身の移動速度を50%加算"),
             listOf("§dアルティメット「究極の一」", "§7威力の高いAX-50ULTIMATEを取り出す","§7一発AX-50ULTIMATEを撃つとAX-50ULTIMATEをしまう", "§7消費ULTコストult100,CT50秒")
-        )
+        ),
+        Material.SHIELD to listOf(
+        listOf("§7maow", "§7maow","§7右クリックでページをめくる"),
+        listOf("§b武器「§d救護§fの§b証明」", "§6➣§7 0.75 §6⟸ §71ペレットあたりのダメージ", "§6➣§7 8 §6⟸ §71ペレット数","§6➣§7 5 §6⟸ §7装填弾数", "§6➣§7 6.75 §6⟸ §7拡散","§6➣§7 60 §6⟸ §7弾速","§6➣§7 -0.0005 §6⟸ §7移動速度ボーナス"),
+        listOf("§bEXスキル1「誇りと信念」", "§7前方に跳躍した後、自身を中心とした", "§7円形範囲内の敵に対して4ダメージ", "§7さらに、対象の移動速度25%と防御力30%を減少し", "§7消費コストcost40,CT1秒","§bEXスキル2「スーパーアイドルランディング」","§7「ペンライト」を5個獲得（「ペンライト」は最大30個まで重複）","§7さらに、舞台装置を召喚する(10秒間)","§7舞台装置を右クリックした味方に対して移動速度を50%加算(10秒間)","§7消費コストcost40,CT10秒"),
+        listOf("§bノーマルスキル1「峻厳な宣告」", "§7「救護の心構え」状態の解除後に発動","§7発動時、円形範囲内の敵に対して、最大HPの10%分のダメージ","§7さらに、移動速度25%と防御力30%を減少（10秒間）","§bノーマルスキル2「あなたに決めました」","§730秒毎に、自身が持つ「ペンライト」を10個単位で消耗し","§7次の攻撃時対象の攻撃力を減少（10秒間）","§70個:20%、10個:23%、20個:27%、30個:32%") ,
+        listOf("§bパッシブスキル1「騎士団の意志」", "§7自身の防御力を10加算","§bパッシブスキル2「長時間ライブ」", "§7最大HPを20加算"),
+        listOf("§bサブスキル1「不屈の勇気」", "§7Exスキルの発動と同時に、「救護の心構え」状態を付与","§7「救護の心構え」中、再生2を付与(5秒間)","§7すでに「救護の心構え」状態の場合、代わりに防御力30を加算(20秒間)","§bサブスキル2「ファンの声援」", "§7味方がフォーカスする毎に「ペンライト」を2個獲得（「ペンライト」は最大30個まで重複）"),
+        listOf("§dアルティメット「最後のその瞬間まで！」", "§7自身に耐性エフェクトレベル1～5を付与し続ける(10秒間)","§7(レベルは自身の残りHPが少ないほど高くなります)", "§7消費ULTコストult88,CT44秒")
+    )
 
 
     )
 
     private val loreKey = NamespacedKey(plugin, "lore_index")
 
+
+    fun buffTimeAmount( buffTimeAmount: Double, buffTimeScore: Int): Int {
+        val finalAmount = buffTimeAmount * (1 + (buffTimeScore / 100.0))
+
+        return finalAmount.roundToInt()
+
+    }
 
 
     @EventHandler
@@ -262,9 +278,9 @@ class EventListener(private val plugin: JavaPlugin): Listener {
 
         event.damage = newDamage
 
-        player.sendMessage(
-            "防御: $baseDefense デバフ: $debuffPercent% → 実効防御: $effectiveDefense → 軽減率: ${(reductionRate * 100).toInt()}% → 最終: $newDamage"
-        )
+        //player.sendMessage(
+        //    "防御: $baseDefense デバフ: $debuffPercent% → 実効防御: $effectiveDefense → 軽減率: ${(reductionRate * 100).toInt()}% → 最終: $newDamage"
+        //)
 
 
         val shieldObj = scoreboard.getObjective("shield")
@@ -476,8 +492,7 @@ class EventListener(private val plugin: JavaPlugin): Listener {
         val score = obj.getScore(player.name).score
         if (score == 2) {
             event.isCancelled = true
-        }
-
+            }
         }
 
     @EventHandler
@@ -495,9 +510,42 @@ class EventListener(private val plugin: JavaPlugin): Listener {
             speedBuffTimeScore.score = 20
             speedBuffScore.score = 50
         }
+    }
 
+    @EventHandler
+    fun kit103NS2(event: EntityDamageByEntityEvent) {
+        val damager = event.damager as? Player ?: return
+        val player = event.entity as? Player ?: return
 
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+        val kit1Obj = scoreboard.getObjective("kit1") ?: return
+        val kit1Score = kit1Obj.getScore(damager.name)
+        val countObj = scoreboard.getObjective("mine_NS_count") ?: return
+        val countScore = countObj.getScore(damager.name)
+        if(kit1Score.score == 3){
+            if(countScore.score >= 1) {
+                val debuffObj = scoreboard.getObjective("add_debuff_time") ?: return
+                val debuffScore = debuffObj.getScore(damager.name)
 
+                val attackObj = scoreboard.getObjective("other_attack_debuff_NS") ?: return
+                val attackScore = attackObj.getScore(player.name)
+                val attackTimeObj = scoreboard.getObjective("timer_other_attack_debuff_NS") ?: return
+                val attackTimeScore = attackTimeObj.getScore(player.name)
+
+                attackScore.score = countScore.score
+                attackTimeScore.score = buffTimeAmount(400.0, debuffScore.score)
+                countScore.score = 0
+            }
+        }
+    }
+
+    @EventHandler
+    fun kit103ULT(event: EntityDamageEvent) {
+        val player = event.entity as? Player ?: return
+
+        if (player.scoreboardTags.contains("mine_ult")){
+            player.playSound(player.location, Sound.BLOCK_HEAVY_CORE_BREAK, 5.0f, 1.0f)
+        }
     }
 
 
@@ -739,16 +787,16 @@ class EventListener(private val plugin: JavaPlugin): Listener {
                             event.inventory.setItem(event.slot, clicked)
                         }
                     }
-                    12 -> { // kit1を2に()
+                    12 -> { // kit1を3に(ミネ)
                         if (event.isLeftClick) {
                             ki1Score?.let { it.score = 3 }
-                            player.sendMessage("§bストライカーキットを???に変更しました")
-                            ns2MaxScore.score = 700
-                            costUse11Score.score = 60
-                            costUse12Score.score = 30
-                            costUse11AScore.score = 60
-                            costUse12AScore.score = 30
-                            utUse1Score.score = 50
+                            player.sendMessage("§bストライカーキットをミネに変更しました")
+                            ns2MaxScore.score = 600
+                            costUse11Score.score = 40
+                            costUse12Score.score = 40
+                            costUse11AScore.score = 40
+                            costUse12AScore.score = 40
+                            utUse1Score.score = 88
                             player.closeInventory()
                         }
                         if (event.isRightClick) {
