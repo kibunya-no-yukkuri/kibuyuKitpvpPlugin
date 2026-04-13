@@ -1,7 +1,11 @@
 package me.kibunya_no_yukku.kibuyu_kitpvp_gui
 
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.Bukkit
 import org.bukkit.Material
+import org.bukkit.NamespacedKey
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 
@@ -26,10 +30,11 @@ object Kit2Menu {
         inventory.setItem(11, barrier)
 
         // スロット12番目
-        val barrier2 = ItemStack(Material.BARRIER, 1)
+        val barrier2 = ItemStack(Material.WOODEN_SHOVEL, 1)
         val barrierMeta2 = barrier2.itemMeta
-        barrierMeta2?.setDisplayName("§b??")
-        barrierMeta2?.lore = listOf("§7右クリックで詳細を確認")
+        barrierMeta2.displayName(Component.text("ミスティ").color(NamedTextColor.LIGHT_PURPLE).decoration(TextDecoration.ITALIC, false))
+        barrierMeta2.lore(listOf(Component.text("右クリックで詳細を確認", NamedTextColor.GRAY)))
+        barrierMeta2.itemModel = NamespacedKey("minecraft", "misty_bloom")
         barrier2.itemMeta = barrierMeta2
         inventory.setItem(12, barrier2)
 
