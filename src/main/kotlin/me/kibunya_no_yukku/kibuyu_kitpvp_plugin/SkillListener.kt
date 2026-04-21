@@ -1487,8 +1487,11 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
                 }
 
                 3 -> {
-                    player.sendMessage("§7[DEBUG] kit2 == 3 -> kit3Skill2")
-                    kit3Skill2(player)
+                    if (twoCtTwoScore < 1) {
+                        if (costScore >= costUse22Score) {
+                            kit022Skill2(player)
+                        }
+                    }
                 }
 
                 else -> {
@@ -2464,7 +2467,7 @@ fun getPower(distance: Double): Double {
 
 val lastHitMap = mutableMapOf<UUID, UUID>()
 @EventHandler
-fun kit203EX2(e: EntityDamageByEntityEvent) {
+fun kit203EX1(e: EntityDamageByEntityEvent) {
 
     val damager = e.damager
     val victim = e.entity
