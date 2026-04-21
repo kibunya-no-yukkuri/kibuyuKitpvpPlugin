@@ -13,6 +13,7 @@ import org.bukkit.Material
 import org.bukkit.Particle
 import org.bukkit.Sound
 import org.bukkit.entity.Player
+import org.bukkit.entity.Vex
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
@@ -29,14 +30,20 @@ import org.bukkit.util.Vector
 import org.bukkit.FluidCollisionMode
 import org.bukkit.NamespacedKey
 import org.bukkit.SoundCategory
+import org.bukkit.attribute.Attribute
 import org.bukkit.entity.BlockDisplay
 import org.bukkit.entity.Interaction
 import org.bukkit.entity.LivingEntity
+import org.bukkit.entity.Mob
+import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.player.PlayerInteractAtEntityEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.Damageable
+import org.bukkit.persistence.PersistentDataType
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
+import org.bukkit.scoreboard.Team
+import kotlin.toString
 
 class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
 
@@ -1181,7 +1188,11 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
                         kit022Skill1(player)
                     } else player.sendMessage("§cコストが高すぎます！")
                 } else player.sendMessage("§cクールタイム中・・・")
-                3 -> kit3Skill2(player)
+                3 -> if (twoCtOneScore < 1) {
+                    if (costScore > costUse21Score - 1) {
+                        kit023Skill1(player)
+                    }
+                }
                 else -> return
             }
         }
@@ -1293,6 +1304,120 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
         shootBuffCountScore.score = 1
         //5秒間の間.
         shootBuffTimerScore.score = buffTimeAmount(100.0, buffTimeScore.score)
+    }
+
+    fun kit023Skill1(player: Player) {
+
+        val world = player.world
+        val loc = player.location
+
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+        val playerTeam: Team? = scoreboard.getEntryTeam(player.name)
+
+        val shield = scoreboard.getObjective("shield") ?: return
+        val shieldTime = scoreboard.getObjective("shield_time") ?: return
+        val shieldScore = shield.getScore(player.name)
+        val shieldTimeScore = shieldTime.getScore(player.name)
+
+        // ヴェックス生成関数
+        fun spawnVex(name: String): Vex {
+            val vex = world.spawn(loc, Vex::class.java)
+
+            // 名前設定
+            vex.customName(Component.text(name, NamedTextColor.LIGHT_PURPLE))
+            vex.isCustomNameVisible = true
+
+            // HP設定（最大10）
+            vex.getAttribute(Attribute.MAX_HEALTH)?.baseValue = 10.0
+            vex.health = 10.0
+
+            // ★召喚者UUIDを保存
+            val key = NamespacedKey(plugin, "vex_owner")
+
+            vex.persistentDataContainer.set(
+                key,
+                PersistentDataType.STRING,
+                player.uniqueId.toString()
+            )
+
+            // チーム追加（同じチームに所属させる）
+            playerTeam?.addEntry(vex.uniqueId.toString())
+
+            return vex
+        }
+
+        val vex1 = spawnVex("カボちゃん")
+        val vex2 = spawnVex("ランちゃん")
+
+        // 30秒後（20tick * 30 = 600tick）に削除
+        Bukkit.getScheduler().runTaskLater(plugin, Runnable {
+            if (!vex1.isDead) {
+                vex1.remove()
+                shieldScore.score = 5
+                shieldTimeScore.score = 200
+            }
+            if (!vex2.isDead) {
+                vex2.remove()
+                shieldScore.score = 5
+                shieldTimeScore.score = 200
+            }
+        }, 600L)
+
+        fun startVexAI(vex: Vex, player: Player) {
+
+            val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+            val playerTeam = scoreboard.getEntryTeam(player.name)
+
+            Bukkit.getScheduler().runTaskTimer(plugin, Runnable {
+
+                if (vex.isDead || !vex.isValid) return@Runnable
+
+                // ★ プレイヤーが殴った敵を最優先
+                val lastTargetUUID = lastHitMap[player.uniqueId]
+                if (lastTargetUUID != null) {
+                    val target = Bukkit.getEntity(lastTargetUUID)
+
+                    if (target is LivingEntity && target.isValid && !target.isDead) {
+                        vex.target = target
+                        return@Runnable
+                    }
+                }
+
+                val current = vex.target
+
+                // ターゲット維持
+                if (current != null && current.isValid && !current.isDead) return@Runnable
+
+                // ===== 通常ターゲット探索 =====
+                var nearestEnemy: Player? = null
+                var nearestDistance = Double.MAX_VALUE
+
+                for (p in vex.world.players) {
+
+                    if (p.uniqueId == player.uniqueId) continue
+
+                    val team = scoreboard.getEntryTeam(p.name)
+                    if (playerTeam != null && team == playerTeam) continue
+
+                    val dist = p.location.distance(vex.location)
+                    if (dist < 20 && dist < nearestDistance) {
+                        nearestDistance = dist
+                        nearestEnemy = p
+                    }
+                }
+
+                if (nearestEnemy != null) {
+                    vex.target = nearestEnemy
+                    return@Runnable
+                }
+
+                // ===== 追従 =====
+                if (vex.location.distance(player.location) > 5) {
+                    vex.target = player
+                }
+
+            }, 0L, 10L)
+        }
     }
 
 
@@ -2334,4 +2459,18 @@ fun getPower(distance: Double): Double {
             .append(Component.text("ULT≪${ult}≫", NamedTextColor.WHITE))
             .append(Component.text("by${name}", NamedTextColor.GRAY)))
     }
+}
+
+
+val lastHitMap = mutableMapOf<UUID, UUID>()
+@EventHandler
+fun kit203EX2(e: EntityDamageByEntityEvent) {
+
+    val damager = e.damager
+    val victim = e.entity
+
+    if (damager !is Player) return
+    if (victim !is LivingEntity) return
+
+    lastHitMap[damager.uniqueId] = victim.uniqueId
 }

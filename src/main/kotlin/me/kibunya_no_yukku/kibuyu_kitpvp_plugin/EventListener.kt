@@ -26,13 +26,17 @@ import kotlin.math.roundToInt
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Sound
+import org.bukkit.entity.LivingEntity
+import org.bukkit.entity.Vex
 import org.bukkit.event.entity.EntityDamageByEntityEvent
+import org.bukkit.event.entity.EntityDeathEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerCommandPreprocessEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.inventory.meta.Damageable
 import org.bukkit.scoreboard.Criteria
 import org.bukkit.scoreboard.DisplaySlot
+import java.util.UUID
 
 class EventListener(private val plugin: JavaPlugin): Listener {
 
@@ -555,6 +559,30 @@ class EventListener(private val plugin: JavaPlugin): Listener {
         if (player.scoreboardTags.contains("mine_ult")){
             player.playSound(player.location, Sound.BLOCK_HEAVY_CORE_BREAK, 5.0f, 1.0f)
         }
+    }
+
+    @EventHandler
+    fun kit203NS2(e: EntityDeathEvent) {
+        val vex = e.entity
+        if (vex !is Vex) return
+        //ケイちゃん.
+        val key = NamespacedKey(plugin, "vex_owner")
+        //オーナーはだれ？.
+        val ownerUUID = vex.persistentDataContainer.get(
+            key,
+            PersistentDataType.STRING
+        ) ?: return
+
+        val player = Bukkit.getPlayer(UUID.fromString(ownerUUID)) ?: return
+
+        // スコアボード取得
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+        val shield = scoreboard.getObjective("shield") ?: return
+        val shieldTime = scoreboard.getObjective("shield_time") ?: return
+        val shieldScore = shield.getScore(player.name)
+        val shieldTimeScore = shieldTime.getScore(player.name)
+        shieldScore.score = 5
+        shieldTimeScore.score = 200
     }
 
 
