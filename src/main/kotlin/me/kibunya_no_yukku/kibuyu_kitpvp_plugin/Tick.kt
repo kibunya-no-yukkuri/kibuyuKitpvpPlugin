@@ -91,7 +91,7 @@ class Tick(private val plugin: Kibuyu_kitpvp_plugin) {
                                 )
                                 Bukkit.dispatchCommand(
                                     Bukkit.getConsoleSender(),
-                                    "item replace entity ${player.name} container.1 with diamond[minecraft:item_model=netherite_ingot,custom_name=\"§l§d未完成 ULT:最後のその瞬間まで！ ULT:88\",minecraft:lore=[\"§r§7自身に耐性エフェクトレベル1～5を付与し続ける(10秒間)\",\"§r§7(レベルは自身の残りHPが少ないほど高くなります)\",\"§r§7消費ULTコスト88,CT44秒\"]]"
+                                    "item replace entity ${player.name} container.1 with diamond[minecraft:item_model=netherite_ingot,custom_name=\"§l§dULT:最後のその瞬間まで！ ULT:88\",minecraft:lore=[\"§r§7自身に耐性エフェクトレベル1～5を付与し続ける(10秒間)\",\"§r§7(レベルは自身の残りHPが少ないほど高くなります)\",\"§r§7消費ULTコスト88,CT44秒\"]]"
                                 )
                                 Bukkit.dispatchCommand(
                                     Bukkit.getConsoleSender(),

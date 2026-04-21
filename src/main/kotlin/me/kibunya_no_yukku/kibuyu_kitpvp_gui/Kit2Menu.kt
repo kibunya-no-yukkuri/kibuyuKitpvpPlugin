@@ -33,8 +33,8 @@ object Kit2Menu {
         val barrier2 = ItemStack(Material.WOODEN_SHOVEL, 1)
         val barrierMeta2 = barrier2.itemMeta
         barrierMeta2.displayName(Component.text("ミスティ").color(NamedTextColor.LIGHT_PURPLE).decoration(TextDecoration.ITALIC, false))
-        barrierMeta2.lore(listOf(Component.text("右クリックで詳細を確認", NamedTextColor.GRAY)))
-        barrierMeta2.itemModel = NamespacedKey("minecraft", "misty_bloom")
+        barrierMeta2.lore(listOf(Component.text("右クリックで詳細を確認", NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false)))
+        barrierMeta2.itemModel = NamespacedKey("minecraft", "misty_broom")
         barrier2.itemMeta = barrierMeta2
         inventory.setItem(12, barrier2)
 
