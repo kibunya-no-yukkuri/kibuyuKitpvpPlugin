@@ -1489,7 +1489,7 @@ class SkillListener(private val plugin: Kibuyu_kitpvp_plugin) : Listener {
                 3 -> {
                     if (twoCtTwoScore < 1) {
                         if (costScore >= costUse22Score) {
-                            kit022Skill2(player)
+                            kit023Skill2(player)
                         }
                     }
                 }
@@ -1798,6 +1798,61 @@ fun getPower(distance: Double): Double {
 
     return (distance / maxDistance) * (maxPower - minPower) + minPower
 }
+
+
+fun kit023Skill2(player: Player) {
+        val world = player.world
+        val eye = player.eyeLocation
+
+        val maxDistance = 25.0
+        val hits = mutableSetOf<LivingEntity>()
+
+        val yawSteps = 10   // 横の分割数（増やすほど精度UP）
+        val pitchSteps = 6  // 縦の分割数
+
+        val yawRange = 60.0    // 横の視野角
+        val pitchRange = 40.0  // 縦の視野角
+
+        for (i in -yawSteps..yawSteps) {
+            for (j in -pitchSteps..pitchSteps) {
+
+                val yawOffset = yawRange * i / yawSteps
+                val pitchOffset = pitchRange * j / pitchSteps
+
+                val direction = eye.direction.clone()
+
+                // 向きをずらす
+                direction.rotateAroundY(Math.toRadians(yawOffset))
+                direction.rotateAroundX(Math.toRadians(pitchOffset))
+
+                val result = world.rayTrace(
+                    eye,
+                    direction.normalize(),
+                    maxDistance,
+                    FluidCollisionMode.NEVER,
+                    true,
+                    0.7
+                ) { entity ->
+                    entity != player && entity is LivingEntity
+                }
+
+                val hit = result?.hitEntity as? LivingEntity
+                if (hit != null) {
+                    hits.add(hit)
+                }
+            }
+        }
+
+        // デバフ付与
+        for (entity in hits) {
+            entity.addPotionEffect(PotionEffect(PotionEffectType.SLOWNESS, 100, 1))
+            entity.addPotionEffect(PotionEffect(PotionEffectType.WEAKNESS, 100, 0))
+        }
+}
+
+
+
+
 
     //視点の先にいる味方をtargetとして取得
     private fun getTargetTeammate(player: Player, range: Double): Player? {
